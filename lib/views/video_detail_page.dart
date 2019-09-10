@@ -559,7 +559,10 @@ class VideoDetailContent extends StatelessWidget {
                    }
                  }
                  else{
-                   if(videoinfo['videotype']=='mp4'){
+                   if(videoinfo['videotype']=='web'){
+                     Application.run(context, "/web",url: item['video_url'],title: item['video_name'],withToken: false);
+
+                   }else if(videoinfo['videotype']=='mp4'){
                      Navigator.push(
                        context,
                        MaterialPageRoute(
@@ -567,7 +570,7 @@ class VideoDetailContent extends StatelessWidget {
                        ),
                      );
                    }else{
-                       await DataUtils.getmp3txt(item['video_id']).then((txlist) {
+                       await DataUtils.getmp3txt(item['video_id'],context: context).then((txlist) {
                          PlayerTools.instance.setSong(Song(vdlist:retvdlistinfo,
                              url: item['video_url'], video: item, info: videoinfo,txtlist: txlist,preid: index>0 ? retvdlistinfo[index-1]['video_id']:0,nextid:index<retvdlistinfo.length? retvdlistinfo[index+1]['video_id']:0));
 Navigator.of(context).pop();

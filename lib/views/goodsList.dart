@@ -37,13 +37,7 @@ class GoodsListWidget extends StatelessWidget {
                   child:
                   InkWell(
                     onTap: (){
-              /*        Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => VideoDetailPage(item['goods_id'],type: item['videotype']??"mp4",vdurl: item['vdurl']??"",),
-                        ),
-                      );*/
-                      Application.goodsDetail(context, item['goods_id'],vdtype: item['videotype'],item: item);
+                       Application.goodsDetail(context, item['goods_id'],vdtype: item['videotype'],item: item);
                       },
                     child: Row(
                       children: <Widget>[

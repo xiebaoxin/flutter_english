@@ -80,7 +80,7 @@ class MusicListState extends State<MusicListPage> {
               widget.curSong.info['goods_id'], videoid: index,
               vd_level: widget.curSong.info['vd_level'])) {
 
-            await DataUtils.getmp3txt(item['video_id']).then((txlist) {
+            await DataUtils.getmp3txt(item['video_id'],context: context).then((txlist) {
               Navigator.of(context).pop(true);
               PlayerTools.instance.setSong(Song(
                   vdlist: widget.curSong.vdlist,

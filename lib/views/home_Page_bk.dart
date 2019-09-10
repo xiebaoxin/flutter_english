@@ -54,153 +54,182 @@ class HomeIndexPageState extends State<HomeIndexPage>
   bool showMore = false; //是否显示底部加载中提示
   bool _offState = false; //是否显示进入页面时的圆形进度条
 
-  List<Map<String,dynamic>> _tabs = [{
-    'text': "wu大幅度",
-    'cat_id': 0,
-    'lists': [],
-  }];
-
-Widget getIndexCatList(){
-  return   Container(
-    width: MediaQuery.of(context).size.width,
-    child:TabBar(
-        indicatorColor: KColorConstant.themeColor,
-        indicatorSize: TabBarIndicatorSize.label,
-        isScrollable: true,
-        labelColor: KColorConstant.themeColor,
-        tabs: _tabs
-            .map((i) => Container(
-          child:  Tab(
-            text:i['text'],
-            icon: Icon(Icons.movie_filter),
-          ),
-        ))
-            .toList()),
-  );
-}
-
   @override
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<globleModel>(builder: (context, child, model) {
-      _userinfo = model.userinfo;
-      return
-        _tabs.isEmpty?
-        getIndexCatList():
-        DefaultTabController(
-          length: _tabs.length,
-          initialIndex: 0,
-          child:
-          Scaffold(
-            backgroundColor:  Colors.white,
-            body:ListView(
-            controller: _strollCtrl,
-            children: [
-              FutureBuilder(
-                future: _futureBannerBuilderFuture,
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  //snapshot就是_calculation在时间轴上执行过程的状态快照
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.none:
-                      return new Text(
-                          'Press button to start'); //如果_calculation未执行则提示：请点击开始
-                    case ConnectionState.waiting:
-                      return Image.asset(
-                        "images/bg_img.png",
-                        height: 180,
-                        width: ScreenUtil.screenWidth,
-                        fit: BoxFit.fill,
-                      );
-//                  return new Text('Awaiting result...');  //如果_calculation正在执行则提示：加载中
-                    default: //如果_calculation执行完毕
-                      if (snapshot.hasError) //若_calculation执行出现异常
-                        return Column(
-                          children: <Widget>[
-                            Text('Error: ${snapshot.error}'),
-                            Image.asset(
+    Widget mainscreen = Scaffold(
+/*        appBar: AppBar(
+          centerTitle: true,
+          leading: IconButton(
+            icon: Image.asset(
+              "images/logo.png",
+              height: 25,
+              width: 25,
+              fit: BoxFit.fill,
+            ),
+            iconSize: 26,
+            onPressed: () {
+              ;
+            },
+          ),
+          title: GestureDetector(
+              onTap: () {
+                Navigator.push(context,
+                    CupertinoPageRoute(builder: (BuildContext context) {
+                  return SearchPage();
+                }));
+              },
+              child: Container(
+                height: 35,
+                padding: EdgeInsets.all(1.0),
+                decoration: BoxDecoration(
+                    color: Color.fromRGBO(238, 238, 238, 0.5),
+                    borderRadius: BorderRadius.circular(20.0)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.search,
+                            color: Color(0xFFFFFFFF),
+                            size: 24,
+                          ),
+                          Text(
+                            "搜索",
+                            style: TextStyle(
+                              fontSize: ScreenUtil().setSp(16),
+                              color: Color(0xFF979797),
+                              fontWeight: FontWeight.w500,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+          actions: <Widget>[
+            IconButton(
+              icon: Image.asset(
+                "images/czzy.png",
+                height: 15,
+                width: 15,
+                fit: BoxFit.fill,
+              ),
+              iconSize: 18,
+              onPressed: () {},
+            )
+          ],
+        ),*/
+        body: Stack(
+          children: <Widget>[
+            RefreshIndicator(
+                onRefresh: () async {
+                  _onRefresh();
+                },
+                child: ListView(
+                  controller: _strollCtrl,
+                  children: [
+                    FutureBuilder(
+                      future: _futureBannerBuilderFuture,
+                      builder: (BuildContext context, AsyncSnapshot snapshot) {
+                        //snapshot就是_calculation在时间轴上执行过程的状态快照
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.none:
+                            return new Text(
+                                'Press button to start'); //如果_calculation未执行则提示：请点击开始
+                          case ConnectionState.waiting:
+                            return Image.asset(
                               "images/bg_img.png",
                               height: 180,
                               width: ScreenUtil.screenWidth,
                               fit: BoxFit.fill,
-                            )
-                          ],
-                        );
-                      else {
-                        if (snapshot.hasData) {
-                          var ddre = snapshot.data;
-                          List<String> banners = [];
-                          List<String> linkers = [];
-                          if (ddre != null) {
-                            ddre.forEach((ele) {
-                              if (ele.isNotEmpty &&
-                                  ele['ad_code'].isNotEmpty &&
-                                  ele['ad_link'].isNotEmpty) {
-                                banners.add(ele['ad_code'].toString());
-                                linkers.add(ele['ad_link'].toString());
-                              }
-                            });
-                          }
-
-                          return Container(
-                              height: 180,
-                              child: Column(
+                            );
+//                  return new Text('Awaiting result...');  //如果_calculation正在执行则提示：加载中
+                          default: //如果_calculation执行完毕
+                            if (snapshot.hasError) //若_calculation执行出现异常
+                              return Column(
                                 children: <Widget>[
-                                  banners.length <= 0
-                                      ? Image.asset(
+                                  Text('Error: ${snapshot.error}'),
+                                  Image.asset(
                                     "images/bg_img.png",
                                     height: 180,
                                     width: ScreenUtil.screenWidth,
                                     fit: BoxFit.fill,
                                   )
-                                      : SwipperBanner(
-                                    banners: banners,
-                                    nheight: 180,
-                                    urllinks: linkers,
-                                  )
                                 ],
-                              ));
-                        } else {
-                          return Center(
-                            child: Text("加载中"),
-                          );
-                        }
-                      } //若_calculation执行正常完成
+                              );
+                            else {
+                              if (snapshot.hasData) {
+                                var ddre = snapshot.data;
+                                List<String> banners = [];
+                                List<String> linkers = [];
+                                if (ddre != null) {
+                                  ddre.forEach((ele) {
+                                    if (ele.isNotEmpty &&
+                                        ele['ad_code'].isNotEmpty &&
+                                        ele['ad_link'].isNotEmpty) {
+                                      banners.add(ele['ad_code'].toString());
+                                      linkers.add(ele['ad_link'].toString());
+                                    }
+                                  });
+                                }
+
+                                return Container(
+                                    height: 180,
+                                    child: Column(
+                                      children: <Widget>[
+                                        banners.length <= 0
+                                            ? Image.asset(
+                                                "images/bg_img.png",
+                                                height: 180,
+                                                width: ScreenUtil.screenWidth,
+                                                fit: BoxFit.fill,
+                                              )
+                                            : SwipperBanner(
+                                                banners: banners,
+                                                nheight: 180,
+                                                urllinks: linkers,
+                                              )
+                                      ],
+                                    ));
+                              } else {
+                                return Center(
+                                  child: Text("加载中"),
+                                );
+                              }
+                            } //若_calculation执行正常完成
 //                    return new Text('Result: ${snapshot.data}');
-                  }
-                },
+                        }
+                      },
+                    ),
+                    stackmsg(),
+                    mainTopitem(),
+                    divdertext('推荐'),
+                    _recommondList.length == 0
+                        ? Text("没有热门推荐")
+                        : RecommendFloor(
+                            _recommondList,
+                            cnum: 3,
+                          ),
+                    divdertext('热门'),
+                    RecommendFloor(_goodsList, cnum: 2),
+                  ],
+                )),
+            Offstage(
+              offstage: _offState,
+              child: Center(
+                child: CircularProgressIndicator(),
               ),
-              stackmsg(),
-//                  mainTopitem(),
-              SizedBox(height: 10,),
-
-              getIndexCatList(),
-
-              _tabs.isEmpty?SizedBox(height: 1,): Container(
-                height: 120,
-                color: Color.fromRGBO(132, 95, 63, 0.2),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TabBarView(
-                    children: _buildTabItemView(),
-                  ),
-                ),
-              ),
-
-
-
-              divdertext('推荐'),
-              _recommondList.length == 0
-                  ? Text("没有热门推荐")
-                  : RecommendFloor(
-                _recommondList,
-                cnum: 3,
-              ),
-              divdertext('热门'),
-              RecommendFloor(_goodsList, cnum: 2),
-            ],
-          ),)
-
-      )
-     ;
+            ),
+          ],
+        ));
+    return ScopedModelDescendant<globleModel>(builder: (context, child, model) {
+      _userinfo = model.userinfo;
+      return mainscreen;
     });
   }
 
@@ -225,6 +254,28 @@ Widget getIndexCatList(){
     );
   }
 
+  /**
+   * 模拟下拉刷新
+   */
+  Future<void> _onRefresh() async {
+    if (_isLoading) {
+      return;
+    }
+    setState(() {
+      _isLoading = true;
+      _page1 = 1;
+    });
+
+    print('下拉刷新开始,page = $_page1');
+    await Future.delayed(Duration(seconds: 3), () {
+      setState(() {
+        _isLoading = false;
+        _goodsList = List();
+        getGoodsList();
+        print('下拉刷新结束,page = $_page1');
+      });
+    });
+  }
 
   Widget stackmsg() {
     return Container(
@@ -422,26 +473,6 @@ Widget getIndexCatList(){
     );
   }
 
-  List<Map<String, dynamic>> _recommondList = List();
-
-  Future recommondList() async {
-    _recommondList = await DataUtils.getIndexRecommendGoods(context);
-    setState(() {;});
-  }
-
-  int _page1 = 1;
-  List<Map<String, dynamic>> _goodsList = List();
-  void getGoodsList() async {
-    setState(() {
-      _offState = false;
-    });
-    _goodsList=await DataUtils.getIndexGoodsList(_page1, context);
-        setState(() {
-          _offState = true;
-          _page1 += 1;
-        });
-  }
-
   List<Map<String, dynamic>> _notice = List();
   Future<List<Map<String, dynamic>>> _getNotice() async {
     List<Map<String, dynamic>> notice = [];
@@ -458,78 +489,21 @@ Widget getIndexCatList(){
     return notice;
   }
 
-
-  List<Widget> _buildTabItemView() {
-    return _tabs.map((item) {
-    return   Center(
-        child: new GridView.count(
-          crossAxisCount: 4,
-          padding: const EdgeInsets.all(10.0),
-          mainAxisSpacing: 0.0,
-          crossAxisSpacing: 0.0,
-          children: ( item['lists'] as List).map((it) {
-            return Container(
-              height: 50,
-                child:InkWell(
-                  onTap: (){
-                    Navigator.push(context,
-                        CupertinoPageRoute(builder: (BuildContext context) {
-                          return SearchResultListPage('',catid: it['ucid'],catname: it['name'],);
-                        }));
-                  },
-                  child:  Text("${it['name']}"),));
-            //                      return Text(iti.item);
-          }).toList(),
-        ),
-      );
-
-      return   Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children:( item['lists'] as List).map((iti) {
-            return Text("${iti['ucid']}--${iti['name']}");
-            //                      return Text(iti.item);
-          }).toList());
-    }).toList();;
-  }
-
   List _listbanner = [];
   bool _getbannerd = false;
   Future _getbannerdata() async {
     if (_getbannerd) return _listbanner;
-    _listbanner = await DataUtils.getIndexTopSwipperBanners(context);
+    Map<String, String> params = {'objfun': 'getAppHomeAdv'};
+    Map<String, dynamic> response =
+        await HttpUtils.dioappi('Shop/getIndexData', params, context: context);
+    _listbanner = response["items"];
+
     _getbannerd = true;
     return _listbanner;
   }
 
-  Future _initCatsDatelist() async {
-    List<Map<String,dynamic>> CategoryItems =[];
-    await DataUtils.getSubsCategory(context,cat_id: 586).then((response){
-      var cateliest = response["items"];
-
-      cateliest.forEach((ele) {
-        if (ele.isNotEmpty) {
-          CategoryItems.add(ele);
-        }
-      });
-      setState(() {
-      _tabs=  CategoryItems.map((item){
-          return {
-            'text': item['name'],
-            'cat_id': item['ucid'],
-            'lists': item['list'] as List,
-          };
-        }).toList();
-      });
-
-    });
-
-  }
-
-
   @override
   void initState() {
-    _initCatsDatelist();
     // TODO: implement initState
     getGoodsList();
     recommondList();
@@ -551,4 +525,52 @@ Widget getIndexCatList(){
     _futureMessageBuilderFuture = _getNotice();
   }
 
+  List<Map<String, dynamic>> _recommondList = List();
+
+  Future recommondList() async {
+    _recommondList = List();
+    await HttpUtils.dioappi("Shop/ajaxCommantGoodsList/", {}, context: context)
+        .then((response) {
+      if (_recommondList.isEmpty) {
+        if (response['list'].isNotEmpty) {
+          int i = 0;
+          setState(() {
+            response['list'].forEach((ele) {
+              if (i < 3 && ele.isNotEmpty) {
+                Map<String, dynamic> itemmap = ele;
+                _recommondList.add(itemmap);
+                i++;
+              }
+            });
+          });
+        }
+      }
+    });
+  }
+
+  int _page1 = 1;
+  List<Map<String, dynamic>> _goodsList = List();
+  // /id/581
+  void getGoodsList() async {
+    setState(() {
+      _offState = false;
+    });
+    await HttpUtils.dioappi("Shop/ajaxGoodsList/p/${_page1.toString()}", {},
+            context: context)
+        .then((response) {
+      print(response['list']);
+      if (response['list'].isNotEmpty) {
+        setState(() {
+          _offState = true;
+          _page1 += 1;
+          response['list'].forEach((ele) {
+            if (ele.isNotEmpty) {
+              Map<String, dynamic> itemmap = ele;
+              _goodsList.add(itemmap);
+            }
+          });
+        });
+      }
+    });
+  }
 }

@@ -4,6 +4,7 @@ import '../model.dart';
 //import '../data/category.dart';
 import '../utils/screen_util.dart';
 import '../utils/HttpUtils.dart';
+import '../utils/dataUtils.dart';
 
 class Category extends StatefulWidget {
   final double rightListViewHeight;
@@ -86,8 +87,7 @@ class CategoryState extends State<Category> {
 
   Future categoryData() async {
     List<dynamic> CategoryItems =[];
-    Map<String, String> params = {'objfun':'getIndexCategory'};
-    await HttpUtils.dioappi('Shop/getIndexData', params).then((response){
+   await DataUtils.getIndexCategory(context).then((response){
       var cateliest = response["items"];
       print(cateliest);
       cateliest.forEach((ele) {

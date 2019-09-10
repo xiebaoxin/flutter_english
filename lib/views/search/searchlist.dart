@@ -53,7 +53,7 @@ class SearchResultListState extends State<SearchResultListPage> {
         "q": _keyword
       };
     }
-    print("----------$url----------");
+
     await HttpUtils.dioappi(url, params, context: context).then ( (response) {
         if (response['list']!=null && response['list'].isNotEmpty ) {
           setState(() {

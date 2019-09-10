@@ -7,6 +7,7 @@ import '../routers/application.dart';
 import '../model/globle_model.dart';
 import '../model/userinfo.dart';
 import '../model/index_model.dart';
+import '../utils/DialogUtils.dart';
 
 class DataUtils {
   static Future freshUserinfo(BuildContext context) async {
@@ -23,10 +24,15 @@ class DataUtils {
     });
   }
 
-  static Future<List<Map<String, dynamic>>> getmp3txt(int videoid) async {
+  static Future<List<Map<String, dynamic>>> getmp3txt(int videoid,{BuildContext context}) async {
+    List<Map<String, dynamic>> txlist = List();
     Map<String, String> params = {"id": videoid.toString()};
     var json = await HttpUtils.dioappi('Pub/getmp3txt', params);
-    List<Map<String, dynamic>> txlist = List();
+    if (context!=null && json["status"].toString() != '1') {
+      await DialogUtils.showToastDialog(context,"字幕文件请求异常:${json["msg"]}");
+      return txlist;
+    }
+
     var tts;
     try {
       tts = json['txtlist'] as List;
@@ -76,26 +82,68 @@ class DataUtils {
   }
 
 
-  static Future<List<Map<String, dynamic>>> getIndexTopSwipperBanners(
+
+  static Future  getSubsCategory(
+      context,{int cat_id=0}) async {
+    Map<String, String> params = {'cat_id':cat_id.toString()};
+    return  await HttpUtils.dioappi('Shop/get_goods_subs_category', params, context: context);
+  }
+
+
+  static Future  getIndexCategory(
+      context,{int cat_id=0}) async {
+    Map<String, String> params = {'objfun':'getIndexCategory','cat_id':cat_id.toString()};
+   return  await HttpUtils.dioappi('Shop/getIndexData', params, context: context);
+  }
+
+
+  static Future getIndexTopSwipperBanners(
       context) async {
-//  List<String> banners =[];
 
     Map<String, String> params = {'objfun': 'getAppHomeAdv'};
-    var response =
-        await HttpUtils.dioappi('Shop/getIndexData', params, context: context);
-    /*   .then((response){
-    String imurl = '';
-    var imagesliest = response["items"];
-    imagesliest.forEach((ele) {
-      if (ele.isNotEmpty) {
-        imurl =ele['ad_code'];
-        banners.add(imurl);
+    Map<String, dynamic> response =
+    await HttpUtils.dioappi('Shop/getIndexData', params, context: context);
+
+    return response["items"];
+
+  }
+
+
+  static Future<List<Map<String, dynamic>>> getIndexRecommendGoods(
+      BuildContext context) async {
+    List<Map<String, dynamic>> _recommondList = List();
+    await HttpUtils.dioappi("Shop/ajaxCommantGoodsList/", {}, context: context)
+        .then((response) {
+        if (response['list'].isNotEmpty) {
+            response['list'].forEach((ele) {
+              if (ele.isNotEmpty) {
+                _recommondList.add(ele);
+              }
+            });
+        }
+    });
+    return _recommondList;
+  }
+
+
+
+  static Future<List<Map<String, dynamic>>> getIndexGoodsList(int page,
+      BuildContext context,{int catid=0}) async {
+    List<Map<String, dynamic>> _goodsList = List();
+    await HttpUtils.dioappi("Shop/ajaxGoodsList/p/${page.toString()}/id/${catid.toString()}", {},
+        context: context)
+        .then((response) {
+      if (response['list'].isNotEmpty) {
+        response['list'].forEach((ele) {
+          if (ele.isNotEmpty) {
+            _goodsList.add(ele);
+          }
+        });
       }
     });
-  });*/
-    List<Map<String, dynamic>> itemlist = response["items"];
-    return itemlist;
+    return _goodsList;
   }
+
 
   static Future<Map<String, dynamic>> getIndexgetNewGoods(
       BuildContext context) async {
@@ -129,17 +177,6 @@ class DataUtils {
     return choiceList;
   }
 
-/*static Future<  List<Map> > getIndexChoice()async{
-  List<Map> choiceList = [];
-  Map<String, String> params = {};
-  await HttpUtils.dioappi('Shop/getfarmChoiceList', params).then((data) {
-    List<Map> hotGoodList = (data['data'] as List).cast();
-    choiceList.addAll(hotGoodList);
-  });
-  print(choiceList);
-  return choiceList;
-}*/
-
   static Future<List<String>> getIndextests(BuildContext context) async {
     List<String> banners = [];
     Map<String, String> params = {};
@@ -157,26 +194,4 @@ class DataUtils {
     return banners;
   }
 
-// 首页九宫格列表数据
-  static Future<List<ModelCell>> getIndexModelListData(
-      Map<String, dynamic> params) async {
-    List<ModelCell> resultList = new List();
-
-    await HttpUtils.post(null, 'Pub/getAppModel', (response) {
-      var responseList = response['data'];
-      try {
-        for (int i = 0; i < responseList.length; i++) {
-          ModelCell bookCell;
-
-          bookCell = ModelCell.fromJson(responseList[i]);
-//        print(bookCell.modName);
-          resultList.add(bookCell);
-        }
-      } catch (e) {
-        return [];
-      }
-    }, params: params);
-
-    return resultList;
-  }
 }
