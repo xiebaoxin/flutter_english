@@ -18,7 +18,7 @@ class GoodsListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return list.length == 0
         ? Center(
-            child: CircularProgressIndicator(),
+            child: Text("没有找到内容"),
           )
         : ListView.builder(
             padding: EdgeInsets.symmetric(horizontal: 10),

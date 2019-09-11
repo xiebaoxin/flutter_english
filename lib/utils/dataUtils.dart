@@ -109,57 +109,59 @@ class DataUtils {
   }
 
 
-  static Future<List<Map<String, dynamic>>> getIndexRecommendGoods(
+  static Future<List<Map<String, dynamic>>> getRecommendGoods(
       BuildContext context) async {
-    List<Map<String, dynamic>> _recommondList = List();
-    await HttpUtils.dioappi("Shop/ajaxCommantGoodsList/", {}, context: context)
+    List<Map<String, dynamic>> recommondList = List();
+    Map<String, String> params = {'do': 'getRecommendGoods'};
+    await HttpUtils.dioappi("Shop/getGoodsList/", params, context: context)
         .then((response) {
         if (response['list'].isNotEmpty) {
             response['list'].forEach((ele) {
               if (ele.isNotEmpty) {
-                _recommondList.add(ele);
+                recommondList.add(ele);
               }
             });
         }
     });
-    return _recommondList;
-  }
-
-
-
-  static Future<List<Map<String, dynamic>>> getIndexGoodsList(int page,
-      BuildContext context,{int catid=0}) async {
-    List<Map<String, dynamic>> _goodsList = List();
-    await HttpUtils.dioappi("Shop/ajaxGoodsList/p/${page.toString()}/id/${catid.toString()}", {},
-        context: context)
-        .then((response) {
-      if (response['list'].isNotEmpty) {
-        response['list'].forEach((ele) {
-          if (ele.isNotEmpty) {
-            _goodsList.add(ele);
-          }
-        });
-      }
-    });
-    return _goodsList;
+    return recommondList;
   }
 
 
   static Future<Map<String, dynamic>> getIndexgetNewGoods(
       BuildContext context) async {
-    Map<String, String> params = {'objfun': 'getNewGoods'};
+    Map<String, String> params = {'do': 'getNewGoods'};
     Map<String, dynamic> json =
-        await HttpUtils.dioappi('Shop/getIndexData', params, context: context);
+    await HttpUtils.dioappi('Shop/getGoodsList', params, context: context);
     return json;
   }
 
   static Future<Map<String, dynamic>> getIndexgetHotGood(
       BuildContext context) async {
-    Map<String, String> params = {'objfun': 'getHotGood'};
+    Map<String, String> params = {'do': 'getHotGood'};
     Map<String, dynamic> json =
-        await HttpUtils.dioappi('Shop/getIndexData', params, context: context);
+    await HttpUtils.dioappi('Shop/getGoodsList', params, context: context);
     return json;
   }
+
+
+
+
+  static Future<List<Map<String, dynamic>>> getIndexGoodsList(int page,List<Map<String, dynamic>> goodsList,
+      BuildContext context,{int catid=0,int recommend=-1}) async {
+    await HttpUtils.dioappi("Shop/ajaxGoodsList/p/${page.toString()}/id/${catid.toString()}/recmd/${recommend.toString()}", {},
+        context: context)
+        .then((response) {
+      if (response['list'].isNotEmpty) {
+        response['list'].forEach((ele) {
+          if (ele.isNotEmpty) {
+            goodsList.add(ele);
+          }
+        });
+      }
+    });
+    return goodsList;
+  }
+
 
   static Future<List<Choice>> getIndexChoice(BuildContext context) async {
     List<Choice> choiceList = List();

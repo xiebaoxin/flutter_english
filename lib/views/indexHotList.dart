@@ -4,10 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../components/loading_gif.dart';
 import '../routers/application.dart';
 
-class RecommendFloor extends StatelessWidget {
+class IndexHotListFloor extends StatelessWidget {
   final List<Map<String, dynamic>> data;
   final int cnum;
-  RecommendFloor(this.data, {this.cnum = 3});
+  IndexHotListFloor(this.data, {this.cnum = 3});
   @override
   Widget build(BuildContext context) {
     double deviceWidth = MediaQuery.of(context).size.width;

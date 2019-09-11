@@ -3,6 +3,7 @@ import '../../constants/index.dart';
 import '../../widgets/index.dart';
 import '../../views/goodsList.dart';
 import '../../utils/HttpUtils.dart';
+import '../../utils/DialogUtils.dart';
 
 class SearchResultListPage extends StatefulWidget {
   final String keyword;
@@ -41,11 +42,13 @@ class SearchResultListState extends State<SearchResultListPage> {
   String _keyword;
   int _catid;
 
+
+
   void getSearchList() async {
     Map<String, String> params = {};
     String url="";
     if(_catid>0)
-      url="Shop/goodsList/id/${_catid.toString()}/p/${_page.toString()}/";
+      url="Shop/ajaxGoodsList/id/${_catid.toString()}/p/${_page.toString()}/";
 
     if(_keyword!=''){
       url="Shop/search/p/${_page.toString()}/";
@@ -63,11 +66,8 @@ class SearchResultListState extends State<SearchResultListPage> {
                 _listData.add(ele);
               }
             });
-
           });
-
         }
-
     });
   }
 

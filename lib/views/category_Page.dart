@@ -22,7 +22,6 @@ import '../views/search/search.dart';
 import 'sharePage.dart';
 import 'message_page.dart';
 import 'goodsList.dart';
-import 'recommed.dart';
 
 class CategoryPage extends StatefulWidget {
   final int catid;
@@ -59,7 +58,12 @@ class CategoryPageState extends State<CategoryPage> {
   }
 
   void getGoodsList() async {
-    await HttpUtils.dioappi(
+    _goodsList= await DataUtils.getIndexGoodsList(_page,_goodsList, context,catid:widget.catid );
+    if(_goodsList.isNotEmpty)
+      setState(() {
+          _page += 1;
+      });
+/*    await HttpUtils.dioappi(
         "Shop/ajaxGoodsList/p/${_page.toString()}/id/${widget.catid}", {}, context: context).then ((response) {
       print(response);
       setState(() {
@@ -73,7 +77,7 @@ class CategoryPageState extends State<CategoryPage> {
           });
         }
       });
-    });
+    });*/
   }
 
   @override

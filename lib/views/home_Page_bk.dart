@@ -20,7 +20,7 @@ import '../model/index_model.dart';
 import '../views/search/search.dart';
 import 'message_page.dart';
 import 'goodsList.dart';
-import 'recommed.dart';
+import 'indexHotList.dart';
 import 'noticeMessgeList.dart';
 import '../views/search/searchlist.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -211,12 +211,12 @@ class HomeIndexPageState extends State<HomeIndexPage>
                     divdertext('推荐'),
                     _recommondList.length == 0
                         ? Text("没有热门推荐")
-                        : RecommendFloor(
+                        : IndexHotListFloor(
                             _recommondList,
                             cnum: 3,
                           ),
                     divdertext('热门'),
-                    RecommendFloor(_goodsList, cnum: 2),
+                    IndexHotListFloor(_goodsList, cnum: 2),
                   ],
                 )),
             Offstage(
@@ -529,7 +529,7 @@ class HomeIndexPageState extends State<HomeIndexPage>
 
   Future recommondList() async {
     _recommondList = List();
-    await HttpUtils.dioappi("Shop/ajaxCommantGoodsList/", {}, context: context)
+    await HttpUtils.dioappi("Shop/ajaxGoodsList/", {}, context: context)
         .then((response) {
       if (_recommondList.isEmpty) {
         if (response['list'].isNotEmpty) {
