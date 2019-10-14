@@ -407,8 +407,8 @@ class _PlayerXbxWidgetState extends State<AudioPlayerXbx>
                 double inndexoffset =
                     (_txtid * _scrollController.position.maxScrollExtent) /
                         _txtinfo['txtlist'].length;
-                int tempidx=((inndexoffset.toInt() / 100).toInt() / 4).toInt();
-                if ((inndexoffset.toInt() / 100).toInt() % 4 == 0 && tempidx > _offsetPositonn) {
+                int tempidx=((inndexoffset.toInt() ~/ 100).toInt() ~/ 4).toInt();
+                if ((inndexoffset.toInt() ~/ 100).toInt() % 4 == 0 && tempidx > _offsetPositonn) {
                   _offsetPositonn =tempidx;
                   _goToElement(inndexoffset);
                 }

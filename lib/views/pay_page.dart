@@ -117,16 +117,17 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
                                 "购买：$_payname",
-                                style: KfontConstant.bigfontSize,
+                                style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
                               ),
                             ),
+
                             Text(
                               "订单金额： ${_payinfo['total_amount']}元",
                               style: KfontConstant.bigfontSize,
                             ),
                             Text("商品合计：${_payinfo['goods_price']}元",
                                 style: KfontConstant.bigfontSize),
-
+                            Divider(),
                             Text(
                               "收货人： ${_payinfo['consignee']}[${_payinfo['mobile']}]",
                               style: KfontConstant.bigfontSize,
@@ -141,10 +142,10 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
                             ),
                             Text("团购：${_payinfo['coupon_price']}元",
                                 style: KfontConstant.bigfontSize),
-                            Text("现金卷抵扣:${_payinfo['user_money']}元",
+                            Text("余额抵扣:${_payinfo['user_money']}元",
                                 style: KfontConstant.bigfontSize),
-                            Text("余额支付:${_payinfo['integral_money']}元",
-                                style: KfontConstant.bigfontSize),
+                           /* Text("余额支付:${_payinfo['integral_money']}元",
+                                style: KfontConstant.bigfontSize),*/
                             Text("积分支付: ${_payinfo['integral']}元",
                                 style: KfontConstant.bigfontSize),
                             Divider(
@@ -152,6 +153,7 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
                             ),
                             Text("订单时间: ${_payinfo['add_time']}",
                                 style: KfontConstant.bigfontSize),
+                            Divider(),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(

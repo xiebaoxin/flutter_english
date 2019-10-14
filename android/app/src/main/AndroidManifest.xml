@@ -19,7 +19,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="flutter_english"
+        android:label="毕学"
         android:icon="@mipmap/logo_launcher"
         tools:replace="android:label">
         <activity

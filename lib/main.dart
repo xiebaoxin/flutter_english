@@ -39,7 +39,7 @@ void main111() => runApp(MyVideoApp());
 void main11() => runApp(new MaterialApp(home: new Scaffold(body: new AudioApp())));
 ////flutter packages pub run flutter_launcher_icons:main  --一键生成logo
 void main() {
-  runApp(Kukabao(
+  runApp(Bixue(
     model: globleModel(),
   ));
   if (Platform.isAndroid) {
@@ -52,15 +52,15 @@ void main() {
   }
 }
 
-class Kukabao extends StatefulWidget {
+class Bixue extends StatefulWidget {
   final globleModel model;
-  const Kukabao({Key key, @required this.model}) : super(key: key);
+  const Bixue({Key key, @required this.model}) : super(key: key);
 
   @override
   KukabaoState createState() => new KukabaoState();
 }
 
-class KukabaoState extends State<Kukabao> {
+class KukabaoState extends State<Bixue> {
   @override
   Widget build(BuildContext context) {
      final router = new Router();
@@ -132,7 +132,7 @@ class KukabaoState extends State<Kukabao> {
   }
 
   @override
-  void didUpdateWidget(Kukabao oldWidget) {
+  void didUpdateWidget(Bixue oldWidget) {
     // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
   }

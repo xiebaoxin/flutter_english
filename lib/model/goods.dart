@@ -130,16 +130,16 @@ class GoodInfo {
     */
 
     List<String> imagesList = [];
-    String ddr = json['goods']['original_img'].toString() ??
+   /* String ddr = json['goods']['original_img'].toString() ??
         'http://testapp.hukabao.com:8008/public/upload/ad/2018/04-12/ca1e401cbd313540eadace224524d766.jpg';
 
-    imagesList.add(ddr);
+    imagesList.add(ddr);*/
     String imu = '';
     var imagesliest = json["data"]["goods_images_list"];
+
     imagesliest.forEach((ele) {
       if (ele.isNotEmpty) {
-        imu =
-            'http://testapp.hukabao.com:8008/public/upload/shop/2018/08-07/ff684f2d9694cd67c4ed0e0802968009.jpg'; //ele['image_url'];
+        imu =ele['image_url'];
         imagesList.add(imu);
       }
     });

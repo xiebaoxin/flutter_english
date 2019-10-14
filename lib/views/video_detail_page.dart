@@ -496,37 +496,6 @@ class VideoDetailContent extends StatelessWidget {
 
     return TabBarView(
       children: <Widget>[
-      /*  ListView(
-          children: <Widget>[
-            VideoDetailItemComponent(
-              icon: "assets/images/icon_videodetail_name.png",
-              content: "名称",
-              child: TagComponent(title: "古典"),
-            ),
-            Container(
-                margin: EdgeInsets.symmetric(vertical: 13.0),
-                child: VideoDetailItemComponent(
-                    icon: "assets/images/icon_videodetail_director.png",
-                    content: "导演: 榕榕兔")),
-            VideoDetailItemComponent(
-                icon: "assets/images/icon_videodetail_starring.png",
-                content: "明星主演"),
-            Container(
-              margin: EdgeInsets.fromLTRB(33.3, 8.0, 16.0, 0.0),
-              child: Text("时长10min"),
-            ),
-            Container(
-                margin: EdgeInsets.symmetric(vertical: 13.0),
-                child: VideoDetailItemComponent(
-                    icon: "assets/images/icon_videodetail_num.png",
-                    content: "${videoinfo['store_count'].toString()}")),
-            VideoDetailItemComponent(
-                icon: "assets/images/icon_videodetail_jishu.png",
-                content: "[ 更新时间 ]"
-                // ${DateTime.parse(video.generatedAt).toString()}
-                ),
-          ],
-        ),*/
         ListView.builder(
           itemCount: retvdlistinfo.length,
           itemBuilder: (BuildContext context, int index) {

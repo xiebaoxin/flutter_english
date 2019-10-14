@@ -12,10 +12,10 @@ class GlobalConfig {
   static Color cardBackgroundColor = new Color(0xFF222222);
   static Color fontColor = Colors.white30;
 
-  static final  String server='http://123.207.127.127/';
-  static final  String webbase='http://123.207.127.127/Appi/WxAuth/';
-  static final  String base='http://123.207.127.127/Appi/';
-  static final String wxAppId='wx002f0547fa2ff202';
+  static final  String server='http://www.bixuejy.com';
+  static final  String webbase='http://www.bixuejy.com/Appi/WxAuth/';
+  static final  String base='http://www.bixuejy.com/Appi/';
+  static final String wxAppId='wxbe64b7b2cd18c128';//'wxb85ad5c66ae2efb2';
 
   static final double cardWidth =ScreenUtil().L(650);//卡片统一宽度
   static final double cardCircularWidth = 8;//卡片圆角高度

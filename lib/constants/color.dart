@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 class KColorConstant {
-  static const Color themeColor = Color.fromRGBO(132, 95, 63, 1.0);
+  static const Color themeColor = Color.fromRGBO(240, 100, 90, 1.0);
   static const Color floorTitleColor = Color.fromRGBO(51, 51, 51, 1);
   static const Color searchBarBgColor = Color.fromRGBO(240, 240, 240, 1.0);
   static const Color searchBarTxtColor = Color(0xFFCDCDCD);

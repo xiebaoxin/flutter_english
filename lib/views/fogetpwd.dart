@@ -52,7 +52,7 @@ class fogetpwdPageState extends State<fogetpwdPage> {
                       child: Text(
                         '确定',
                         style:
-                            new TextStyle(color: Colors.white, fontSize: 14.0),
+                        new TextStyle(color: Colors.white, fontSize: 14.0),
                       ),
                     ),
                     onPressed: _forSubmitted,
@@ -75,19 +75,21 @@ class fogetpwdPageState extends State<fogetpwdPage> {
     }
 
     Map<String, String> params = {
-        "phone": _phoneNo,
-        "type": '2',
-      };
+      "phone": _phoneNo,
+      "type": '2',
+    };
+setState(() {
+  _verifyStr="请求中……";
+});
+    await HttpUtils.apipost(context, "Api/smsSend", params, (response) async{
+      await DialogUtils.showToastDialog(context, response['msg']);
+      if (response['status'] == 1) {
+        setState(() {
+          _startTimer();
+        });
+      }
 
-     await HttpUtils.apipost(context, "Api/smsSend", params, (response) async{
-        if (response['status'] == '1') {
-          setState(() {
-            _startTimer();
-          });
-        }
-        await DialogUtils.showToastDialog(context, response['msg']);
-
-     });
+    });
 
   }
 
@@ -99,11 +101,11 @@ class fogetpwdPageState extends State<fogetpwdPage> {
         return;
       }
       setState(() {
-      _seconds--;
-      _verifyStr = '$_seconds(s)';
-        if (_seconds == 0) {
+        _seconds--;
+          if (_seconds == 0) {
           _verifyStr = '重新发送';
-        }
+        }else
+          _verifyStr = "$_seconds(s)";
       });
 
     });
@@ -125,9 +127,6 @@ class fogetpwdPageState extends State<fogetpwdPage> {
     _phoneNo= _phoneNoCtrl.text.trim();
 
     form.save();
-    print(_verifyCode);
-    print(_phoneNo);
-    print(_password);
     if (_phoneNo!='' && _password!='' && _verifyCode != '') {
 
       Map<String, String> params = {
@@ -138,10 +137,10 @@ class fogetpwdPageState extends State<fogetpwdPage> {
 
       await HttpUtils.apipost(context, "Pub/findPasswrod", params, (response) async{
         await  DialogUtils.showToastDialog(context, response['msg']);
-        if (response['status'] == '1')
-          {
-            Navigator.pop(context, "1");
-          }
+        if (response['status'] == 1)
+        {
+          Navigator.pop(context, "1");
+        }
       });
 
     }
@@ -229,7 +228,7 @@ class fogetpwdPageState extends State<fogetpwdPage> {
     Widget verifyCodeEdit = new TextFormField(
       controller: _verifyCodeCtrl,
 //      autovalidate: true,
-       decoration: new InputDecoration(
+      decoration: new InputDecoration(
         contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
         icon: Icon(Icons.assignment_late) ,
         hintText:  "请输入验证码",
@@ -270,7 +269,7 @@ class fogetpwdPageState extends State<fogetpwdPage> {
             )
         ),
         child: Text(
-          '$_verifyStr',
+          _verifyStr,
           style: new TextStyle(fontSize: 11),
         ),
       ),

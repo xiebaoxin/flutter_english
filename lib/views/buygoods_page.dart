@@ -131,39 +131,33 @@ class GoodsBuyState extends State<GoodsBuyPage> {
   Widget shuomin() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child:  Card(
-            // This ensures that the Card's children (including the ink splash) are clipped correctly.
-            clipBehavior: Clip.antiAlias,
-            shape: _shape,
-            child: Center(
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    width:ScreenUtil.screenWidthDp ,
-                    child: Center(
-                      child: CachedNetworkImage(
-                        errorWidget: (context, url, error) =>Container(
-                            height: 75,
-                            width: 75,
-                            child:
-                            Image.asset(
-                              'images/logo_b.png',)),
-                        placeholder: (context, url) =>  Loading(),
-                        imageUrl: widget.buyparam.imgurl,
-                        width: ScreenUtil().L(100),
-                        height: ScreenUtil().L(100),
-                        fit: BoxFit.fill,
-                      ),
-                    ),
+      child:  Container(
+              width:200 ,
+              height: 200,
+              decoration: new BoxDecoration(//设置子控件背后的装饰
+                /*   color: Colors.blue,  //和Container下面的color会冲突 具体原因不详
+                        border: new Border.all(//添加边框
+                          width: 10.0,//边框宽度
+                          color: Colors.green,//边框颜色
+                        ),*/
+                  image: DecorationImage(
+                    image:widget.buyparam.imgurl.isNotEmpty? NetworkImage(widget.buyparam.imgurl) :   Image.asset(
+                      'images/logo_b.png',),
+                    fit: BoxFit.cover,
                   ),
-                  Positioned(
-                    bottom: ScreenUtil().L(5),
-                    left: ScreenUtil().L(20),
-                    child: Text(_name)),
-                ],
+//                  borderRadius: new BorderRadius.all(Radius.circular(20.0)),//设置圆角
+                  boxShadow: <BoxShadow>[//设置阴影
+                    new BoxShadow(
+                      color: Colors.black,
+                      blurRadius: 20.0,
+                    ),
+                  ]
               ),
-            ),
-      ),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Text(_name),
+              ),
+            )
     );
   }
 
@@ -192,6 +186,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
                     ],
                   ),
                 ),
+                Divider(),
                 const SizedBox(height: 2.0),
                 Semantics(
                   container: true,
@@ -239,7 +234,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
                   ],
                 ),
 
-                const SizedBox(height: 2.0),
+    /*            const SizedBox(height: 2.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -262,7 +257,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
                     )
                   ],
                 ),
-                const SizedBox(height: 2.0),
+                const SizedBox(height: 2.0),*/
                 payword(),
               ],
             )));
@@ -311,10 +306,10 @@ Widget payword(){
                   style: KfontConstant.defaultStyle,
                 ),
                 const SizedBox(height: 5.0),
-                Text(
+              /*  Text(
                   "说明文字",
                   style: KfontConstant.defaultSubStyle,
-                ),
+                ),*/
                 const SizedBox(height: 10.0),
                 ComFunUtil().buildMyButton(
                   context,

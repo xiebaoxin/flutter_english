@@ -1,16 +1,13 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
 import './model/globle_model.dart';
 import './views/MyInfoPage.dart';
 import './utils/screen_util.dart';
 import './globleConfig.dart';
 import './views/home_Page.dart';
-//import './video/audioPlayerXbx.dart';
 import './views/category.dart';
 import './views/player/mini_player_page.dart';
-import './views/player/full_player_page.dart';
 import 'package:provide/provide.dart';
 import './data/base.dart';
 import 'main_provide.dart';

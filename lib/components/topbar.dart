@@ -23,9 +23,9 @@ class HomeTopBar extends StatelessWidget {
             flex: 1,
             child: GestureDetector(
                 onTap: () {
-                     Navigator.push(context,CupertinoPageRoute(builder: (BuildContext context){
+                    /* Navigator.push(context,CupertinoPageRoute(builder: (BuildContext context){
                        ;//return  SearchPage();
-                     }));
+                     }));*/
                 },
                 child: Container(
                   height: Klength.topBarHeight,

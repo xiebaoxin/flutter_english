@@ -29,7 +29,7 @@ class DataUtils {
     Map<String, String> params = {"id": videoid.toString()};
     var json = await HttpUtils.dioappi('Pub/getmp3txt', params);
     if (context!=null && json["status"].toString() != '1') {
-      await DialogUtils.showToastDialog(context,"字幕文件请求异常:${json["msg"]}");
+      await DialogUtils.showToastDialog(context,"字幕文件无效或异常:${json["msg"]}");
       return txlist;
     }
 

@@ -147,16 +147,12 @@ class IndexHotListFloor extends StatelessWidget {
                 ),
                 Text(
                   i['title'],
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: KfontConstant.defaultStyle,
-                ),
-                Text(
-                  "英语副标题",
-                  maxLines: 1,
+                  maxLines: 2,
+                  softWrap: true,
                   overflow: TextOverflow.ellipsis,
                   style: KfontConstant.defaultSubStyle,
                 ),
+
               ],
             ),
           ));

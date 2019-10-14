@@ -38,7 +38,8 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.sstech.card"
+//  签名      8f9db55385d2baa9936d336c43268e27
+        applicationId "com.bixue.english"
         minSdkVersion 16
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()

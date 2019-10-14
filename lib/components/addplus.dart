@@ -4,9 +4,9 @@ import '../utils/screen_util.dart';
 import '../globleConfig.dart';
 
 class AddPlus extends StatefulWidget {
-  int count;
-  int max;
-  Function callback;
+  final int count;
+  final int max;
+  final Function callback;
   AddPlus({this.count = 1, this.max = 100, this.callback});
 
   @override

@@ -124,13 +124,24 @@ class SplashState extends State<SplashPage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20,),
+                      SizedBox(height: 40,),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Text(
+                          "好好学习，天天向上",
+                          style: new TextStyle(
+                              color: GlobalConfig.mainColor,
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      SizedBox(height: 10,),
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Text(
                           "毕学欢迎您",
                           style: new TextStyle(
-                              color: GlobalConfig.mainColor,
+//                              color: GlobalConfig.mainColor,
                               fontSize: 16.0,
                               fontWeight: FontWeight.bold),
                         ),

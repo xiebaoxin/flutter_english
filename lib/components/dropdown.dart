@@ -22,19 +22,21 @@ class citySelector {
             _bankCodeMap[ele['name']] = ele['id'].toString();
           }
         });
+    }).then((_){
+      Picker(
+          adapter: PickerDataAdapter<String>(pickerdata: _bankPickerData),
+          hideHeader: true,
+          title: new Text("城市列表"),
+          cancelText: '取消',
+          confirmText: '确定',
+          onConfirm: (Picker picker, List value) {
+            _bankName = picker.getSelectedValues()[0].toString();
+            _bankId = _bankCodeMap[_bankName];
+            print("bankId:$_bankId");
+            callback(_bankId,_bankName);
+          }).showDialog(context);
     });
-   await new Picker(
-        adapter: PickerDataAdapter<String>(pickerdata: _bankPickerData),
-        hideHeader: true,
-        title: new Text("城市列表"),
-        cancelText: '取消',
-        confirmText: '确定',
-        onConfirm: (Picker picker, List value) {
-          _bankName = picker.getSelectedValues()[0].toString();
-          _bankId = _bankCodeMap[_bankName];
-          print("bankId:$_bankId");
-          callback(_bankId,_bankName);
-        }).showDialog(context);
+
   }
 
 }

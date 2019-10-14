@@ -36,14 +36,13 @@ class HomeIndexPage extends StatefulWidget {
 enum AppBarBehavior { normal, pinned, floating, snapping }
 
 class HomeIndexPageState extends State<HomeIndexPage>
-    with AutomaticKeepAliveClientMixin, TickerProviderStateMixin  {
+    with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
 
   var _futureBannerBuilderFuture;
   var _futureMessageBuilderFuture;
-  ShapeBorder _shape = GlobalConfig.cardBorderRadius;
   ScrollController _strollCtrl = ScrollController();
 
   Userinfo _userinfo;
@@ -66,21 +65,33 @@ class HomeIndexPageState extends State<HomeIndexPage>
   Widget getIndexCatList() {
     return Container(
       width: MediaQuery.of(context).size.width,
-      child:Center(
+      child: Center(
         child: TabBar(
             indicatorColor: KColorConstant.themeColor,
             indicatorSize: TabBarIndicatorSize.label,
             isScrollable: true,
             labelColor: KColorConstant.themeColor,
+            indicatorWeight: 2,
+            labelPadding: EdgeInsets.only(left: 15, right: 8),
+            unselectedLabelColor: Colors.black54,
+            labelStyle: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600),
+            unselectedLabelStyle:
+                TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500),
             tabs: _tabs
                 .map((i) => Container(
-              child: Tab(
-                text: i['text'],
-                icon: Icon(Icons.movie_filter),
-              ),
-            ))
+                      child: Tab(
+                        text: i['text'],
+                       /* icon: i['icon'] != null
+                            ? Image.network(
+                                i['icon'],
+                                height: 40,
+                                width: 40,
+                              )
+                            : Icons.hearing,*/
+                      ),
+                    ))
                 .toList()),
-      ) ,
+      ),
     );
   }
 
@@ -178,18 +189,23 @@ class HomeIndexPageState extends State<HomeIndexPage>
                     ),
 
                     getIndexCatList(),
-
+                    Divider(),
                     _tabs.isEmpty
                         ? SizedBox(
                             height: 1,
                           )
                         : Container(
-                            height: 130,
-                            color: Color.fromRGBO(132, 95, 63, 0.2),
+                            height: 150,
+                            color: Colors.white70,
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TabBarView(
-                                children: _buildTabItemView(),
+                              padding: const EdgeInsets.fromLTRB(3.0,0,3,3.0),
+                              child: Card(
+                                child:Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: TabBarView(
+                                    children: _buildTabItemView(),
+                                  ),
+                                ) ,
                               ),
                             ),
                           ),
@@ -197,7 +213,7 @@ class HomeIndexPageState extends State<HomeIndexPage>
                     divdertext('推荐'),
                     _recommondList.length == 0
                         ? Text("没有热门推荐")
-                        :  RecommendFloor( _recommondList),
+                        : RecommendFloor(_recommondList),
                     divdertext('热门'),
                     IndexHotListFloor(_goodsList, cnum: 2),
                   ],
@@ -329,100 +345,6 @@ class HomeIndexPageState extends State<HomeIndexPage>
         ));
   }
 
-  Widget mainTopitem() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-      child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Card(
-              // This ensures that the Card's children are clipped correctly.
-              clipBehavior: Clip.antiAlias,
-              shape: _shape, //,
-              elevation: 5.0,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    InkWell(
-                        onTap: () {
-                          Navigator.push(context, CupertinoPageRoute(
-                              builder: (BuildContext context) {
-                            return SearchResultListPage(
-                              '',
-                              catid: 587,
-                              catname: "幼儿",
-                            );
-                          }));
-                        },
-                        child: buildIconitem('images/czzy.png', "幼儿")),
-                    InkWell(
-                        onTap: () {
-                          Navigator.push(context, CupertinoPageRoute(
-                              builder: (BuildContext context) {
-                            return SearchResultListPage(
-                              '',
-                              catid: 588,
-                              catname: "初级",
-                            );
-                          }));
-                        },
-                        child: buildIconitem('images/about.png', "初级")),
-                    InkWell(
-                        onTap: () {
-                          Navigator.push(context, CupertinoPageRoute(
-                              builder: (BuildContext context) {
-                            return SearchResultListPage(
-                              '',
-                              catid: 589,
-                              catname: "中级",
-                            );
-                          }));
-                        },
-                        child: buildIconitem('images/mustread.png', "中级")),
-                    InkWell(
-                        onTap: () {
-                          Navigator.push(context, CupertinoPageRoute(
-                              builder: (BuildContext context) {
-                            return SearchResultListPage(
-                              '',
-                              catid: 590,
-                              catname: "高级",
-                            );
-                          }));
-                        },
-                        child: buildIconitem('images/reward.png', "高级")), //原分享
-                  ],
-                ),
-              ))),
-    );
-  }
-
-  Widget buildIconitem(String asimg, String title) {
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            height: 45,
-            width: 45,
-            decoration: new BoxDecoration(
-              color: Colors.white,
-              image: new DecorationImage(
-                image: AssetImage(asimg),
-                fit: BoxFit.fill,
-              ),
-            ),
-          ),
-        ),
-        Text(
-          title,
-          style: KfontConstant.defaultStyle,
-        )
-      ],
-    );
-  }
-
   List<Map<String, dynamic>> _recommondList = List();
 
   Future recommondList() async {
@@ -438,7 +360,8 @@ class HomeIndexPageState extends State<HomeIndexPage>
     setState(() {
       _offState = false;
     });
-    _goodsList = await DataUtils.getIndexGoodsList(_page1,_goodsList, context,recommend: 0);//catid:586,
+    _goodsList = await DataUtils.getIndexGoodsList(_page1, _goodsList, context,
+        recommend: 0); //catid:586,
     setState(() {
       _offState = true;
       _page1 += 1;
@@ -465,57 +388,111 @@ class HomeIndexPageState extends State<HomeIndexPage>
     return _tabs.map((item) {
       return Center(
         child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: 5,
+          runSpacing: 3,
           children: (item['lists'] as List).map((it) {
-            return Container(
-                height: 60,
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(context,
-                        CupertinoPageRoute(builder: (BuildContext context) {
-                      return SearchResultListPage(
-                        '',
-                        catid: it['ucid'],
-                        catname: it['name'],
-                      );
-                    }));
-                  },
-                  child:
-              Container(
-                  margin: EdgeInsets.all(2),
-                  child: Column(
-                    children: <Widget>[
-                      CachedNetworkImage(
-                        errorWidget: (context, url, error) =>Container(
-                          height: 40,
-                          width: 40,
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget>[
-                                Image.asset(
-                                  'images/logo_b.png',),
-                                Text("图片无法显示",style: TextStyle(color: Colors.black26),)
-                              ],
-                            ),
-                          ),
+            return  InkWell(
+                onTap: () {
+              Navigator.push(context,
+                  CupertinoPageRoute(builder: (BuildContext context) {
+                    return SearchResultListPage(
+                      '',
+                      catid: it['ucid'],
+                      catname: it['name'],
+                    );
+                  }));
+            },
+            child:Chip(
+              avatar: CircleAvatar(
+                  backgroundColor: KColorConstant.themeColor, child: Text(
+                it['name'].toString().substring(0,1),
+                style: TextStyle(fontSize: 10),
+              )
+ /*             CachedNetworkImage(
+                errorWidget: (context, url, error) => Container(
+                  height: 30,
+                  width: 30,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Image.asset(
+                          'images/logo_b.png',
                         ),
-                        placeholder: (context, url) =>  Loading(),
-                        imageUrl: it['icon'],
-                        height: 40,
-                        width: 40,
-                        fit: BoxFit.fill,
-                      ),
-                      Text(
-                        it['name'],
-                        style: TextStyle(fontSize: 10),
-                      )
-                    ],
-                  ))
+                        Text(
+                          "图片无法显示",
+                          style: TextStyle(color: Colors.black26),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                placeholder: (context, url) => Loading(),
+                imageUrl: it['icon'],
+                height: 40,
+                width: 40,
+                fit: BoxFit.fill,
+              )*/
+              ),
+              label: Text(
+                it['name'],
+                style: TextStyle(fontSize: 12),
+              ),
+            ));
+         /*   return  Container(
+                height: 70,
+                child: InkWell(
+                    onTap: () {
+                      Navigator.push(context,
+                          CupertinoPageRoute(builder: (BuildContext context) {
+                        return SearchResultListPage(
+                          '',
+                          catid: it['ucid'],
+                          catname: it['name'],
+                        );
+                      }));
+                    },
+                    child: Container(
+                        margin: EdgeInsets.all(2),
+                        child: Column(
+                          children: <Widget>[
+                            CachedNetworkImage(
+                              errorWidget: (context, url, error) => Container(
+                                height: 40,
+                                width: 40,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: <Widget>[
+                                      Image.asset(
+                                        'images/logo_b.png',
+                                      ),
+                                      Text(
+                                        "图片无法显示",
+                                        style: TextStyle(color: Colors.black26),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              placeholder: (context, url) => Loading(),
+                              imageUrl: it['icon'],
+                              height: 40,
+                              width: 40,
+                              fit: BoxFit.fill,
+                            ),
+                            Text(
+                              it['name'],
+                              style: TextStyle(fontSize: 10),
+                            )
+                          ],
+                        ))
 //
-                ));
+                    ));*/
           }).toList(),
         ),
       );
@@ -562,14 +539,13 @@ class HomeIndexPageState extends State<HomeIndexPage>
     getGoodsList();
     recommondList();
     _strollCtrl.addListener(() {
-        if (_strollCtrl.position.pixels ==
-            _strollCtrl.position.maxScrollExtent) {
-          print('滑动到了最底部${_strollCtrl.position.pixels}');
-          setState(() {
-            showMore = true;
-          });
-          getGoodsList();
-        }
+      if (_strollCtrl.position.pixels == _strollCtrl.position.maxScrollExtent) {
+        print('滑动到了最底部${_strollCtrl.position.pixels}');
+        setState(() {
+          showMore = true;
+        });
+        getGoodsList();
+      }
     });
 
     super.initState();

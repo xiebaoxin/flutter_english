@@ -226,7 +226,7 @@ class HttpUtils {
       Map<String, dynamic> params, Function callBack) async {
     await dioappi(
       url,
-      params,
+      params,context: context
     ).then((response) {
       callBack(response.data);
     });

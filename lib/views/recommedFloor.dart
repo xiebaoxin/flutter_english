@@ -29,16 +29,11 @@ class RecommendFloor extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Container(
+                  width: 80,
+                  height: 80,
                   child: Padding(
                     padding: const EdgeInsets.all(2.0),
-                    child: Card(
-                      // This ensures that the Card's children are clipped correctly.
-                        clipBehavior: Clip.antiAlias,
-                        shape: _shape, //,
-//                          elevation: 2.0,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CachedNetworkImage(
+                    child:  CachedNetworkImage(
                             errorWidget: (context, url, error) => Container(
                               width: 80,
                               height: 80,
@@ -56,21 +51,16 @@ class RecommendFloor extends StatelessWidget {
                             height: 80,
                             fit: BoxFit.fill,
                           ),
-                        )),
                   ),
                 ),
                 Text(
                   i['title'],
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: KfontConstant.defaultStyle,
-                ),
-                Text(
-                  "英语副标题",
-                  maxLines: 1,
+                  maxLines: 2,
+                  softWrap: true,
                   overflow: TextOverflow.ellipsis,
                   style: KfontConstant.defaultSubStyle,
                 ),
+
               ],
             ),
           ));

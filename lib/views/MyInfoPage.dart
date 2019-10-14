@@ -93,7 +93,7 @@ class MyInfoPageState extends State<MyInfoPage> {
                     padding: EdgeInsets.fromLTRB(
                         0, _top, 0, 2.0), //const EdgeInsets.all(8.0),
                     color: GlobalConfig.mainColor,
-                    height: 90,
+                    height: 95,
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -101,7 +101,7 @@ class MyInfoPageState extends State<MyInfoPage> {
                           SizedBox(height: _top + 25),
                           Container(
                             padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                            height: 80,
+                            height: 70,
                             child: Row(
                               mainAxisAlignment:
                               MainAxisAlignment.spaceBetween,
@@ -115,62 +115,85 @@ class MyInfoPageState extends State<MyInfoPage> {
                               ],
                             ),
                           ),
-                          InkWell(
-                            child: Container(
-                              height: 40,
-                              alignment: Alignment.bottomRight,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  Text("签到",
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text("积分:${_userinfo.point.toStringAsFixed(2)}",
                                       style: TextStyle(
                                           color: Color(0xFFFFFFFF))),
-                                  SizedBox(
-                                    width: 10,
+                                ),
+                                InkWell(
+                                  child: Container(
+                                    height: 40,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: <Widget>[
+                                        Text("签到",
+                                            style: TextStyle(
+                                                color: Color(0xFFFFFFFF))),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Image.asset(
+                                          "images/签到.png",
+                                          width: 30.0,
+                                        ),
+                                        SizedBox(
+                                          width: 10,
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                  Image.asset(
-                                    "images/签到.png",
-                                    width: 30.0,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  )
-                                ],
-                              ),
+                                  onTap: () {
+                                    Application().checklogin(context, () {
+                                      HttpUtils.dioappi('User/user_sign', {},
+                                          context: context, withToken: true)
+                                          .then((response) async {
+                                        await DialogUtils.showToastDialog(
+                                            context, response['msg']);
+                                        await DataUtils.freshUserinfo(context);
+                                      });
+                                    });
+                                  },
+                                ),
+                              ],
                             ),
-                            onTap: () {
-                              Application().checklogin(context, () {
-                                HttpUtils.dioappi('User/user_sign', {},
-                                    context: context, withToken: true)
-                                    .then((response) async {
-                                  await DialogUtils.showToastDialog(
-                                      context, response['msg']);
-                                  await DataUtils.freshUserinfo(context);
-                                });
-                              });
-                            },
                           ),
                         ])),
 //                  stackmsg()
               )),
           SliverList(
             delegate: SliverChildListDelegate(<Widget>[
-              adsRow(),
-              Stack(
-                children: <Widget>[
-                  mainbuid(),
-              /*    Positioned(
-                      top: 10,
-                      left: 40,
-                      right: 40,
-                      child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.center,
-                          child: buildmListRow()))*/
-                ],
-              ),
-//              const SizedBox(height: 10.0),
+              renderRow('images/订单.png', "我的订单", index: 12),
+              Divider(),
+              renderRow('images/二维码.png', "专属二维码", index: 7),
+              Divider(),
+              renderRow('images/账户安全.png', "账户安全", index: 6),
+              Divider(),
+              renderRow('images/攻略.png', "邀请明细", index: 11),
+              Divider(),
 
+              renderRow('images/账户安全.png', "支付密码", index: 4),
+              Divider(),
+              renderRow('images/账户安全.png', "登录密码", index: 5),
+              Divider(),
+              renderRow(
+                  'images/攻略.png',
+                  "新手攻略",index: 19
+              ),
+              Divider(),
+              renderRow('images/客服.png', "充值",index: 8),
+              Divider(),
+              renderRow('images/收货地址.png', "收货地址", index: 3),
+              Divider(),
+              renderRow('images/关于.png', "关于我们",index: 20),
+              Divider(),
+              renderRow('images/客服.png', "客服"),
+              Divider(),
             ]),
           ),
         ],
@@ -290,79 +313,27 @@ class MyInfoPageState extends State<MyInfoPage> {
     );
   }
 
-  Widget buildmListRow() {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Container(
-        alignment: Alignment.center,
-        width: 250,
-        child: Card(
-          // This ensures that the Card's children are clipped correctly.
-            clipBehavior: Clip.antiAlias,
-            shape: RoundedRectangleBorder(
-              side: BorderSide(color: Colors.white12),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(18.0),
-                topRight: Radius.circular(18.0),
-                bottomLeft: Radius.circular(18.0),
-                bottomRight: Radius.circular(18.0),
-              ),
-            ), //,
-            elevation: 5.0,
-            child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Container(
-                    alignment: Alignment.center,
-                    width: 220,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: <Widget>[
-                        InkWell(
-                          child: buildIconitem('images/订单.png', "订单"),
-                          onTap: () {
-                            Application().checklogin(context, () {
-                              Navigator.push(
-                                context,
-                                new MaterialPageRoute(
-                                    builder: (context) => OrderListPage()),
-                              );
-                            });
-                          },
-                        ),
-                        InkWell(
-                          child: buildIconitem('images/余额2.png', "余额"),
-                          onTap: () {
-                            Application().checklogin(context, () {
-                              Navigator.push(
-                                context,
-                                new MaterialPageRoute(
-                                    builder: (context) => BalancePage()),
-                              );
-                            });
-                          },
-                        ),
-                        InkWell(
-                          child: buildIconitem('images/补贴.png', "补贴"),
-                          onTap: () {
-                            Application().checklogin(context, () {
-                              Navigator.push(
-                                context,
-                                new MaterialPageRoute(
-                                    builder: (context) => BalanceButiePage()),
-                              );
-                            });
-                          },
-                        )
-                      ],
-                    )))),
-      ),
-    );
-  }
-
   Widget buildIconitem(String asimg, String title,) {
-    return Container(
-        alignment: Alignment.center,
-        child: Column(
+    return  ListTile(
+        /*  leading:  Container(
+                height: 28,
+                width: 28,
+                child: Icon(Icons.account_balance,color: Colors.grey,),
+                decoration: new BoxDecoration(
+                  color: Colors.white,
+                  *//*        image: new DecorationImage(
+                    image: AssetImage(asimg),
+                    fit: BoxFit.fill,
+                  ),*//*
+                ),
+              ),*/
+            title:
+            Text(
+              title,
+              style: KfontConstant.defaultStyle,
+            ),
+       trailing: Icon(Icons.keyboard_arrow_right,color: Colors.grey,),
+       /* Column(
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -372,10 +343,10 @@ class MyInfoPageState extends State<MyInfoPage> {
                 child: Icon(Icons.account_balance,color: Colors.grey,),
                 decoration: new BoxDecoration(
                   color: Colors.white,
-          /*        image: new DecorationImage(
+          *//*        image: new DecorationImage(
                     image: AssetImage(asimg),
                     fit: BoxFit.fill,
-                  ),*/
+                  ),*//*
                 ),
               ),
             ),
@@ -384,7 +355,8 @@ class MyInfoPageState extends State<MyInfoPage> {
               style: KfontConstant.defaultSubStyle,
             )
           ],
-        ));
+        )*/
+    );
   }
 
   Widget adsRow() {
@@ -410,64 +382,48 @@ class MyInfoPageState extends State<MyInfoPage> {
         ));
   }
 
-  Widget stackmsg() {
-    return Positioned(
-      top: 180,
-      left: 20,
-      right: 20,
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: Alignment.center,
-        child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 2.0, vertical: 2.0),
-            height: 30,
-            width: 220,
-            decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.black45, width: 1.0),
-                borderRadius: BorderRadius.circular(20.0)),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  InkWell(
-                    child: Icon(Icons.info_outline,
-                        color: Colors.deepOrangeAccent),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MessagePage(),
-                        ),
-                      );
-                    },
-                  ),
-                  Container(
-                    width: 160,
-                    height: 40,
-                    child: MarqueeWidget(
-                      text: "ListView即滚动列表控件，能将子控件组成可滚动的列表。当你需要排列的子控件超出容器大小",
-                      textStyle:
-                      new TextStyle(fontSize: 12.0, color: Colors.black45),
-                      scrollAxis: Axis.horizontal,
-                    ),
-                  ),
-                  InkWell(
-                    child: Icon(Icons.close, color: _iconcolor),
-                    onTap: () {
-                      setState(() {
-                        _showMsg = false;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            )),
-      ),
-    );
-  }
 
   Widget mainbuid() {
+    return
+        Container(
+          alignment: Alignment.center,
+          width: GlobalConfig.cardWidth,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              clipBehavior: Clip.antiAlias,
+              shape: _shape, //,
+              elevation: 5,
+              child:  Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListView(
+                                children: <Widget>[
+                                  renderRow('images/订单.png', "我的订单", index: 12),
+                                  renderRow('images/二维码.png', "专属二维码", index: 7),
+                                  renderRow('images/账户安全.png', "账户安全", index: 6),
+                                  renderRow('images/攻略.png', "邀请明细", index: 11),
+
+                                  renderRow('images/收货地址.png', "收货地址", index: 3),
+                                  renderRow('images/账户安全.png', "支付密码", index: 4),
+                                  renderRow('images/账户安全.png', "登录密码", index: 5),
+                                  renderRow(
+                                      'images/攻略.png',
+                                      "新手攻略",index: 19
+                                  ),
+
+                                  renderRow('images/客服.png', "充值",index: 8),
+                                  renderRow('images/关于.png', "关于我们",index: 20),
+                                  renderRow('images/客服.png', "客服"),
+                                  SizedBox(height: 50,width: 50,)
+                                ],
+                              ),
+              ),
+                          )
+
+        ),
+    );
+  }
+  Widget mainbuid111() {
     return Column(
       children: <Widget>[
 //        SizedBox(
