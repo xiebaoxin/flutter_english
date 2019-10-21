@@ -19,8 +19,8 @@ class SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          brightness: Brightness.light,
-          backgroundColor: KColorConstant.searchAppBarBgColor,
+//          brightness: Brightness.light,
+//          backgroundColor: KColorConstant.searchAppBarBgColor,
           leading: SearchTopBarLeadingWidget(),
           actions: <Widget>[
             SearchTopBarActionWidget(

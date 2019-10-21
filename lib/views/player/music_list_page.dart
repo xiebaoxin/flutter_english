@@ -9,12 +9,12 @@ import '../../utils/DialogUtils.dart';
 import '../../routers/application.dart';
 import '../../model/buy_model.dart';
 import '../buygoods_page.dart';
+import '../player/full_player_page.dart';
 
 class MusicListPage extends StatefulWidget {
   final  List<Map<String, dynamic>> vdlist;//列表集合
   final Song curSong;
-  final int curindex;
-  MusicListPage(this.vdlist,this.curindex,this.curSong);
+  MusicListPage(this.vdlist,this.curSong);
 
   @override
   State<StatefulWidget> createState() {
@@ -74,15 +74,15 @@ class MusicListState extends State<MusicListPage> {
         onTap: () async {
 
           Map<String, dynamic> item = widget.curSong.vdlist[index];
-//          print("===--MusicListPage====${item['video_name']}===preid=${widget.curSong.preid}=====nextid ${widget.curSong.nextid}==========55555555555=======");
+//          print("===--MusicListPage====${item['video_name']}==$index====preid=${widget.curSong.preid}=====nextid ${widget.curSong.nextid}=====${item['video_id'].toString()}==55555555555=======");
 
           if (await DataUtils.isCheckedGoods(
               widget.curSong.info['goods_id'], videoid: index,
               vd_level: widget.curSong.info['vd_level'])) {
 
             await DataUtils.getmp3txt(item['video_id'],context: context).then((txlist) {
-              Navigator.of(context).pop(true);
               PlayerTools.instance.setSong(Song(
+                  id:item['video_id'],
                   vdlist: widget.curSong.vdlist,
                   url: item['video_url'],
                   video: item,
@@ -93,6 +93,26 @@ class MusicListState extends State<MusicListPage> {
                   nextid: index < widget.curSong.vdlist.length
                       ? widget.curSong.vdlist[index + 1 ]['video_id']
                       : 0));
+           /*   Navigator.pushReplacement(context, PageRouteBuilder(
+                  opaque: false,
+                  pageBuilder: (BuildContext context, _, __) {
+                    return FullPlayerPage();
+                  },
+                  transitionsBuilder: (___, Animation<double> animation, ____, Widget child) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                          begin: Offset(0.0, 1.0),
+                          end:Offset(0.0, 0.0)
+                      ).animate(CurvedAnimation(
+                          parent: animation,
+                          curve: Curves.fastOutSlowIn
+                      )),
+                      child: child,
+                    );
+                  }
+              ));
+*/
+              Navigator.of(context).pop(true);
             });
           }
           else {
@@ -124,7 +144,7 @@ class MusicListState extends State<MusicListPage> {
             new Container(
               padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
               width: MediaQuery.of(context).size.width,
-              child: new Text("${index+1}: ${item['video_name']}", style: TextStyle(color:index==widget.curindex? Colors.green:Colors.white),),
+              child: new Text("${index+1}: ${item['video_name']}", style: TextStyle(color:(item['video_id']==(widget.curSong.nextid-1)? Colors.green:Colors.white) ),),
             ),
             new Divider(height: 1,)
           ],

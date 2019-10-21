@@ -3,10 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import './model/globle_model.dart';
 import './views/MyInfoPage.dart';
+import './routers/application.dart';
 import './utils/screen_util.dart';
 import './globleConfig.dart';
 import './views/home_Page.dart';
 import './views/category.dart';
+import './views/sharePage.dart';
+import './views/person/myfavera.dart';
 import './views/player/mini_player_page.dart';
 import 'package:provide/provide.dart';
 import './data/base.dart';
@@ -61,7 +64,7 @@ class _AppState extends State<_AppContentPage> with TickerProviderStateMixin<_Ap
   var _pages;
 
   // 菜单文案'商城',
-  var tabTitles = ['首页',  '类目', '我的'];
+  var tabTitles = ['首页',  '分享', '我的'];
 
   // 生成image组件
   Image getTabImage(path) {
@@ -98,9 +101,11 @@ class _AppState extends State<_AppContentPage> with TickerProviderStateMixin<_Ap
 
     _pages = [
        HomeIndexPage(),
-      Category(
+sharePage(ishome: true,),
+//       MyfaveratePage(),
+/*    Category(
        rightListViewHeight: ScreenUtil.screenHeight - extralHeight,
-    ),
+    ),*/
     MyInfoPage(),
     ];
 

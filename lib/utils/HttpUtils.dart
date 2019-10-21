@@ -270,7 +270,6 @@ class HttpUtils {
 
       Map<String, dynamic> nrespon = response.data;
       print("==================dioapp--$url----end=================================");
-      print(response.data);
       return nrespon;
 //      Entity entity = Entity.fromJson(map);
       return response.data;

@@ -19,7 +19,6 @@ class RecommendFloor extends StatelessWidget {
           height: 100,
           margin: EdgeInsets.all(2),
           padding: EdgeInsets.all(5),
-          color: bgColor,
           child: InkWell(
             onTap: () {
               Application.goodsDetail(context, i['goods_id'],
@@ -68,7 +67,7 @@ class RecommendFloor extends StatelessWidget {
 
     return Container(
         width: deviceWidth,
-        color: Colors.white,
+        color:bgColor,
         height: 165,
         child: ListView(
           children: listWidgets,

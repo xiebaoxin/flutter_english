@@ -25,7 +25,7 @@ import 'person/balancebutie.dart';
 import 'person/bangdPhone.dart';
 import 'person/usersetting.dart';
 import 'person/childrenList.dart';
-import 'person/xianjinjuan.dart';
+import 'person/myfavera.dart';
 import 'person/recharge.dart';
 
 class MyInfoPage extends StatefulWidget {
@@ -170,6 +170,8 @@ class MyInfoPageState extends State<MyInfoPage> {
             delegate: SliverChildListDelegate(<Widget>[
               renderRow('images/订单.png', "我的订单", index: 12),
               Divider(),
+              renderRow('images/mustread.png', "我的收藏",index: 10),
+              Divider(),
               renderRow('images/二维码.png', "专属二维码", index: 7),
               Divider(),
               renderRow('images/账户安全.png', "账户安全", index: 6),
@@ -177,6 +179,8 @@ class MyInfoPageState extends State<MyInfoPage> {
               renderRow('images/攻略.png', "邀请明细", index: 11),
               Divider(),
 
+              renderRow('images/客服.png', "充值",index: 8),
+              Divider(),
               renderRow('images/账户安全.png', "支付密码", index: 4),
               Divider(),
               renderRow('images/账户安全.png', "登录密码", index: 5),
@@ -185,8 +189,7 @@ class MyInfoPageState extends State<MyInfoPage> {
                   'images/攻略.png',
                   "新手攻略",index: 19
               ),
-              Divider(),
-              renderRow('images/客服.png', "充值",index: 8),
+
               Divider(),
               renderRow('images/收货地址.png', "收货地址", index: 3),
               Divider(),
@@ -579,7 +582,7 @@ class MyInfoPageState extends State<MyInfoPage> {
             Application.router.navigateTo(context, "/share");
             break;
          case 8:
-           Navigator.push(
+          Navigator.push(
              context,
              new MaterialPageRoute(
                  builder: (context) => reChargePage()),
@@ -589,7 +592,11 @@ class MyInfoPageState extends State<MyInfoPage> {
             DialogUtils.close2Logout(context, cancel: true);
             break;
           case 10:
-
+            Navigator.push(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) => MyfaveratePage()),
+            );
             break;
           case 11:
             Navigator.push(
@@ -604,12 +611,7 @@ class MyInfoPageState extends State<MyInfoPage> {
                   builder: (context) => OrderListPage()),
             );
             break;
-          case 13:
-            Navigator.push(
-              context,
-              new MaterialPageRoute(builder: (context) => xianjinjuanPage()),
-            );
-            break;
+
           default:
             Scaffold.of(context).showSnackBar(SnackBar(
               content: Text('正在加紧开发中…'),

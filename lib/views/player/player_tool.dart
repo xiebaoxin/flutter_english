@@ -34,9 +34,9 @@ class PlayerTools {
     audio.stateSubject.listen((state) {
       this.currentState = state;
       this.stateSubject.value = state;
-      if (state == AudioToolsState.isEnd) {
+    /*  if (state == AudioToolsState.isEnd) {
         this.nextAction(true);
-      }
+      }*/
     });
     audio.progressSubject.listen((progress) {
       this.currentProgress = progress;
@@ -67,7 +67,7 @@ class PlayerTools {
   }
 
   /// 0顺序 1随机  2单曲
-  int _mode = 0;
+  int _mode = 2;
   int get mode => _mode;
   set mode(int mode) {
     _mode = mode;
@@ -81,8 +81,11 @@ class PlayerTools {
 
   // 设置数据源
   setSong(Song song) {
+    this.stop();
+    this._currentState=AudioToolsState.isStoped;
+    this._currentState=AudioToolsState.isEnd;
     this._currentSong = song;
-//    print("====setSong=======${song.preid}====${song.video['video_id']}==${song.nextid}========================");
+
     this.play(song);
     MainProvide.instance.showMini = true;
   }
@@ -115,22 +118,20 @@ class PlayerTools {
 
   /// 上一首
   Future<int> preAction() async {
-     if (this.currentSong.preid >= 0) {
-        int index = this.currentSong.preid;
-        Map<String, dynamic> item = index>=1?this.currentSong.vdlist[index-1]:this.currentSong.vdlist[0];
-
-        await DataUtils.getmp3txt(item['video_id']).then((txlist) {
-        setSong(Song(
-            vdlist: this.currentSong.vdlist,
+    if (this._currentSong.preid >= 0) {
+      int index = this._currentSong.preid;
+//        print("===--PlayerTools====${this._currentSong.id}===preid=${this._currentSong.preid}=====nextid ${this._currentSong.nextid}=================3333333333333333333===============");
+      Map<String, dynamic> item = getvdlistItem(index);
+      await DataUtils.getmp3txt(this._currentSong.preid).then((txlist) {
+        return this.setSong(Song(
+            id:this._currentSong.preid,
+            vdlist: this._currentSong.vdlist,
             url: item['video_url'],
             video: item,
-            info: this.currentSong.info,
+            info: this._currentSong.info,
             txtlist: txlist,
-            preid:
-                index > 1 ? this.currentSong.vdlist[index - 2]['video_id'] : 0,
-            nextid: index < this.currentSong.vdlist.length
-                ? this.currentSong.vdlist[index]['video_id']
-                : 0));
+            preid: this._currentSong.preid-1,
+            nextid: this._currentSong.id));
       });
     }
 /*
@@ -148,43 +149,37 @@ class PlayerTools {
 
   /// 下一首
   Future<int> nextAction([bool isAutoend = false]) async {
-    int endid=_currentSong.nextid?? (_currentSong.vdlist!=null ?_currentSong.vdlist.length:0);
-    int maxend=_currentSong.vdlist!=null ?_currentSong.vdlist.length:0;
+    if (this._currentSong.nextid > 0) {
+      int index = this._currentSong.nextid;
+      Map<String, dynamic> item = getvdlistItem(index);
+      print("===--PlayerTools===${this._currentSong.id}====preid=${this._currentSong.preid}=====nextid ${this._currentSong.nextid}=================4444444444444444===============");
 
-    if (this.currentSong.nextid > 0 && endid<=maxend) {
-      int index = this.currentSong.nextid;
-      Map<String, dynamic> item = this.currentSong.vdlist[index];
-//print("===--PlayerTools====${item['video_name']}===preid=${this.currentSong.preid}=====nextid ${this.currentSong.nextid}=================4444444444444444===============");
-
-      await DataUtils.getmp3txt(item['video_id']).then((txlist) {
-        setSong(Song(
-            vdlist: this.currentSong.vdlist,
+      await DataUtils.getmp3txt(this._currentSong.nextid).then((txlist) {
+        return this.setSong(Song(
+            id:this._currentSong.nextid,
+            vdlist: this._currentSong.vdlist,
             url: item['video_url'],
             video: item,
-            info: this.currentSong.info,
+            info: this._currentSong.info,
             txtlist: txlist,
-            preid:
-            index > 0 ? this.currentSong.vdlist[index -1]['video_id'] : 0,
-            nextid: index < this.currentSong.vdlist.length
-                ? this.currentSong.vdlist[index+1]['video_id']
-                : maxend));
+            preid: this._currentSong.id ,
+            nextid: this._currentSong.nextid+1));
       });
 
     }
-    /* if (isAutoend && this.mode == 2) {
-      return this.play(songArr[currentPlayIndex]);
-    }
-    if (this.mode == 1) { // 随机
-      this.currentPlayIndex = Random().nextInt(this.songArr.length - 1);
-    } else {
-      this.currentPlayIndex += 1;
-      if (this.currentPlayIndex >= this.songArr.length) {
-        this.currentPlayIndex = 0;
-      }
-    }
-    return this.play(songArr[currentPlayIndex]);*/
+
   }
 
+  Map<String, dynamic> getvdlistItem(int index){
+    Map<String, dynamic> ddd={};
+     this._currentSong.vdlist.forEach((ele) {
+       if (ele.isNotEmpty) {
+         if(index==ele['video_id'])
+           ddd= ele;
+       }
+     });
+     return ddd;
+  }
   /// 定时器
   Timer _countdownTimer;
   int _countdownNum = 0;

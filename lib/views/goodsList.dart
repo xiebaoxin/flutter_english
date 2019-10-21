@@ -81,11 +81,11 @@ class GoodsListWidget extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                                    Text(
+                            /*        Text(
                               '5人评价 好评率80%',
                               style:
                                   KfontConstant.searchResultItemCommentCountStyle,
-                            ),
+                            ),*/
 
                                 ],
                               ),

@@ -37,9 +37,9 @@ class _FullPlayerContentPage extends StatefulWidget {
 class _FullPlayerContentState extends State<_FullPlayerContentPage>
     with TickerProviderStateMixin {
   PlayerProvide _provide;
-  Animation<double> animationNeedle;
+//  Animation<double> animationNeedle;
   Animation<double> animationRecord;
-  AnimationController controllerNeedle;
+//  AnimationController controllerNeedle;
   AnimationController controllerRecord;
   final _rotateTween = new Tween<double>(begin: -0.05, end: 0);
   final _commonTween = new Tween<double>(begin: 0.0, end: 1.0);
@@ -65,24 +65,17 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     super.initState();
     _provide ??= widget.provide;
 
-    controllerNeedle = new AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-    animationNeedle =
-        new CurvedAnimation(parent: controllerNeedle, curve: Curves.linear);
-
     controllerRecord = new AnimationController(
-        duration: const Duration(milliseconds: 15000), vsync: this);
+        duration: const Duration(milliseconds: 1500), vsync: this);
     animationRecord =
         new CurvedAnimation(parent: controllerRecord, curve: Curves.linear);
 
     var s = PlayerTools.instance.stateSubject.listen((state) {
       if (state == AudioToolsState.isPlaying) {
-        controllerNeedle.forward();
         controllerRecord.forward();
+
       } else {
-        controllerNeedle.reverse();
+        print("----------- AudioToolsState.${state}--------------");
         controllerRecord.stop(canceled: false);
       }
     });
@@ -113,7 +106,6 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
 
   @override
   void dispose() {
-    controllerNeedle.dispose();
     controllerRecord.dispose();
     ges_controller.dispose();
     _subscriptions.dispose();
@@ -179,7 +171,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   Provide<PlayerProvide> _buildView() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide value) {
-      return  _provide.currentSong.video != null
+      return  _provide.currentSong.id != null
             ? _setupContent()
             : Container(
           color: this.backgrd,
@@ -195,8 +187,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   }
 
   Provide<PlayerProvide> _setupContent() {
-
-    return Provide<PlayerProvide>(
+ return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide value) {
       if (_provide.songProgress < 1000) _txtid = 0;
       if (PlayerTools.instance.duration > 0) {
@@ -212,7 +203,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
       return Container(
         color: this.backgrd,
         child: Column(
-//        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             _setupTop(),
             _setupMiddle(),
@@ -379,10 +370,14 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
         flex: 2,
         child:
         Container(
+          height:88 ,
           color: Colors.black12,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              _setupSlide(), _setupControl(),
+              _setupSlide(),
+              Text(PlayerTools.instance.currentState == AudioToolsState.isPlaying ? "正在播放中……":"已停止",style: TextStyle(fontSize: 10),),
+              _setupControl(),
             ],
           ),
         )
@@ -458,7 +453,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                   _provide.seek(endValue);
               },
               semanticFormatterCallback: (newValue) {
-                return '${newValue.round()} dollars';
+                return "${newValue.round()}---- ${_txtid}";
               },
             )),
             new Text(
@@ -474,7 +469,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   Widget _setupControl() {
     return new SafeArea(
         child: new Container(
-//          color: Colors.red,
+         height: 38,
       margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
       child: new Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,

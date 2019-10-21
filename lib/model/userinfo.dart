@@ -64,7 +64,7 @@ class Userinfo {
         phone: json['phone'] ?? '18888888888',
         name: json['username'] ?? '新人驾到',
         acount: json['account']??"88888888",
-        id: json['user_id'].toString(),
+        id: json['user_id'].toString()??"0",
         nickname: json['nickname'] ?? '新人驾到',
         avtar: json['avatar'] ??
             GlobalConfig.server +

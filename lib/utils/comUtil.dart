@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
 import '../globleConfig.dart';
-import '../utils/screen_util.dart';
 
 class ComFunUtil {
   static padNum(String pad) {
@@ -329,4 +328,6 @@ class ComFunUtil {
     }
 
   }
+
+
 }

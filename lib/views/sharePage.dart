@@ -13,6 +13,8 @@ import '../components/banner.dart';
 
 
 class sharePage extends StatefulWidget {
+  final bool ishome;
+  sharePage({this.ishome=false});
   @override
   sharePageState createState() => new sharePageState();
 }
@@ -25,7 +27,7 @@ class sharePageState extends State<sharePage>
   int _curindex = 0;
   int _defindex = 0;
   List<String> _picList=[] ;
-  String _userid, _userName;
+  String _userid='0', _userName;
 
   Future<List<String>> _initPicList() async {
     final model = globleModel().of(context);
@@ -34,8 +36,6 @@ class sharePageState extends State<sharePage>
 //
     await HttpUtils.dioappi('Pub/getWxShareImgs/user_id/${_userid}', {},context: context)
         .then((response) async {
-      print(response);
-
       if (response['imglist'].isNotEmpty) {
         response['imglist'].forEach((ele) {
           if (ele.isNotEmpty) {
@@ -67,7 +67,6 @@ class sharePageState extends State<sharePage>
 
     SystemUiOverlayStyle style = SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light
     );
     SystemChrome.setSystemUIOverlayStyle(style);
 
@@ -117,13 +116,13 @@ class sharePageState extends State<sharePage>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  IconButton(
+                  !widget.ishome ? IconButton(
                     icon: Icon(Icons.arrow_back_ios,color: Color(0xFFFFFFFF),),
                     tooltip: '返回',
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                  ),
+                  ):SizedBox(width: 10,),
                   Container(
                       padding: EdgeInsets.all(0),
                       height: 40,

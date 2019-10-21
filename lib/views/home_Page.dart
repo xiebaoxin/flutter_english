@@ -46,11 +46,9 @@ class HomeIndexPageState extends State<HomeIndexPage>
   ScrollController _strollCtrl = ScrollController();
 
   Userinfo _userinfo;
-
   var rightArrowIcon = Icon(Icons.chevron_right, color: Colors.black26);
-  AppBarBehavior _appBarBehavior = AppBarBehavior.pinned;
 
-  bool _isLoading = false; //是否正在请求新数据
+  bool _islogin = false;
   bool showMore = false; //是否显示底部加载中提示
   bool _offState = false; //是否显示进入页面时的圆形进度条
 
@@ -61,6 +59,214 @@ class HomeIndexPageState extends State<HomeIndexPage>
       'lists': [],
     }
   ];
+
+  @override
+  Widget build(BuildContext context) {
+    return ScopedModelDescendant<globleModel>(builder: (context, child, model) {
+      _userinfo = model.userinfo;
+       _islogin = model.loginStatus;
+      return Scaffold(
+          backgroundColor: Color(0xFFFFFFFF),
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(40),
+            child: AppBar(
+              flexibleSpace: SizedBox(
+                height: 1,
+              ),
+              toolbarOpacity: 0.8,
+              bottomOpacity: 0.7,
+              backgroundColor: Color(0xFFe7281d), //把appbar的背景色改成透明
+              elevation: 0.5,
+              brightness: Brightness.light, //黑底白字，light 白底黑字
+              leading: Image.asset(
+                "images/logo.png",
+                height: 15,
+                width: 18,
+//        fit: BoxFit.fill,
+              ),
+
+              title: GestureDetector(
+                  onTap: () {
+                    Navigator.push(context,
+                        CupertinoPageRoute(builder: (BuildContext context) {
+                      return SearchPage();
+                    }));
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width - 40,
+                    height: 28,
+                    padding: EdgeInsets.all(1.0),
+                    decoration: BoxDecoration(
+                        color: Color.fromRGBO(240, 240, 240, 0.5),
+                        borderRadius: BorderRadius.circular(14.0)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.search,
+                                color: Color(0xFF979797),
+                                size: 20,
+                              ),
+                              Text(
+                                "搜索",
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Color(0xFF979797),
+                                  fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+              actions: <Widget>[
+                IconButton(
+                    icon: !_islogin ?Icon(Icons.perm_identity):Icon(Icons.person,color: Colors.lime,),
+                    onPressed: !_islogin
+                        ? () {
+                            Application().checklogin(context, () {
+                              ;
+                            });
+                          }
+                        : null),
+              ],
+            ),
+          ),
+          body: _tabs.isEmpty
+              ? getIndexCatList()
+              : DefaultTabController(
+                  length: _tabs.length,
+                  initialIndex: 0,
+                  child: Scaffold(
+                    backgroundColor: Colors.white,
+                    body: ListView(
+                      controller: _strollCtrl,
+                      children: [
+                        FutureBuilder(
+                          future: _futureBannerBuilderFuture,
+                          builder:
+                              (BuildContext context, AsyncSnapshot snapshot) {
+                            //snapshot就是_calculation在时间轴上执行过程的状态快照
+                            switch (snapshot.connectionState) {
+                              case ConnectionState.none:
+                                return new Text(
+                                    'Press button to start'); //如果_calculation未执行则提示：请点击开始
+                              case ConnectionState.waiting:
+                                return Image.asset(
+                                  "images/bg_img.png",
+                                  height: 180,
+                                  width: ScreenUtil.screenWidth,
+                                  fit: BoxFit.fill,
+                                );
+//                  return new Text('Awaiting result...');  //如果_calculation正在执行则提示：加载中
+                              default: //如果_calculation执行完毕
+                                if (snapshot.hasError) //若_calculation执行出现异常
+                                  return Column(
+                                    children: <Widget>[
+                                      Text('Error: ${snapshot.error}'),
+                                      Image.asset(
+                                        "images/bg_img.png",
+                                        height: 180,
+                                        width: ScreenUtil.screenWidth,
+                                        fit: BoxFit.fill,
+                                      )
+                                    ],
+                                  );
+                                else {
+                                  if (snapshot.hasData) {
+                                    var ddre = snapshot.data;
+                                    List<String> banners = [];
+                                    List<String> linkers = [];
+                                    if (ddre != null) {
+                                      ddre.forEach((ele) {
+                                        if (ele.isNotEmpty &&
+                                            ele['ad_code'].isNotEmpty &&
+                                            ele['ad_link'].isNotEmpty) {
+                                          banners
+                                              .add(ele['ad_code'].toString());
+                                          linkers
+                                              .add(ele['ad_link'].toString());
+                                        }
+                                      });
+                                    }
+
+                                    return Container(
+                                        height: 180,
+                                        child: Column(
+                                          children: <Widget>[
+                                            banners.length <= 0
+                                                ? Image.asset(
+                                                    "images/bg_img.png",
+                                                    height: 180,
+                                                    width:
+                                                        ScreenUtil.screenWidth,
+                                                    fit: BoxFit.fill,
+                                                  )
+                                                : SwipperBanner(
+                                                    banners: banners,
+                                                    nheight: 180,
+                                                    urllinks: linkers,
+                                                  )
+                                          ],
+                                        ));
+                                  } else {
+                                    return Center(
+                                      child: Text("加载中"),
+                                    );
+                                  }
+                                } //若_calculation执行正常完成
+//                    return new Text('Result: ${snapshot.data}');
+                            }
+                          },
+                        ),
+                        stackmsg(),
+//                  mainTopitem(),
+                        SizedBox(
+                          height: 10,
+                        ),
+
+                        getIndexCatList(),
+//                    Divider(),
+                        _tabs.isEmpty
+                            ? SizedBox(
+                                height: 1,
+                              )
+                            : Container(
+                                height: 120,
+                                color: Colors.white70,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(3.0, 0, 3, 3.0),
+                                  child: Card(
+                                    borderOnForeground: false,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: TabBarView(
+                                        children: _buildTabItemView(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                        divdertext('推荐'),
+                        _recommondList.length == 0
+                            ? Text("没有热门推荐")
+                            : RecommendFloor(_recommondList),
+                        divdertext('热门'),
+                        IndexHotListFloor(_goodsList, cnum: 2),
+                      ],
+                    ),
+                  )));
+    });
+  }
 
   Widget getIndexCatList() {
     return Container(
@@ -81,7 +287,7 @@ class HomeIndexPageState extends State<HomeIndexPage>
                 .map((i) => Container(
                       child: Tab(
                         text: i['text'],
-                       /* icon: i['icon'] != null
+                        /* icon: i['icon'] != null
                             ? Image.network(
                                 i['icon'],
                                 height: 40,
@@ -93,133 +299,6 @@ class HomeIndexPageState extends State<HomeIndexPage>
                 .toList()),
       ),
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ScopedModelDescendant<globleModel>(builder: (context, child, model) {
-      _userinfo = model.userinfo;
-      return _tabs.isEmpty
-          ? getIndexCatList()
-          : DefaultTabController(
-              length: _tabs.length,
-              initialIndex: 0,
-              child: Scaffold(
-                backgroundColor: Colors.white,
-                body: ListView(
-                  controller: _strollCtrl,
-                  children: [
-                    FutureBuilder(
-                      future: _futureBannerBuilderFuture,
-                      builder: (BuildContext context, AsyncSnapshot snapshot) {
-                        //snapshot就是_calculation在时间轴上执行过程的状态快照
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.none:
-                            return new Text(
-                                'Press button to start'); //如果_calculation未执行则提示：请点击开始
-                          case ConnectionState.waiting:
-                            return Image.asset(
-                              "images/bg_img.png",
-                              height: 180,
-                              width: ScreenUtil.screenWidth,
-                              fit: BoxFit.fill,
-                            );
-//                  return new Text('Awaiting result...');  //如果_calculation正在执行则提示：加载中
-                          default: //如果_calculation执行完毕
-                            if (snapshot.hasError) //若_calculation执行出现异常
-                              return Column(
-                                children: <Widget>[
-                                  Text('Error: ${snapshot.error}'),
-                                  Image.asset(
-                                    "images/bg_img.png",
-                                    height: 180,
-                                    width: ScreenUtil.screenWidth,
-                                    fit: BoxFit.fill,
-                                  )
-                                ],
-                              );
-                            else {
-                              if (snapshot.hasData) {
-                                var ddre = snapshot.data;
-                                List<String> banners = [];
-                                List<String> linkers = [];
-                                if (ddre != null) {
-                                  ddre.forEach((ele) {
-                                    if (ele.isNotEmpty &&
-                                        ele['ad_code'].isNotEmpty &&
-                                        ele['ad_link'].isNotEmpty) {
-                                      banners.add(ele['ad_code'].toString());
-                                      linkers.add(ele['ad_link'].toString());
-                                    }
-                                  });
-                                }
-
-                                return Container(
-                                    height: 180,
-                                    child: Column(
-                                      children: <Widget>[
-                                        banners.length <= 0
-                                            ? Image.asset(
-                                                "images/bg_img.png",
-                                                height: 180,
-                                                width: ScreenUtil.screenWidth,
-                                                fit: BoxFit.fill,
-                                              )
-                                            : SwipperBanner(
-                                                banners: banners,
-                                                nheight: 180,
-                                                urllinks: linkers,
-                                              )
-                                      ],
-                                    ));
-                              } else {
-                                return Center(
-                                  child: Text("加载中"),
-                                );
-                              }
-                            } //若_calculation执行正常完成
-//                    return new Text('Result: ${snapshot.data}');
-                        }
-                      },
-                    ),
-                    stackmsg(),
-//                  mainTopitem(),
-                    SizedBox(
-                      height: 10,
-                    ),
-
-                    getIndexCatList(),
-                    Divider(),
-                    _tabs.isEmpty
-                        ? SizedBox(
-                            height: 1,
-                          )
-                        : Container(
-                            height: 150,
-                            color: Colors.white70,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(3.0,0,3,3.0),
-                              child: Card(
-                                child:Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: TabBarView(
-                                    children: _buildTabItemView(),
-                                  ),
-                                ) ,
-                              ),
-                            ),
-                          ),
-
-                    divdertext('推荐'),
-                    _recommondList.length == 0
-                        ? Text("没有热门推荐")
-                        : RecommendFloor(_recommondList),
-                    divdertext('热门'),
-                    IndexHotListFloor(_goodsList, cnum: 2),
-                  ],
-                ),
-              ));
-    });
   }
 
   Widget divdertext(String title) {
@@ -391,24 +470,25 @@ class HomeIndexPageState extends State<HomeIndexPage>
           spacing: 5,
           runSpacing: 3,
           children: (item['lists'] as List).map((it) {
-            return  InkWell(
+            return InkWell(
                 onTap: () {
-              Navigator.push(context,
-                  CupertinoPageRoute(builder: (BuildContext context) {
+                  Navigator.push(context,
+                      CupertinoPageRoute(builder: (BuildContext context) {
                     return SearchResultListPage(
                       '',
                       catid: it['ucid'],
                       catname: it['name'],
                     );
                   }));
-            },
-            child:Chip(
-              avatar: CircleAvatar(
-                  backgroundColor: KColorConstant.themeColor, child: Text(
-                it['name'].toString().substring(0,1),
-                style: TextStyle(fontSize: 10),
-              )
- /*             CachedNetworkImage(
+                },
+                child: Chip(
+                  avatar: CircleAvatar(
+                      backgroundColor: KColorConstant.themeColor,
+                      child: Text(
+                        it['name'].toString().substring(0, 1),
+                        style: TextStyle(fontSize: 10),
+                      )
+                      /*             CachedNetworkImage(
                 errorWidget: (context, url, error) => Container(
                   height: 30,
                   width: 30,
@@ -435,13 +515,13 @@ class HomeIndexPageState extends State<HomeIndexPage>
                 width: 40,
                 fit: BoxFit.fill,
               )*/
-              ),
-              label: Text(
-                it['name'],
-                style: TextStyle(fontSize: 12),
-              ),
-            ));
-         /*   return  Container(
+                      ),
+                  label: Text(
+                    it['name'],
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ));
+            /*   return  Container(
                 height: 70,
                 child: InkWell(
                     onTap: () {

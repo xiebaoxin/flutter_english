@@ -257,9 +257,7 @@ class _PlayerXbxWidgetState extends State<AudioPlayerXbx>
         await HttpUtils.dioappi('Pub/getmp3txt', params);
     setState(() {
       _txtinfo = txtinfo;
-      print(_txtinfo);
       _curtNextDuration = getTxtDuration(1);
-      print("---------------------$_curtNextDuration--------");
     });
   }
 

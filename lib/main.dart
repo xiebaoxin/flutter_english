@@ -20,23 +20,6 @@ import 'video/tx_semple.dart';
 import 'video/audioplayer.dart';
 import 'myhome.dart';
 
-void maintest() => runApp(MyhomeApp());
-class MyhomeApp extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter应用',
-      home: MyHome(
-        content: '黑马程序员',
-      ),
-      theme: ThemeData(primarySwatch: Colors.purple),
-    );
-  }
-}
-
-void main111() => runApp(MyVideoApp());
-void main11() => runApp(new MaterialApp(home: new Scaffold(body: new AudioApp())));
 ////flutter packages pub run flutter_launcher_icons:main  --一键生成logo
 void main() {
   runApp(Bixue(
@@ -47,7 +30,7 @@ void main() {
     SystemUiOverlayStyle systemUiOverlayStyle =
         SystemUiOverlayStyle(
             statusBarColor:  GlobalConfig.mainColor,
-            statusBarIconBrightness: Brightness.light);
+            statusBarIconBrightness: Brightness.dark);
     SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
   }
 }
@@ -78,7 +61,7 @@ class KukabaoState extends State<Bixue> {
               primarySwatch: Colors.deepOrange,
 //              primaryColor: GlobalConfig.mainColor,
               primaryIconTheme: const IconThemeData(color: Colors.white),
-              brightness: Brightness.light,
+//              brightness: Brightness.dark,
               accentColor: Colors.orange,
             ),
 //            color: GlobalConfig.mainColor,

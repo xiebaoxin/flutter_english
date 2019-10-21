@@ -93,11 +93,8 @@ class _PlayerWidgetState extends State<AudioPlayerWuthTxt> {
         await HttpUtils.dioappi('Pub/getmp3txt', params);
     setState(() {
       _txtinfo = txtinfo;
-      print(_txtinfo);
       _curtNextDuration = getTxtDuration(1);
       print("---------------------$_curtNextDuration--------");
-
-
     });
   }
 
@@ -173,6 +170,9 @@ class _PlayerWidgetState extends State<AudioPlayerWuthTxt> {
                   min: 0,
                   max: 1,
                   divisions: 100,
+                  onChanged: (v){
+                    ;
+                  },
                 ),
               ),
             ),

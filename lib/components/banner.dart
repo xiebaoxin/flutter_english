@@ -63,9 +63,10 @@ class RectSwiperPaginationBuilder extends SwiperPlugin {
 class SwipperBanner extends StatelessWidget {
   final List<String> banners;
   final List<String> urllinks;
+  final bool potype;
   final double nheight;
   final int defindex;
-  SwipperBanner({this.banners,this.nheight=0.0,this.defindex=0,this.urllinks});
+  SwipperBanner({this.banners,this.nheight=0.0,this.defindex=0,this.urllinks,this.potype=false});
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -80,15 +81,8 @@ class SwipperBanner extends StatelessWidget {
               height: height,
               width: width,
               child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Image.asset(
-                      'images/logo_b.png',),
-                    Text("图片无法显示",style: TextStyle(color: Colors.black26),)
-                  ],
-                ),
+                child:    Image.asset(
+                  'images/logo-灰.png',),
               ),
             ),
             placeholder: (context, url) =>  Loading(),
@@ -105,24 +99,26 @@ class SwipperBanner extends StatelessWidget {
         },
         itemCount: banners.length,
         //viewportFraction: 0.9,
-        pagination: new SwiperPagination(
-            alignment: Alignment.bottomCenter,
-            builder: DotSwiperPaginationBuilder(
+          pagination:  SwiperPagination(
+            alignment:potype?Alignment.bottomRight: Alignment.bottomCenter,
+            builder: potype?FractionPaginationBuilder(
+                color: Colors.grey,
+                activeColor: Colors.redAccent,
+                activeFontSize: 20
+            ):DotSwiperPaginationBuilder(
 //              RectSwiperPaginationBuilder
-              color: Color(0xFF999999),
-              activeColor: Colors.white,
+                color: Color(0xFF999999),
+                activeColor: Colors.white,
 //                size: Size(5.0, 2),
 //                activeSize: Size(5, 5)
             )),
+
+
         scrollDirection: Axis.horizontal,
         autoplay: true,
         index: defindex,
         onTap: (index){
-          print('点击了第$index个${urllinks[index]}');
-          if(urllinks.isNotEmpty)
-            if(  urllinks.length>1 && urllinks[index].startsWith("http")){
-              Application.run(context, "/web",url: urllinks[index],title: '广告',withToken: false);
-            }
+          print('点击了第$index个');
 
         }  ,
       ),

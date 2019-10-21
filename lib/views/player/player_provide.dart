@@ -162,17 +162,28 @@ class PlayerProvide extends BaseProvide {
     }
   }
 
+  bool _checkvdlistItem(int index){
+    bool ttt=false;
+    if(PlayerTools.instance.currentSong.vdlist!=null){
+      PlayerTools.instance.currentSong.vdlist.forEach((ele) {
+        if(ele['video_id']==index)
+        {
+          ttt= true;
+        }
+      });
+    }
+
+    return ttt;
+  }
+
   setControlls() {
-    int prid=_currentSong.preid?? 0;
-    int endid=_currentSong.nextid?? (_currentSong.vdlist!=null ?_currentSong.vdlist.length:0);
-    int maxend=_currentSong.vdlist!=null ?_currentSong.vdlist.length:0;
     this.controls = [
-//      _getModeWidget(),(_currentSong.preid>=1) ?
-      new Icon(Icons.skip_previous, color:prid>0? Colors.black54 :Colors.white70,size: 27,),
+      new Icon(Icons.skip_previous, color:_checkvdlistItem(PlayerTools.instance.currentSong.preid)? Colors.black54 :Colors.white70,size: 27,),
       PlayerTools.instance.currentState == AudioToolsState.isPlaying ? new Icon(Icons.pause_circle_outline, color: Colors.black54,size: 27,):new Icon(Icons.play_circle_outline, color: Colors.black54,size: 27,),
-      new Icon(Icons.skip_next, color:endid<=maxend ? Colors.black54:Colors.white70,size: 27,),
+      new Icon(Icons.skip_next, color:_checkvdlistItem(PlayerTools.instance.currentSong.nextid) ? Colors.black54:Colors.white70,size: 27,),
       new Icon(Icons.menu, color: Colors.black54,size: 27,)
     ];
+
 
     /*
 //    Colors.white
@@ -207,7 +218,7 @@ class PlayerProvide extends BaseProvide {
               child: child,
             );
           },
-          pageBuilder: (BuildContext context, _, __) => MusicListPage(_currentSong.vdlist,_currentSong.preid,_currentSong),
+          pageBuilder: (BuildContext context, _, __) => MusicListPage(_currentSong.vdlist,_currentSong),
         )
     ).then((value) {
       if (value) {

@@ -214,6 +214,7 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     super.dispose();
     _isload=null;
     _goodsinfo=null;
+    _isloaddate=null;
   }
 
  void isCollectGoods()async{
@@ -518,7 +519,7 @@ class VideoDetailContent extends StatelessWidget {
                            item_id:"0",
                            imgurl:  videoinfo['original_img'],
                            goods_price: double.tryParse( videoinfo['shop_price']));
-                       Navigator.push(
+                       Navigator.pushReplacement(
                            context,
                            MaterialPageRoute(
 //                            builder: (context) => BuyPage(param),
@@ -532,7 +533,7 @@ class VideoDetailContent extends StatelessWidget {
                      Application.run(context, "/web",url: item['video_url'],title: item['video_name'],withToken: false);
 
                    }else if(videoinfo['videotype']=='mp4'){
-                     Navigator.push(
+                     Navigator.pushReplacement(
                        context,
                        MaterialPageRoute(
                          builder: (context) => xiePlayer(url:item['video_url'],type: videoinfo['videotype'],video: item,)
@@ -540,16 +541,19 @@ class VideoDetailContent extends StatelessWidget {
                      );
                    }else{
                        await DataUtils.getmp3txt(item['video_id'],context: context).then((txlist) {
-                         PlayerTools.instance.setSong(Song(vdlist:retvdlistinfo,
+
+                         PlayerTools.instance.setSong(Song(
+                             id:item['video_id'],
+                             vdlist:retvdlistinfo,
                              url: item['video_url'], video: item, info: videoinfo,txtlist: txlist,preid: index>0 ? retvdlistinfo[index-1]['video_id']:0,nextid:index<retvdlistinfo.length? retvdlistinfo[index+1]['video_id']:0));
-Navigator.of(context).pop();
-                           Navigator.push(context, new PageRouteBuilder(
+
+                           Navigator.pushReplacement(context, PageRouteBuilder(
                                opaque: false,
                                pageBuilder: (BuildContext context, _, __) {
                                  return FullPlayerPage();
                                },
                                transitionsBuilder: (___, Animation<double> animation, ____, Widget child) {
-                                 return new SlideTransition(
+                                 return SlideTransition(
                                    position: Tween<Offset>(
                                        begin: Offset(0.0, 1.0),
                                        end:Offset(0.0, 0.0)
@@ -561,8 +565,6 @@ Navigator.of(context).pop();
                                  );
                                }
                            ));
-
-
                        });
                    }
 
@@ -632,7 +634,6 @@ class HeroImageComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("-=--------------$url----------$type---------------=-");
     Widget mwt= CachedNetworkImage(
       placeholder: (context, url) => Loading(),
       imageUrl: url, //

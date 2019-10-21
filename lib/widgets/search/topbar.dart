@@ -7,7 +7,7 @@ class SearchTopBarLeadingWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.pop(context),
       child:
-          Icon(Icons.keyboard_arrow_left, color: Color(0xFF979797), size: 26),
+          Icon(Icons.keyboard_arrow_left, color: Color(0xFFFFFFFF), size: 26),
     );
   }
 }
@@ -26,7 +26,7 @@ class SearchTopBarActionWidget extends StatelessWidget {
         child: Text(
           KString.searchBtTxt,
           style: TextStyle(
-              color: KColorConstant.goPayBtBgColor,
+              color: Color(0xFFFFFFFF),//KColorConstant.goPayBtBgColor,
               fontWeight: FontWeight.bold),
         ),
       ),

@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable()
 class Song {
-   String id;
+   int id;
    String url;
    Map<String, dynamic> video;//当前
    Map<String, dynamic> info;//简介
