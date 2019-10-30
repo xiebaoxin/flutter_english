@@ -78,11 +78,16 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
         hideLoadingDialog();
         controllerRecord.forward();
         _statustext = "正在播放中……(点击字幕可以点读)";
-
       } else if (state == AudioToolsState.beginPlay) {
         controllerRecord.forward();
         _statustext = "播放准备…";
-        _goToElement(0);
+        _txtid = 0;
+        _offsetPositonn = 0;
+        _goToElement(-40);
+        _curtNextDuration =
+            getTxtDuration(_provide.currentSong.txtlist[_txtid + 1]);
+        _provide.seekmilscd(
+            getTxtDuration(_provide.currentSong.txtlist[_txtid]).inSeconds);
       } else if (state == AudioToolsState.isError) {
         controllerRecord.stop(canceled: false);
         _statustext = "出错了";
@@ -92,7 +97,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
         _statustext = "加载中…";
       } else {
         print("----------- AudioToolsState.${state}--------------");
-
+       
         controllerRecord.stop(canceled: false);
         _statustext = "已停止";
       }
@@ -139,7 +144,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
 
   bool _loading = false;
   // 显示加载进度条
-  void showLoadingDialog(String msg) async {
+  void showLoadingDialog(String msg) async{
     if (!_loading) {
       setState(() {
         _loading = true;
@@ -235,31 +240,28 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
 
   Provide<PlayerProvide> _setupContent() {
     return Provide<PlayerProvide>(
-        builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-          return Stack(
-        children: <Widget>[
-          _setupMiddle(),
-          Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Container(color: Color(0xdfeeeeee), child: _setupTop())),
-          Positioned(
-            bottom: 2,
-            left: 0,
-            right: 0,
-            child: Container(child: _setupBottom()),
-          )
-        ],
+        builder: (BuildContext context, Widget child, PlayerProvide value) {
+      if (_provide.songProgress < 1000) _txtid = 0;
+      if (PlayerTools.instance.duration > 0) {
+        int newid = (_provide.currentSong.txtlist.length *
+                (Duration(milliseconds: _provide.songProgress).inSeconds /
+                    PlayerTools.instance.duration))
+            .toInt();
+        if (_txtid < (newid - 10)) {
+          _txtid = (newid - 10);
+        }
+      }
 
-        /*   child: Column(
+      return Container(
+        color: this.backgrd,
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             _setupTop(),
             _setupMiddle(),
             _setupBottom(),
           ],
-        ),*/
+        ),
       );
     });
   }
@@ -270,9 +272,10 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
       String titile = _provide.currentSong.video['video_name'] ?? "播放器";
       return new SafeArea(
           child: Container(
-        child: new Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
+            color: Colors.white30,
+            child: new Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
             new Container(
               width: 40,
               child: new OpacityTapWidget(
@@ -290,8 +293,8 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
               ),
             ),
 //                  _provide.currentSong.title ?? ''
-            Expanded(
-                child: Text(
+            new Expanded(
+                child: new Text(
               titile,
               softWrap: true, //是否自动换行 false文字不考虑容器大小  单行显示   超出；屏幕部分将默认截断处理
               overflow: TextOverflow.ellipsis,
@@ -301,9 +304,12 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                   fontSize: 18),
               textAlign: TextAlign.center,
             )),
-          ],
-        ),
-      ));
+            new Container(
+              width:5,
+            ),
+        ],
+      ),
+          ));
     });
   }
 
@@ -311,23 +317,20 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     double widthd = MediaQuery.of(context).size.width;
 
     return Provide<PlayerProvide>(
-        builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-          _txtid = plyprvd.txtid;
-//          print("------------------==${plyprvd.songProgress.toString()}======${plyprvd.txtid.toString()}========Provide=_setupMiddle==------------");
-          return Padding(
-        padding: const EdgeInsets.only(top: 90.0, bottom: 125),
-        child: Container(
-          width: widthd,
-          child: plyprvd.currentSong.txtlist.length > 0
-              ? buildTxt(plyprvd)
-              : Text("抱歉，没有对应字幕文件！"),
-        ),
-      );
+        builder: (BuildContext context, Widget child, PlayerProvide value) {
+      return Expanded(
+          flex: 7,
+          child: Container(
+            color: Color.fromRGBO(200, 200, 200, 0.2),
+            width: widthd,
+            child: _provide.currentSong.txtlist.length > 0
+                ? buildTxt(_provide.currentSong.txtlist)
+                : Text("抱歉，没有对应字幕文件！"),
+          ));
     });
   }
 
-  Widget buildTxt(PlayerProvide plyprvd) {
-    List<Map<String, dynamic>> list=plyprvd.currentSong.txtlist;
+  Widget buildTxt(List<Map<String, dynamic>> list) {
     return ListView.builder(
         padding: EdgeInsets.symmetric(horizontal: 10),
         itemCount: list.length,
@@ -340,8 +343,15 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
               padding: const EdgeInsets.all(2.0),
               child: InkWell(
                 onTap: () {
-                  _txtid =i;
-                  plyprvd.settxtid=i;
+                  _txtid = i;
+                  _offsetPositonn =
+                      ((((_txtid * _maxscrlen) ~/ list.length).toInt() ~/ 100)
+                                  .toInt() ~/
+                              4)
+                          .toInt();
+                  _curtNextDuration = getTxtDuration(list[i + 1]);
+
+                  _provide.seekmilscd(getTxtDuration(item).inSeconds);
                 },
                 child: Column(
                   children: <Widget>[
@@ -355,7 +365,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                         : SizedBox(
                             height: 1,
                           ),
-                    plyprvd.currentSong.video['txt_type'] == 'txt'
+                    _provide.currentSong.video['txt_type'] == 'txt'
                         ? item['cn'] != null
                             ? Text(item['cn'],
                                 maxLines: 5,
@@ -376,110 +386,159 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
         });
   }
 
+  Duration getTxtDuration(Map<String, dynamic> item) {
+    Duration tempcurtDuration = Duration(seconds: 0);
+    String vtype = _provide.currentSong.video['txt_type'] ?? 'txt';
+    if (vtype == "txt" || vtype == "lrc") {
+      List<String> dtime = item['st'].toString().split(":");
+      if (dtime.length == 3) {
+        tempcurtDuration = Duration(
+            hours: int.tryParse(dtime[0]),
+            minutes: int.tryParse(dtime[1]),
+            milliseconds: vtype == 'txt'
+                ? int.tryParse(dtime[2].replaceAll(",", "").trim())
+                : (int.tryParse(dtime[2].split(".")[0]) * 1000 +
+                    int.tryParse(dtime[2].split(".")[1]) * 10));
+      } else if (dtime.length == 2) {
+        tempcurtDuration = Duration(
+            minutes: int.tryParse(dtime[0]),
+            milliseconds: vtype == 'txt'
+                ? int.tryParse(dtime[1].replaceAll(",", "").trim())
+                : (int.tryParse(dtime[1].split(".")[0]) * 1000 +
+                    int.tryParse(dtime[1].split(".")[1]) * 10));
+      } else if (dtime.length == 1) {
+        tempcurtDuration = Duration(
+            milliseconds: vtype == 'txt'
+                ? int.tryParse(dtime[0].replaceAll(",", "").trim())
+                : (int.tryParse(dtime[0].split(".")[0]) * 1000 +
+                    int.tryParse(dtime[0].split(".")[1]) * 10));
+      }
+    }
+//    _curtDuration = tempcurtDuration;
+    return tempcurtDuration;
+  }
 
   void _goToElement(double index) {
-    if(_scrollController!=null){
-      _scrollController.animateTo((index), // 100 is the height of container and index of 6th element is 5
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut);
-    }
-
+    _scrollController.animateTo(
+        (60.0 +
+            index), // 100 is the height of container and index of 6th element is 5
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut);
   }
 
   Widget _setupBottom() {
-    return Container(
-         height: 121,
-      color: Color(0xdfcccccc),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          _setupSlide(),
-          Text(
-            _statustext,
-            style: TextStyle(fontSize: 12, color: Colors.black45),
-          ),
-          _setupControl(),
-        ],
-      ),
-    );
-  }
-
-  int _tempidx =0;
-  Provide<PlayerProvide> _setupSlide() {
-    return Provide<PlayerProvide>(
-        builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-          _txtid=plyprvd.txtid;
-      if (_scrollController != null) {
-            if (_scrollController.position != null) {
-
-              _maxscrlen = _scrollController.position.maxScrollExtent ?? 500.0;
-              //当前大概位置,超过200就滚动一下
-              double inndexoffset =
-                  (plyprvd.txtid * _maxscrlen) / plyprvd.currentSong.txtlist.length;//当前节点位于这段中的位置
-            if(inndexoffset>150 && inndexoffset<_maxscrlen)
-              _goToElement(inndexoffset);
-              print("-------${plyprvd.songProgress}-------_setupSlide--_txtid=$_txtid-----$_maxscrlen------$inndexoffset---_offsetPositonn$_tempidx-------");
-            }
-          }
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
+    return Expanded(
+        flex: 2,
         child: Container(
-          height: 30,
-          margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
-          child: Row(
+          height: 88,
+          color: Colors.black12,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              new Text(
-                ComFunUtil.dealDuration(_provide.songProgress.toString(),
-                    ismil: true),
-                style: TextStyle(color: this.fontcolor, fontSize: 12),
+              _setupSlide(),
+              Text(
+                _statustext,
+                style: TextStyle(fontSize: 12,color: Colors.black45),
               ),
-              new Expanded(
-                  child: Slider(
-                activeColor: this.fontcolor,
-                inactiveColor: Colors.grey,
-                value: _provide.sliderValue(),
-                min: 0,
-                max: 1,
-                onChanged: (newValue) {
-                  print('onChanged:$newValue');
-                },
-                onChangeStart: (startValue) {
-                  print('onChangeStart:$startValue');
-                },
-                onChangeEnd: (endValue) {
-                  print('onChangeEnd:$endValue');
-
-                  if (plyprvd.currentSong.txtlist.length > 0 ) {
-                  _txtid = (plyprvd.currentSong.txtlist.length * endValue)
-                        .toInt();
-                    plyprvd.settxtid=_txtid;
-
-                  } else
-                    plyprvd.seek(endValue);
-                },
-                semanticFormatterCallback: (newValue) {
-                  return "${newValue.round()}---- ${_txtid}";
-                },
-              )),
-              new Text(
-                plyprvd.songDuration(),
-                style: TextStyle(color: this.fontcolor, fontSize: 12),
-              ),
+              _setupControl(),
             ],
           ),
+        ));
+    ;
+  }
+
+  Provide<PlayerProvide> _setupSlide() {
+    return Provide<PlayerProvide>(
+        builder: (BuildContext context, Widget child, PlayerProvide value) {
+      if (_provide.songProgress > _curtNextDuration.inMilliseconds &&
+          _txtid < _provide.currentSong.txtlist.length) {
+        _txtid = _txtid + 1;
+        _curtNextDuration =
+            getTxtDuration(_provide.currentSong.txtlist[_txtid + 1]);
+
+        if (_scrollController != null) {
+          if (_scrollController.position != null) {
+            _maxscrlen = _scrollController.position.maxScrollExtent ?? 1000.0;
+            //当前大概位置,超过400就滚动一下
+            double inndexoffset =
+                (_txtid * _maxscrlen) / _provide.currentSong.txtlist.length;
+            int tempidx = ((inndexoffset.toInt() ~/ 100).toInt() ~/ 4).toInt();
+            if ((inndexoffset.toInt() ~/ 100).toInt() % 4 == 0 &&
+                tempidx > _offsetPositonn) {
+              _offsetPositonn = tempidx;
+              _goToElement(inndexoffset);
+            }
+          }
+        }
+      }
+
+      return new Container(
+        height: 30,
+        margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+        child: Row(
+          children: <Widget>[
+            new Text(
+              ComFunUtil.dealDuration(_provide.songProgress.toString(),
+                  ismil: true),
+              style: TextStyle(color: this.fontcolor, fontSize: 12),
+            ),
+            new Expanded(
+                child: Slider(
+              activeColor: this.fontcolor,
+              inactiveColor: Colors.grey,
+              value: _provide.sliderValue(),
+              min: 0,
+              max: 1,
+              onChanged: (newValue) {
+                print('onChanged:$newValue');
+              },
+              onChangeStart: (startValue) {
+                print('onChangeStart:$startValue');
+              },
+              onChangeEnd: (endValue) {
+                print('onChangeEnd:$endValue');
+
+                if (_provide.currentSong.txtlist.length > 0 &&
+                    _scrollController.position != null) {
+                  _goToElement(endValue * _maxscrlen);
+
+                  _txtid =
+                      (_provide.currentSong.txtlist.length * endValue).toInt();
+                  _offsetPositonn =
+                      (((endValue * _maxscrlen).toInt() / 100).toInt() / 4)
+                          .toInt();
+                  _curtNextDuration =
+                      getTxtDuration(_provide.currentSong.txtlist[_txtid + 1]);
+                  _provide.seekmilscd(
+                      getTxtDuration(_provide.currentSong.txtlist[_txtid])
+                          .inSeconds);
+                } else
+                  _provide.seek(endValue);
+              },
+              semanticFormatterCallback: (newValue) {
+                return "${newValue.round()}---- ${_txtid}";
+              },
+            )),
+            new Text(
+              _provide.songDuration(),
+              style: TextStyle(color: this.fontcolor, fontSize: 12),
+            ),
+          ],
         ),
       );
     });
   }
 
   Widget _setupControl() {
-    return Container(
-      margin: EdgeInsets.fromLTRB(10, 5, 10, 10),
+    return new SafeArea(
+        child: new Container(
+      height: 35,
+      margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
       child: new Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: _setupItems(),
       ),
-    );
+    ));
   }
 
   List<OpacityTapWidget> _setupItems() {

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:core';
 import 'dart:math' as math;
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:fluwx/fluwx.dart' as fluwx;
 import '../components/wxshare.dart';
 import '../utils/comUtil.dart';
@@ -9,8 +12,7 @@ import '../utils/HttpUtils.dart';
 import '../model/globle_model.dart';
 import '../globleConfig.dart';
 import '../utils/screen_util.dart';
-import '../components/banner.dart';
-
+import '../components/loading_gif.dart';
 
 class sharePage extends StatefulWidget {
   final bool ishome;
@@ -27,25 +29,31 @@ class sharePageState extends State<sharePage>
   int _curindex = 0;
   int _defindex = 0;
   List<String> _picList=[] ;
-  String _userid='0', _userName;
+  String _userid, _userName;
+  int _regtype=1;
 
   Future<List<String>> _initPicList() async {
     final model = globleModel().of(context);
     _userid = model.userinfo.id;
     _userName = model.userinfo.name;
-//
+
     await HttpUtils.dioappi('Pub/getWxShareImgs/user_id/${_userid}', {},context: context)
         .then((response) async {
+//      print(response);
+
       if (response['imglist'].isNotEmpty) {
         response['imglist'].forEach((ele) {
           if (ele.isNotEmpty) {
             _picList.add(ele['imgfile']);
           }
         });
+
       }
 /*
       _count=_picList.length;
-      _defindex=response['default']??0;*/
+      _defindex=response['default']??0;
+      _regtype=response['regtype']??0;
+      */
     });
 
     return _picList;
@@ -56,19 +64,76 @@ class sharePageState extends State<sharePage>
 //    _initPicList();
     super.initState();
     fluwx.responseFromShare.listen((data) {
-      print(data);
+//      print(data);
       print("微信分享回调:${data.errCode.toString()}");
-//      setState(() { });
+      setState(() { });
     });
+  }
+
+  Widget _initSwiper(picList) {
+    double width = MediaQuery.of(context).size.width;
+    double height =ScreenUtil.screenHeight;
+
+    if (picList == null || picList == [])
+      return Text('没有发现分享图片');
+    else {
+      return Swiper(
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (BuildContext context, int index) {
+          return  CachedNetworkImage(
+            errorWidget: (context, url, error) =>Container(
+              height: height,
+              width: width,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Image.asset(
+                      'images/logo-灰.png',),
+                    Text("图片无法显示")
+                  ],
+                ),
+              ),
+            ),
+            placeholder: (context, url) =>  Loading(),
+            imageUrl:  picList[index],
+            height: height,
+            width: width,
+            fit: BoxFit.fill,
+          );
+
+        },
+        itemCount: picList.length,
+        scale: 0.8,
+        index: _defindex,
+        outer: false,
+        autoplay: false,
+        onIndexChanged: (index) {
+          _curindex = index;
+          print("当前选中的是$_curindex");
+        },
+        pagination: SwiperPagination(
+            alignment: Alignment.bottomCenter,
+            margin: const EdgeInsets.fromLTRB(0, 0, 10, 10),
+            builder: DotSwiperPaginationBuilder(
+                color: Colors.black54, activeColor: Colors.white)),
+//            onTap: (index) {},
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
 
-    SystemUiOverlayStyle style = SystemUiOverlayStyle(
+    TargetPlatform platform = defaultTargetPlatform;
+    if (platform != TargetPlatform.iOS) {
+      SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-    );
-    SystemChrome.setSystemUIOverlayStyle(style);
+        //statusBarIconBrightness: Brightness.dark
+      );
+      SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
+    }
 
     EdgeInsets padding = MediaQuery.of(context).padding;
     double top = math.max(padding.top, EdgeInsets.zero.top);
@@ -93,7 +158,7 @@ class sharePageState extends State<sharePage>
                             return new Text('Error: ${snapshot.error}');
                           else {
                             if (snapshot.hasData) {
-                              return SwipperBanner(banners:snapshot.data,nheight:ScreenUtil.screenHeight,);
+                              return _initSwiper(snapshot.data);//SwipperBanner(banners:snapshot.data,nheight:ScreenUtil.screenHeight,);
                             } else {
                               return Center(
                                 child: Text("加载中"),
@@ -116,13 +181,26 @@ class sharePageState extends State<sharePage>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  !widget.ishome ? IconButton(
-                    icon: Icon(Icons.arrow_back_ios,color: Color(0xFFFFFFFF),),
-                    tooltip: '返回',
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ):SizedBox(width: 10,),
+                  Container(
+                      padding: EdgeInsets.all(0),
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: GlobalConfig.mainColor,
+                        shape: BoxShape.circle,),
+                      child: Padding(
+                        padding: const EdgeInsets.all(0),
+                        child: Center(
+                          child:
+                          !widget.ishome ? IconButton(
+                            icon: Icon(Icons.arrow_back_ios,color: Color(0xFFFFFFFF),),
+                            tooltip: '返回',
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ):SizedBox(width: 10,),
+                        ),
+                      )),
                   Container(
                       padding: EdgeInsets.all(0),
                       height: 40,
@@ -137,15 +215,17 @@ class sharePageState extends State<sharePage>
                             icon: Icon(Icons.share,color: Color(0xFFFFFFFF),),
                             tooltip: '分享',
                             onPressed: () {
+                              final model = globleModel().of(context);
+                              _regtype = model.regtype;
+                              print(_regtype);
+                              print(_picList[_curindex]);
                               ComFunUtil().showSnackDialog(
                                 context: context,
                                 child: wxShareDialog(
                                   title: Text('微信分享'),
                                   content: Text('微信分享详细'),
                                   img: _picList[_curindex],
-                                  url:
-                                  //                                '${GlobalConfig.server}/Appi/api/register/fromuid/$_userid',
-                                  '${GlobalConfig.server}/Appi/WxAuth/reg/fromuid/$_userid',
+                                  url:_regtype==0 ?  '${GlobalConfig.server}/Appi/api/register/fromuid/$_userid':'${GlobalConfig.server}/Appi/WxAuth/reg/fromuid/$_userid',
                                 ),
                               );
                             },

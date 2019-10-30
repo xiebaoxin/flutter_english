@@ -196,8 +196,7 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
       _isloaddate= await HttpUtils.dioappi('Shop/goodsInfo', params);
       _isload=true;
     }
-    print(_isloaddate);
-      return _isloaddate;
+    return _isloaddate;
 
   }
 
@@ -503,12 +502,13 @@ class VideoDetailContent extends StatelessWidget {
             Map<String, dynamic> item = retvdlistinfo[index];
             return Container(
               margin: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Center(
-                  child: MaterialButton(
-                    color: Colors.black87,
-                height: 30.0,
-                child: Text("${(index+1).toString()}:${item['video_name']??"集"}", style: TextStyle(color:(videoinfo['vd_level']>0 && videoinfo['vd_level']<(index+1))? Colors.grey: Colors.white)),
-                onPressed:() async{
+              height: 35,
+              child: ListTile(
+                title: Text("${(index+1).toString()}:${item['video_name']??"集"}",
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color:(videoinfo['vd_level']>0 && videoinfo['vd_level']<(index+1))? Colors.black26: Colors.black54)),
+                onTap:() async{
                  if( videoinfo['vd_level']>0 && videoinfo['vd_level']<(index+1)){
                    if (await DialogUtils().showMyDialog(context, '需要购买才能收听或观看，是否去购买?')) {
                      Application().checklogin(context, () {
@@ -580,7 +580,7 @@ class VideoDetailContent extends StatelessWidget {
                  }
 
                 }
-              )),
+              ),
             );
           },
         ),
@@ -605,13 +605,7 @@ class VideoDetailContent extends StatelessWidget {
                       // letterSpacing: 1.0
                     ),
                   ),*/
-
-                )),
-            /*
- : */
-            Container(
-              child: Text('暂时没有数据'),
-            )
+                ))
           ],
         )
       ],

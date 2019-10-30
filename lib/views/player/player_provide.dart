@@ -19,9 +19,19 @@ class PlayerProvide extends BaseProvide {
     });
 
     PlayerTools.instance.progressSubject.listen((progress) {
-     /* var pro = '${PlayerTools.instance.currentProgress}';
-      this.songProgress = ComFunUtil.dealDuration(pro);*/
-      this.songProgress =PlayerTools.instance.currentProgress;
+//      var ps= PlayerTools.instance.currentProgress;=progress
+    if(PlayerTools.instance.currentState==AudioToolsState.isPlaying && _txtid==0 && progress>100){
+        var endValue = (Duration(milliseconds:progress).inSeconds/PlayerTools.instance.duration) ?? 0.0;
+        _txtid =endValue==0.0?1:( (_currentSong.txtlist.length * endValue) .toInt()??1);
+        this.settxtid=_txtid;
+    }
+    if (_currentSong.txtlist!=null && ( progress > _curtNextDuration.inMilliseconds &&
+        _txtid < _currentSong.txtlist.length)) {
+      _txtid = _txtid + 1;
+      _curtNextDuration = getTxtDuration(_currentSong.txtlist[_txtid + 1]);
+    }
+
+      this.songProgress =progress;
     });
 
     PlayerTools.instance.currentSongSubject.listen((song) {
@@ -50,12 +60,23 @@ class PlayerProvide extends BaseProvide {
   Song _currentSong = Song();
   Song get currentSong => _currentSong;
   set currentSong(Song currentSong) {
+    _txtid = 0;
+    _curtNextDuration = Duration(seconds: 0);
     _currentSong = currentSong;
   }
 
   /// 歌曲进度
   int _songProgress = 0;
+  Duration _curtNextDuration = Duration(seconds: 0);
+  int _txtid = 0;
   int get songProgress => _songProgress;
+  int get txtid => _txtid;
+  set settxtid(int txid){
+    _txtid=txid;
+    _curtNextDuration = getTxtDuration(_currentSong.txtlist[_txtid + 1]);
+    seekmilscd(getTxtDuration(_currentSong.txtlist[_txtid]).inSeconds);
+    notify();
+  }
   set songProgress(int progress) {
     _songProgress = progress;
     notify();
@@ -74,7 +95,7 @@ class PlayerProvide extends BaseProvide {
       return 0.0;
     }
 
-    var value = (Duration(milliseconds:PlayerTools.instance.currentProgress).inSeconds/PlayerTools.instance.duration) ?? 0.0;
+    var value = (Duration(milliseconds:songProgress).inSeconds/PlayerTools.instance.duration) ?? 0.0;
 //    var value = (PlayerTools.instance.currentProgress/PlayerTools.instance.duration) ?? 0.0;
     if (value > 1) {
       value = 1.0;
@@ -229,5 +250,38 @@ class PlayerProvide extends BaseProvide {
 
   notify() {
     notifyListeners();
+  }
+
+
+  Duration getTxtDuration(Map<String, dynamic> item) {
+    Duration tempcurtDuration = Duration(seconds: 0);
+    String vtype = PlayerTools.instance.currentSong.video['txt_type'] ?? 'txt';
+    if (vtype == "txt" || vtype == "lrc") {
+      List<String> dtime = item['st'].toString().split(":");
+      if (dtime.length == 3) {
+        tempcurtDuration = Duration(
+            hours: int.tryParse(dtime[0]),
+            minutes: int.tryParse(dtime[1]),
+            milliseconds: vtype == 'txt'
+                ? int.tryParse(dtime[2].replaceAll(",", "").trim())
+                : (int.tryParse(dtime[2].split(".")[0]) * 1000 +
+                int.tryParse(dtime[2].split(".")[1]) * 10));
+      } else if (dtime.length == 2) {
+        tempcurtDuration = Duration(
+            minutes: int.tryParse(dtime[0]),
+            milliseconds: vtype == 'txt'
+                ? int.tryParse(dtime[1].replaceAll(",", "").trim())
+                : (int.tryParse(dtime[1].split(".")[0]) * 1000 +
+                int.tryParse(dtime[1].split(".")[1]) * 10));
+      } else if (dtime.length == 1) {
+        tempcurtDuration = Duration(
+            milliseconds: vtype == 'txt'
+                ? int.tryParse(dtime[0].replaceAll(",", "").trim())
+                : (int.tryParse(dtime[0].split(".")[0]) * 1000 +
+                int.tryParse(dtime[0].split(".")[1]) * 10));
+      }
+    }
+//    _curtDuration = tempcurtDuration;
+    return tempcurtDuration;
   }
 }

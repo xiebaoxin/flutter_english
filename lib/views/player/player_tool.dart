@@ -34,9 +34,12 @@ class PlayerTools {
     audio.stateSubject.listen((state) {
       this.currentState = state;
       this.stateSubject.value = state;
-    /*  if (state == AudioToolsState.isEnd) {
-        this.nextAction(true);
-      }*/
+      if (state == AudioToolsState.isEnd) {
+        if (this.mode == 1) { // 下一首
+          this.nextAction(true);
+        }
+      }
+
     });
     audio.progressSubject.listen((progress) {
       this.currentProgress = progress;
@@ -82,8 +85,8 @@ class PlayerTools {
   // 设置数据源
   setSong(Song song) {
     this.stop();
-    this._currentState=AudioToolsState.isStoped;
     this._currentState=AudioToolsState.isEnd;
+    this._currentState=AudioToolsState.isStoped;
     this._currentSong = song;
 
     this.play(song);
@@ -120,7 +123,6 @@ class PlayerTools {
   Future<int> preAction() async {
     if (this._currentSong.preid >= 0) {
       int index = this._currentSong.preid;
-//        print("===--PlayerTools====${this._currentSong.id}===preid=${this._currentSong.preid}=====nextid ${this._currentSong.nextid}=================3333333333333333333===============");
       Map<String, dynamic> item = getvdlistItem(index);
       await DataUtils.getmp3txt(this._currentSong.preid).then((txlist) {
         return this.setSong(Song(
@@ -152,7 +154,6 @@ class PlayerTools {
     if (this._currentSong.nextid > 0) {
       int index = this._currentSong.nextid;
       Map<String, dynamic> item = getvdlistItem(index);
-      print("===--PlayerTools===${this._currentSong.id}====preid=${this._currentSong.preid}=====nextid ${this._currentSong.nextid}=================4444444444444444===============");
 
       await DataUtils.getmp3txt(this._currentSong.nextid).then((txlist) {
         return this.setSong(Song(

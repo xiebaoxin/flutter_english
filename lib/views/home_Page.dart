@@ -149,7 +149,7 @@ class HomeIndexPageState extends State<HomeIndexPage>
                     body: ListView(
                       controller: _strollCtrl,
                       children: [
-                        FutureBuilder(
+                     /*   FutureBuilder(
                           future: _futureBannerBuilderFuture,
                           builder:
                               (BuildContext context, AsyncSnapshot snapshot) {
@@ -225,7 +225,7 @@ class HomeIndexPageState extends State<HomeIndexPage>
 //                    return new Text('Result: ${snapshot.data}');
                             }
                           },
-                        ),
+                        ),*/
                         stackmsg(),
 //                  mainTopitem(),
                         SizedBox(
@@ -629,7 +629,7 @@ class HomeIndexPageState extends State<HomeIndexPage>
     });
 
     super.initState();
-    _futureBannerBuilderFuture = _getbannerdata();
+//    _futureBannerBuilderFuture = _getbannerdata();
     _futureMessageBuilderFuture = _getNotice();
   }
 }
