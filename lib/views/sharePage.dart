@@ -33,14 +33,8 @@ class sharePageState extends State<sharePage>
   int _regtype=1;
 
   Future<List<String>> _initPicList() async {
-    final model = globleModel().of(context);
-    _userid = model.userinfo.id;
-    _userName = model.userinfo.name;
-
     await HttpUtils.dioappi('Pub/getWxShareImgs/user_id/${_userid}', {},context: context)
         .then((response) async {
-//      print(response);
-
       if (response['imglist'].isNotEmpty) {
         response['imglist'].forEach((ele) {
           if (ele.isNotEmpty) {
@@ -49,15 +43,12 @@ class sharePageState extends State<sharePage>
         });
 
       }
-/*
-      _count=_picList.length;
-      _defindex=response['default']??0;
-      _regtype=response['regtype']??0;
-      */
     });
 
     return _picList;
   }
+
+  var _futureBuilderFuture;
 
   @override
   void initState() {
@@ -68,6 +59,7 @@ class sharePageState extends State<sharePage>
       print("微信分享回调:${data.errCode.toString()}");
       setState(() { });
     });
+    _futureBuilderFuture = _initPicList();
   }
 
   Widget _initSwiper(picList) {
@@ -116,7 +108,7 @@ class sharePageState extends State<sharePage>
         pagination: SwiperPagination(
             alignment: Alignment.bottomCenter,
             margin: const EdgeInsets.fromLTRB(0, 0, 10, 10),
-            builder: DotSwiperPaginationBuilder(
+            builder: FractionPaginationBuilder(
                 color: Colors.black54, activeColor: Colors.white)),
 //            onTap: (index) {},
       );
@@ -137,7 +129,11 @@ class sharePageState extends State<sharePage>
 
     EdgeInsets padding = MediaQuery.of(context).padding;
     double top = math.max(padding.top, EdgeInsets.zero.top);
-    return new Scaffold(
+    final model = globleModel().of(context);
+    _userid = model.userinfo.id;
+    _userName = model.userinfo.name;
+
+    return Scaffold(
       backgroundColor: Colors.transparent,
       body:
       Stack(children: <Widget>[
@@ -148,7 +144,7 @@ class sharePageState extends State<sharePage>
               child:
               Center(
                   child: FutureBuilder(
-                    future: _initPicList(),
+                    future: _futureBuilderFuture,
                     builder: (BuildContext context, AsyncSnapshot snapshot) {      //snapshot就是_calculation在时间轴上执行过程的状态快照
                       switch (snapshot.connectionState) {
                         case ConnectionState.none: return new Text('Press button to start');    //如果_calculation未执行则提示：请点击开始

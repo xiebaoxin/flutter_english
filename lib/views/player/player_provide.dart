@@ -22,13 +22,13 @@ class PlayerProvide extends BaseProvide {
 //      var ps= PlayerTools.instance.currentProgress;=progress
     if(PlayerTools.instance.currentState==AudioToolsState.isPlaying && _txtid==0 && progress>100){
         var endValue = (Duration(milliseconds:progress).inSeconds/PlayerTools.instance.duration) ?? 0.0;
-        _txtid =endValue==0.0?1:( (_currentSong.txtlist.length * endValue) .toInt()??1);
-        this.settxtid=_txtid;
+        this.settxtid =endValue==0.0?1:( (_currentSong.txtlist.length * endValue) .toInt()??1)+1;
     }
     if (_currentSong.txtlist!=null && ( progress > _curtNextDuration.inMilliseconds &&
-        _txtid < _currentSong.txtlist.length)) {
-      _txtid = _txtid + 1;
-      _curtNextDuration = getTxtDuration(_currentSong.txtlist[_txtid + 1]);
+        _txtid <= _currentSong.txtlist.length)) {
+        _txtid = _txtid + 1;
+
+          _curtNextDuration = getTxtDuration(_currentSong.txtlist[_txtid + 1]);
     }
 
       this.songProgress =progress;
@@ -115,17 +115,25 @@ class PlayerProvide extends BaseProvide {
 
 
   pre() {
+    _txtid=0;
+    this.songProgress=0;
     PlayerTools.instance.preAction();
   }
   play() {
     if (PlayerTools.instance.currentState == AudioToolsState.isPlaying) {
       PlayerTools.instance.pause();
-    }
-    if (PlayerTools.instance.currentState == AudioToolsState.isPaued) {
+    }else if (PlayerTools.instance.currentState == AudioToolsState.isPaued) {
       PlayerTools.instance.resume();
+    }else {
+      _txtid=1;
+      this.songProgress=0;
+      PlayerTools.instance.play(_currentSong);
     }
+
   }
   next(BuildContext context) async{
+    _txtid=0;
+    this.songProgress=0;
     if (_currentSong.nextid > 0) {
       if(await DataUtils.isCheckedGoods(_currentSong.info['goods_id'],videoid:_currentSong.nextid,vd_level: _currentSong.info['vd_level'])){
         PlayerTools.instance.nextAction();

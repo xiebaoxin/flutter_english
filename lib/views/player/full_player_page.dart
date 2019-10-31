@@ -74,6 +74,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
 */
 
     var s = PlayerTools.instance.stateSubject.listen((state) {
+      print("----------- AudioToolsState.${state}--------------");
       if (state == AudioToolsState.isPlaying) {
         hideLoadingDialog();
         controllerRecord.forward();
@@ -90,9 +91,10 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
         showLoadingDialog('加载中…');
         controllerRecord.stop();
         _statustext = "加载中…";
+      } else if (state == AudioToolsState.isEnd) {
+        controllerRecord.stop(canceled: false);
+        _statustext = "已结束";
       } else {
-        print("----------- AudioToolsState.${state}--------------");
-
         controllerRecord.stop(canceled: false);
         _statustext = "已停止";
       }
@@ -251,15 +253,6 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
             child: Container(child: _setupBottom()),
           )
         ],
-
-        /*   child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            _setupTop(),
-            _setupMiddle(),
-            _setupBottom(),
-          ],
-        ),*/
       );
     });
   }
@@ -317,7 +310,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
           return Padding(
         padding: const EdgeInsets.only(top: 90.0, bottom: 125),
         child: Container(
-          width: widthd,
+//          width: widthd,
           child: plyprvd.currentSong.txtlist.length > 0
               ? buildTxt(plyprvd)
               : Text("抱歉，没有对应字幕文件！"),
@@ -381,7 +374,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     if(_scrollController!=null){
       _scrollController.animateTo((index), // 100 is the height of container and index of 6th element is 5
           duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut);
+          curve: Curves.easeIn);
     }
 
   }
@@ -404,21 +397,19 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     );
   }
 
-  int _tempidx =0;
   Provide<PlayerProvide> _setupSlide() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
           _txtid=plyprvd.txtid;
       if (_scrollController != null) {
             if (_scrollController.position != null) {
-
               _maxscrlen = _scrollController.position.maxScrollExtent ?? 500.0;
               //当前大概位置,超过200就滚动一下
               double inndexoffset =
                   (plyprvd.txtid * _maxscrlen) / plyprvd.currentSong.txtlist.length;//当前节点位于这段中的位置
-            if(inndexoffset>150 && inndexoffset<_maxscrlen)
+            if(inndexoffset>150 && inndexoffset<=_maxscrlen)
               _goToElement(inndexoffset);
-              print("-------${plyprvd.songProgress}-------_setupSlide--_txtid=$_txtid-----$_maxscrlen------$inndexoffset---_offsetPositonn$_tempidx-------");
+//              print("-------${plyprvd.songProgress}-------_setupSlide--_txtid=$_txtid-----$_maxscrlen------$inndexoffset---_offsetPositonn$_tempidx-------");
             }
           }
       return Padding(

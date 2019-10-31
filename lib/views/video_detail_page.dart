@@ -51,17 +51,20 @@ class VideoDetailPage extends StatefulWidget {
   State<StatefulWidget> createState() => _VideoDetailPageState();
 }
 
-class _VideoDetailPageState extends State<VideoDetailPage> {
-
+class _VideoDetailPageState extends State<VideoDetailPage> with AutomaticKeepAliveClientMixin {
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
+  var _futureBuilderFuture;
   Map<String, dynamic> _goodsinfo;
   bool _favorate=false;
-
 
   @override
   Widget build(BuildContext context) {
     return Material(
-        child:  FutureBuilder(
-      future: _getVideo(),
+        child:  Scaffold(
+        body:FutureBuilder(
+      future: _futureBuilderFuture,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         //snapshot就是_calculation在时间轴上执行过程的状态快照
         switch (snapshot.connectionState) {
@@ -78,8 +81,7 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
                 Map<String, dynamic> fdata=snapshot.data;
                 if(fdata['goods'] !=null) {
                   _goodsinfo = fdata['goods'];
-                  return  Scaffold(
-                      body: DefaultTabController(
+                  return   DefaultTabController(
                     length: VIDEO_DETAIL_TAB.length,
                     child: NestedScrollView(
                       headerSliverBuilder:
@@ -171,8 +173,7 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
                       },
                       body: VideoDetailContent(fdata, _isbuyed),
                     ),
-                  ),
-                      bottomNavigationBar:buildbottomsheet(context,fdata)
+
                   );
                 }
                 else
@@ -185,7 +186,10 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
         }
       },
     ),
-   );
+            bottomNavigationBar:buildbottomsheet(context,_isloaddate)
+        ),
+
+    );
   }
 
   bool _isload=false;
@@ -194,6 +198,8 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     Map<String, String> params = {"id": widget.videoId.toString()};
     if(!_isload){
       _isloaddate= await HttpUtils.dioappi('Shop/goodsInfo', params);
+      await isBuyedGoods();
+      await isCollectGoods();
       _isload=true;
     }
     return _isloaddate;
@@ -202,9 +208,8 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
 
   @override
   void initState() {
-    isBuyedGoods();
-    isCollectGoods();
     super.initState();
+    _futureBuilderFuture = _getVideo();
   }
 
   @override
@@ -224,21 +229,14 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
         'User/isCollectGoods', params,
         withToken: true, context: context);
 
-    if (response['status'].toString() == '1') {
-      setState(() {
+    if (response['status'] == 1) {
         _favorate=true;
-      });
-
     }
   }
 
   bool _isbuyed=false;
  void isBuyedGoods()async{
-   bool isbuyed= await DataUtils.isBuyedGoods(widget.videoId);
-    setState(() {
-      _isbuyed=isbuyed;
-     });
-
+   _isbuyed= await DataUtils.isBuyedGoods(widget.videoId);
   }
 
   add_favorite() async{
@@ -498,11 +496,11 @@ class VideoDetailContent extends StatelessWidget {
       children: <Widget>[
         ListView.builder(
           itemCount: retvdlistinfo.length,
+          itemExtent: 38,
           itemBuilder: (BuildContext context, int index) {
             Map<String, dynamic> item = retvdlistinfo[index];
             return Container(
               margin: EdgeInsets.symmetric(horizontal: 8.0),
-              height: 35,
               child: ListTile(
                 title: Text("${(index+1).toString()}:${item['video_name']??"集"}",
                     softWrap: true,
