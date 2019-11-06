@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:core';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,9 +20,20 @@ import 'video/main.dart';
 import 'video/tx_semple.dart';
 import 'video/audioplayer.dart';
 import 'myhome.dart';
+import 'testt.dart';
 
 ////flutter packages pub run flutter_launcher_icons:main  --一键生成logo
 void main() {
+/*
+String str="符串开始处匹配gfdgfdg查找字符串。这是5466rtf一个非获取匹配，也就是说，该匹配不需要获取供以后使用。例如";
+RegExp exp = new RegExp(r"[\u3000-\u301e\ufe10-\ufe19\ufe30-\ufe44\ufe50-\ufe6b\uff01-\uffee]");
+print("changdu:${str.length}");
+String str1=str.substring(0,18);
+print(str1);
+  int lastpt0=str1.lastIndexOf(exp);
+  print(lastpt0);
+*/
+
   runApp(Bixue(
     model: globleModel(),
   ));
@@ -85,7 +97,7 @@ class KukabaoState extends State<Bixue> {
                     ),
                   ));
             },
-            home: SplashPage(),
+            home:SplashPage()//Testfun(),//
           )),
     );
   }
@@ -95,7 +107,8 @@ class KukabaoState extends State<Bixue> {
         appId: GlobalConfig.wxAppId,
         doOnAndroid: true,
         doOnIOS: true,
-        enableMTA: false);
+//        enableMTA: false
+    );
     var result = await fluwx.isWeChatInstalled();
     print("is installed $result");
   }

@@ -115,9 +115,11 @@ class PlayerProvide extends BaseProvide {
 
 
   pre() {
-    _txtid=0;
-    this.songProgress=0;
-    PlayerTools.instance.preAction();
+    if(_checkvdlistItem(PlayerTools.instance.currentSong.preid)){
+      _txtid=0;
+      this.songProgress=0;
+      PlayerTools.instance.preAction();
+    }
   }
   play() {
     if (PlayerTools.instance.currentState == AudioToolsState.isPlaying) {

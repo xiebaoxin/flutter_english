@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:path/path.dart' as path;
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluwx/fluwx.dart' as fluwx;
@@ -29,15 +29,16 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
   AnimationController _controller;
 
   File _image;
-  int _objtype = 2;
-  int _payofftype=0;
+  int _objtype = 0;
+  int _payofftype = 0;
   String _payname = "";
+  var _goodslist;
   Map<String, dynamic> _payinfo = {};
   ShapeBorder _shape = GlobalConfig.cardBorderRadius;
   Userinfo _userinfo = Userinfo.fromJson({});
   String _outpaytranceid;
-  int _outpaed=0;
-  bool _payed=false;
+  int _outpaed = 0;
+  bool _payed = false;
 
   Future _getdata() async {
     final model = globleModel().of(context);
@@ -56,26 +57,35 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
     if (response['status'].toString() == "1") {
       setState(() {
         _payname = response['result']['body'];
-        _outpaytranceid=response['result']['outpay_transid'];
+        _outpaytranceid = response['result']['outpay_transid'];
         _payinfo = response['result']['order'];
-        _outpaed=response['result']['outpaed'];
+        _outpaed = response['result']['outpaed'];
+        _goodslist = response['result']['goods_list'];
       });
-    } else{
+    }else if (response['status']== 0) {
+      await DialogUtils.showToastDialog(context, response['msg']);
+      setState(() {
+        _payname = response['result']['body'];
+        _outpaytranceid ='';
+        _payinfo = response['result']['order'];
+        _goodslist = response['result']['goods_list'];
+        _outpaed=1;
+      });
+  }  else{
       await DialogUtils.showToastDialog(context, response['msg']);
       Navigator.of(context).pop(false);
     }
   }
-  String _result = "无";
+
   @override
   void initState() {
     _controller = AnimationController(vsync: this);
     _getdata();
     super.initState();
 
-
     fluwx.responseFromPayment.listen((data) {
       setState(() {
-        _result = "${data.errCode}";
+        print("${data.errCode}");
       });
     });
   }
@@ -98,283 +108,604 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
           title: new Text('订单支付'),
           centerTitle: true,
         ),
-        body: Container(
-            padding: EdgeInsets.all(5),
-            child: Card(
-              // This ensures that the Card's children are clipped correctly.
-                clipBehavior: Clip.antiAlias,
-                shape: _shape, //,
-                child: Padding(
-                    padding: EdgeInsets.all(10),
-                    child: SingleChildScrollView(
-                        padding:
-                        const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+        body: SingleChildScrollView(
+//            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(left: 8, right: 8),
+              child: Container(
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                "购买：$_payname",
-                                style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
-                              ),
-                            ),
-
-                            Text(
-                              "订单金额： ${_payinfo['total_amount']}元",
-                              style: KfontConstant.bigfontSize,
-                            ),
-                            Text("商品合计：${_payinfo['goods_price']}元",
-                                style: KfontConstant.bigfontSize),
-                            Divider(),
-                            Text(
-                              "收货人： ${_payinfo['consignee']}[${_payinfo['mobile']}]",
-                              style: KfontConstant.bigfontSize,
-                            ),
-                            Divider(
-                              height: 1,
-                            ),
-                            const SizedBox(height: 10.0),
-                            Text(
-                              "运费： ${_payinfo['shipping_price']}元",
-                              style: KfontConstant.bigfontSize,
-                            ),
-                            Text("团购：${_payinfo['coupon_price']}元",
-                                style: KfontConstant.bigfontSize),
-                            Text("余额抵扣:${_payinfo['user_money']}元",
-                                style: KfontConstant.bigfontSize),
-                           /* Text("余额支付:${_payinfo['integral_money']}元",
-                                style: KfontConstant.bigfontSize),*/
-                            Text("积分支付: ${_payinfo['integral']}元",
-                                style: KfontConstant.bigfontSize),
-                            Divider(
-                              height: 1,
-                            ),
-                            Text("订单时间: ${_payinfo['add_time']}",
-                                style: KfontConstant.bigfontSize),
-                            Divider(),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                "还需支付：$amount",
-                                style: KfontConstant.bigfontSize,
-                              ),
-                            ),
-                            SizedBox(height: 5,),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: <Widget>[
-                                Container(child: Divider(height: 2,),width: ScreenUtil.screenWidthDp/2-100,),
-                                Text( _outpaed==0?"选择支付":"已经支付，待确认",style: KfontConstant.defaultSubStyle,),
-                                Container(child: Divider(height: 2,),width: ScreenUtil.screenWidthDp/2-100,),
-                              ],
-                            ),
-
-                            _outpaed==0?
-                            Padding(
-                              padding: const EdgeInsets.all(18.0),
-                              child: Wrap(spacing: 8, runSpacing: 8, children: [
-                                ChoiceChip(
-                                  key: ValueKey<int>(1),
-                                  label: Text(
-                                    "支付宝",
-                                    style: TextStyle(
-                                        fontSize: 10, color: Colors.white),
-                                  ),
-                                  //未选定的时候背景
-                                  selectedColor: GlobalConfig.mainColor,
-                                  //被禁用得时候背景
-//                            disabledColor: Colors.grey,
-                                  backgroundColor: Colors.grey,
-                                  selected: _objtype == 1,
-                                  onSelected: (bool value) {
-//                              parent.onSelectedChanged(index);
-                                    setState(() {
-                                      _objtype = 1;
-                                    });
-                                    Scaffold.of(context).showSnackBar(SnackBar(
-                                      content: Text('暂不支持支付宝支付，正在加紧开发中…'),
-                                    ));
-//                                        submit();
-                                  },
-                                ),
-                                ChoiceChip(
-                                  key: ValueKey<int>(2),
-                                  label: Text(
-                                    "微信",
-                                    style: TextStyle(
-                                        fontSize: 10, color: Colors.white),
-                                  ),
-                                  //未选定的时候背景
-                                  selectedColor: GlobalConfig.mainColor,
-                                  //被禁用得时候背景
-//                            disabledColor: Colors.grey,
-                                  backgroundColor: Colors.grey,
-                                  selected: _objtype == 0,
-                                  onSelected: (bool value) {
-//                              parent.onSelectedChanged(index);
-                                    setState(() {
-                                      _objtype = 0;
-                                    });
-                                    Scaffold.of(context).showSnackBar(SnackBar(
-                                      content: Text('正在加紧开发中…'),
-                                    ));
-//                                        wxsubmit();
-                                  },
-                                ),
-                                ChoiceChip(
-                                  key: ValueKey<int>(0),
-                                  label: Text(
-                                    "线下支付",
-                                    style: TextStyle(
-                                        fontSize: 10, color: Colors.white),
-                                  ),
-                                  //未选定的时候背景
-                                  selectedColor: GlobalConfig.mainColor,
-                                  //被禁用得时候背景
-//                            disabledColor: Colors.grey,
-                                  backgroundColor: Colors.grey,
-                                  selected: _objtype == 2,
-                                  onSelected: (bool value) {
-//                              parent.onSelectedChanged(index);
-                                    setState(() {
-                                      _objtype = 2;
-                                    });
-
-                                  },
-                                ),
-                              ]),
-                            ):SizedBox(height: 10.0),
-                            const SizedBox(height: 10.0),
-                            Divider(
-                              height: 1,
-                            ),
-                            _objtype == 2? Column(
-                              children: <Widget>[
-                                /*     Row(
-                                      mainAxisAlignment:MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Center(
-                                            child: Image.asset(
-                                              'images/alioffpay.jpg',
-                                              height: 200,
-                                              fit: BoxFit.fill,
-                                            )),
-                                        Center(
-                                            child: Image.asset(
-                                              'images/wxoffpay.jpg',
-                                              height: 200,
-                                              fit: BoxFit.fill,
-                                            )),
-                                      ],
-                                    ),*/
-                                const SizedBox(height: 10.0),
-
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.center,
-                                  child: ComFunUtil()
-                                      .buildMyButton(context, _payed ? '上传中……':'请上传已支付凭证图片', _payed?null:() {
-                                    _openImage();
-                                  },width: 200),
-                                ),
-                                const SizedBox(height: 10.0),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: new Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Wrap(spacing: 8, runSpacing: 8, children: [
-                                        ChoiceChip(
-                                          key: ValueKey<int>(0),
-                                          label: Text(
-                                            "支付宝",
-                                            style:
-                                            TextStyle(fontSize:ScreenUtil().setSp(20),fontWeight: FontWeight.w300,  fontFamily: 'FZLanTing',color: Colors.white),
-                                          ),
-                                          //未选定的时候背景
-                                          selectedColor: GlobalConfig.mainColor,
-                                          //被禁用得时候背景
-//                            disabledColor: Colors.grey,
-                                          backgroundColor: Colors.grey,
-                                          selected: _payofftype == 0,
-                                          onSelected: (bool value) {
-//                              parent.onSelectedChanged(index);
-                                            setState(() {
-                                              _payofftype = 0;
-                                            });
-                                          },
-                                        ),
-                                        ChoiceChip(
-                                          key: ValueKey<int>(1),
-                                          label: Text(
-                                            "微信",
-                                            style:
-                                            TextStyle(fontSize:ScreenUtil().setSp(20),fontWeight: FontWeight.w300,  fontFamily: 'FZLanTing',color: Colors.white),
-                                          ),
-                                          //未选定的时候背景
-                                          selectedColor: GlobalConfig.mainColor,
-                                          backgroundColor: Colors.grey,
-                                          selected: _payofftype == 1,
-                                          onSelected: (bool value) {
-                                            setState(() {
-                                              _payofftype = 1;
-                                            });
-                                          },
-                                        )
-                                      ]),
-                                    ],
-                                  ),
-                                ),
-                                _payofftype==0?
-                                Center(
-                                    child: Image.asset(
-                                      'images/alioffpay.jpg',
-                                      height: 300,
-                                      fit: BoxFit.fill,
-                                    )):Center(
-                                    child: Image.asset(
-                                      'images/wxoffpay.jpg',
-                                      height: 300,
-                                      fit: BoxFit.fill,
-                                    )),
-                                SizedBox(height: 20.0)
-                              ],
-                            ):SizedBox(height: 10.0),
-/*
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.center,
-                                  child: ComFunUtil()
-                                      .buildMyButton(context, '支付完成', () {
-                                    submitteOutPay(_image);
-                                  }),
-                                )*/
+                            Text("订单编号:",
+                                style: KfontConstant.defaultStyle),
+                            Text(" ${widget.order_sn}",
+                                style: KfontConstant.defaultStyle),
                           ],
-                        ))))));
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("订单时间: ",
+                                style: KfontConstant.defaultStyle),
+                            Text(" ${_payinfo['add_time']}",
+                                style: KfontConstant.defaultStyle),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            dizhi(),
+            _orderItemsList(),
+            Padding(
+                padding: EdgeInsets.only(left: 8, right: 8),
+                child: Card(
+                    child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "订单金额：",
+                                        style: KfontConstant.defaultStyle,
+                                      ),
+                                      Text(
+                                        "${_payinfo['total_amount']}元",
+                                        style: KfontConstant.defaultStyle,
+                                      ),
+                                    ]),
+                                Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "商品合计：",
+                                        style: KfontConstant.defaultStyle,
+                                      ),
+                                      Text(
+                                        "${_payinfo['goods_price']}元",
+                                        style: KfontConstant.defaultStyle,
+                                      ),
+                                    ]),
+                                Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "团购：",
+                                        style: KfontConstant.defaultStyle,
+                                      ),
+                                      Text(
+                                        "${_payinfo['coupon_price']}元",
+                                        style: KfontConstant.defaultStyle,
+                                      ),
+                                    ]),
+                              /*  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        _payinfo['use_jiangli']==0 ?"现金卷抵扣：":"奖金抵扣：",
+                                        style: KfontConstant.defaultStyle,
+                                      ),
+                                      Text(
+                                        "${_payinfo['user_money']}元",
+                                        style: KfontConstant.defaultStyle,
+                                      ),
+                                    ]),
+
+                                Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        _payinfo['money_type']==0 ? "TML支付：":"GE支付：",
+                                        style: KfontConstant.defaultStyle,
+                                      ),
+                                      Text(
+                                        "${_payinfo['integral']}${_payinfo['money_type']==0 ? 'TML':'GE'}",
+                                        style: KfontConstant.defaultStyle,
+                                      ),
+                                    ]),*/
+                              ]),
+                        )))),
+          ],
+        )),
+        bottomNavigationBar: buildbottomsheet(context));
   }
 
+  Widget dizhi() {
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.location_city),
+                  title: Text(
+                    "收货人： ${_payinfo['consignee']}[${_payinfo['mobile']}]",
+                    maxLines: 1,
+                    softWrap:
+                        true, //是否自动换行 false文字不考虑容器大小  单行显示   超出；屏幕部分将默认截断处理
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: _payinfo.isNotEmpty
+                      ? Text("${_payinfo['address']}",
+                          maxLines: 1,
+                          softWrap:
+                              true, //是否自动换行 false文字不考虑容器大小  单行显示   超出；屏幕部分将默认截断处理
+                          overflow: TextOverflow.ellipsis,
+                          style: KfontConstant.defaultSubStyle)
+                      : null,
+                ),
+                Divider(),
+                Text(
+                  "运费： ${_payinfo['shipping_price']}元",
+                  style: KfontConstant.defaultStyle,
+                ),
+              ],
+            ),
+          ),
+        ));
+  }
+
+  _orderItemsList() {
+    var ods = _goodslist as List;
+    return Padding(
+      padding: EdgeInsets.only(left: 8, right: 8),
+      child: ods != null
+          ? Card(
+              child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: ods.map((v) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(5.0, 0, 5, 0),
+                        child: Column(
+                          children: <Widget>[_goodsItem(v), Divider()],
+                        ),
+                      );
+                    }).toList(),
+                  )),
+            )
+          : Divider(),
+    );
+  }
+
+  Widget _goodsItem(Map<String, dynamic> goods) {
+    return GestureDetector(
+      child: Container(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CachedNetworkImage(
+                placeholder: (context, url) => CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
+                imageUrl: goods['pic_url'],
+//                  width:  MediaQuery.of(context).size.width,
+                fit: BoxFit.fill,
+                height: 48,
+                width: 48.0,
+              ),
+            ),
+            _orderTitle(goods),
+          ],
+        ),
+      ),
+      onTap: () {
+        Application.goodsDetail(context, goods['goods_id']);
+      },
+    );
+  }
+
+  _orderTitle(Map<String, dynamic> goods) {
+    return Container(
+      padding: EdgeInsets.all(0),
+      width: 170,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            goods['goods_name'],
+            maxLines: 2,
+            softWrap: true, //是否自动换行 false文字不考虑容器大小  单行显示   超出；屏幕部分将默认截断处理
+            overflow: TextOverflow.ellipsis,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "￥${goods['member_goods_price']}",
+                    style: TextStyle(fontSize: 11),
+                  ),
+                  Text("x${goods['goods_num']}",
+                      style: TextStyle(fontSize: 11, color: Colors.black54)),
+                ]),
+          ),
+
+          goods['spec_key_name'] != null
+              ? Text(
+                  "规格：${goods['spec_key_name']}",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(fontSize: 11, color: Colors.black54),
+                )
+              : SizedBox(
+                  width: 1,
+                ), //规格
+        ],
+      ),
+    );
+  }
 
   Future<void> _openImage() async {
     var file = await ImagePicker.pickImage(source: ImageSource.gallery);
-    if(file!=null){
+    if (file != null) {
       setState(() {
-        _image=file;
+        _image = file;
       });
       submitteOutPay(file);
     }
+  }
 
+  void refreshShowpayform(int v){
+    setState(() {
+      _objtype = v;
+    });
+    Navigator.of(context).pop();
+    showPayForm();
+  }
+  void showPayForm() {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+              width: ScreenUtil.screenWidth,
+              color: Colors.white,
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          IconButton(
+                              icon: Icon(Icons.close),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              }),
+                          Text(
+                            "确认付款",
+                          ),
+                          Icon(Icons.error_outline)
+                        ],
+                      ),
+                    ),
+                    Divider(),
+                    Container(
+                        child: Column(
+                      children: <Widget>[
+                        Text("订单号：${widget.order_sn}"),
+                        Text(
+                          "合计支付：${widget.paytype == 1 ? _payinfo['account'].toString() : _payinfo['order_amount'].toString()}元",
+                          style: TextStyle(fontSize: 24),
+                        )
+                      ],
+                    )),
+                    Expanded(
+                      child: _outpaed == 0
+                          ? Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Container(
+                                height: 100,
+                                child:
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                    Container(
+                                      height: 35,
+                                      child: ListTile(
+                                          title: Text(
+                                            "支付宝",
+                                            style: KfontConstant.defaultSubStyle,
+                                          ),
+                                          trailing:  Radio(
+                                            value:1,
+                                            groupValue:_objtype,
+                                            activeColor: Colors.blue,
+                                            onChanged:(v){
+                                              refreshShowpayform(v);
+                                            },
+                                          )
+                                      ),
+                                    ),
+                                    Container(
+                                      height: 35,
+                                      child: ListTile(
+                                          title: Text(
+                                            "微信",
+                                            style: KfontConstant.defaultSubStyle,
+                                          ),
+                                          trailing:  Radio(
+                                            value:0,
+                                            groupValue:_objtype,
+                                            activeColor: Colors.blue,
+                                            onChanged:(v){
+                                              refreshShowpayform(v);
+                                            },
+                                          )
+                                      ),
+                                    ),
+                                    Container(
+                                      height: 35,
+                                      child: ListTile(
+                                          title: Text(
+                                            "线下支付",
+                                            style: KfontConstant.defaultSubStyle,
+                                          ),
+                                          trailing:  Radio(
+                                            value:2,
+                                            groupValue:_objtype,
+                                            activeColor: Colors.blue,
+                                            onChanged:(v){
+                                              refreshShowpayform(v);
+                                            },
+                                          )
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        ComFunUtil().buildMyButton(context, '确认支付', () {
+                                          Application().checklogin(context, () {
+                                           if(_objtype == 0) wxsubmit();
+                                           if(_objtype == 1) submit();
+                                           if(_objtype == 2){
+                                             Navigator.of(context).pop();
+                                             showofflinePayForm();
+                                           }
+                                          });
+                                        },),
+                                      ],
+                                    ),
+                                  ],)
+                              ),
+                            )
+                          : SizedBox(height: 10.0),
+                    ),
 
+                  ])
+
+              );
+        });
+  }
+
+  void showofflinePayForm() {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+              width: ScreenUtil.screenWidth,
+              color: Colors.white,
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          IconButton(
+                              icon: Icon(Icons.close),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              }),
+                          Text(
+                            "确认付款",
+                          ),
+                          Icon(Icons.error_outline)
+                        ],
+                      ),
+                    ),
+                    Divider(),
+                    Container(
+                        child: Column(
+                          children: <Widget>[
+                            Text("订单号：${widget.order_sn}"),
+                            Text(
+                              "合计支付：${widget.paytype == 1 ? _payinfo['account'].toString() : _payinfo['order_amount'].toString()}元",
+                              style: TextStyle(fontSize: 24),
+                            )
+                          ],
+                        )),
+                    Container(
+                      height: 40,
+                      padding: const EdgeInsets.all(0),
+                      child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("选择支付方式："),
+                          ),
+                          Wrap(spacing: 8, runSpacing: 8, children: [
+                            ChoiceChip(
+                              key: ValueKey<int>(0),
+                              label: Text(
+                                "支付宝",
+                                style: TextStyle(
+                                    fontSize: ScreenUtil().setSp(20),
+                                    fontWeight: FontWeight.w300,
+                                    fontFamily: 'FZLanTing',
+                                    color: Colors.white),
+                              ),
+                              //未选定的时候背景
+                              selectedColor: GlobalConfig.mainColor,
+                              //被禁用得时候背景
+//                            disabledColor: Colors.grey,
+                              backgroundColor: Colors.grey,
+                              selected: _payofftype == 0,
+                              onSelected: (bool value) {
+//                              parent.onSelectedChanged(index);
+                                setState(() {
+                                  _payofftype = 0;
+                                  Navigator.of(context).pop();
+                                  showofflinePayForm();
+                                });
+                              },
+                            ),
+                            ChoiceChip(
+                              key: ValueKey<int>(1),
+                              label: Text(
+                                "微信",
+                                style: TextStyle(
+                                    fontSize: ScreenUtil().setSp(20),
+                                    fontWeight: FontWeight.w300,
+                                    fontFamily: 'FZLanTing',
+                                    color: Colors.white),
+                              ),
+                              //未选定的时候背景
+                              selectedColor: GlobalConfig.mainColor,
+                              backgroundColor: Colors.grey,
+                              selected: _payofftype == 1,
+                              onSelected: (bool value) {
+                                setState(() {
+                                  _payofftype = 1;
+                                  Navigator.of(context).pop();
+                                  showofflinePayForm();
+                                });
+                              },
+                            )
+                          ]),
+                        ],
+                      ),
+                    ),
+                    FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.center,
+                                child: ComFunUtil().buildMyButton(
+                                    context,
+                                    _payed ? '上传中……' : '请上传已支付凭证或截图',
+                                    _payed
+                                        ? null
+                                        : () {
+                                            _openImage();
+                                          },
+                                    width: 200,height: 34),
+                              ),
+                    Expanded(
+                        child:Center(
+                                child: Image.asset(
+                                  _payofftype == 0  ? 'images/alioffpay.jpg': 'images/wxoffpay.jpg',
+                                height: 300,
+                                fit: BoxFit.fill,
+                              ))
+                           )
+                  ])
+
+          );
+        });
+  }
+
+  Widget buildbottomsheet(context) {
+    return Container(
+      width: ScreenUtil.screenWidth,
+      height: ScreenUtil().L(60),
+      color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          SizedBox(
+            width: ScreenUtil().L(300),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+              child: Center(
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      "合计支付：${widget.paytype == 1 ? _payinfo['account'].toString() : _payinfo['order_amount'].toString()}元",
+                      style: KfontConstant.defaultStyle,
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+              child: InkWell(
+            onTap: () async {
+              if (_outpaed == 0) showPayForm();
+            },
+            child: _outpaed == 0
+                ? Container(
+                    height: ScreenUtil().H(50),
+                    width: 80,
+                    alignment: Alignment.center,
+                    decoration: new BoxDecoration(
+                      color: Color(0xFFfe5400),
+                      border: null,
+                      gradient: const LinearGradient(
+                          colors: [Colors.orange, Color(0xFFfe5400)]),
+                      borderRadius:
+                          new BorderRadius.all(new Radius.circular(20.0)),
+                    ),
+                    child: Text(
+                      '立即支付',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: ScreenUtil().setSp(16)),
+                    ),
+                  )
+                : Text("已经支付，待确认",
+                    style: TextStyle(
+                        color: Color(0xFFfe5400),
+                        fontSize: ScreenUtil().setSp(16))),
+          )),
+        ],
+      ),
+    );
   }
 
   void submit() async {
     Application().checklogin(context, () async {
-      String strurlprm = "order_sn=${widget.order_sn}&type=$_objtype&user=${_userinfo
-          .id}&price=&money=${_payinfo['order_amount'].toString()}";
-      Application.webto(context, "/web", url: '${GlobalConfig
-          .server}/plugins/codepay/tmlcodepay.php?$strurlprm', title: '扫码支付')
+      String strurlprm =
+          "order_sn=${widget.order_sn}&type=$_objtype&user=${_userinfo.id}&price=&money=${_payinfo['order_amount'].toString()}";
+      Application.webto(context, "/web",
+              url:
+                  '${GlobalConfig.server}/plugins/codepay/tmlcodepay.php?$strurlprm',
+              title: '扫码支付')
           .then((response) {
         _getdata();
       });
@@ -383,7 +714,7 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
 
   void submitteOutPay(File image) async {
     setState(() {
-      _payed=true;
+      _payed = true;
     });
     String path = image.path;
     var name = path.substring(path.lastIndexOf("/") + 1, path.length);
@@ -397,20 +728,18 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
     });
 
     await HttpUtils.dioFormAppi(
-        widget.is_farm
-            ? 'Cart/offline_pay/act/farm'
-            : 'Cart/offline_pay',
-        formData,
-        withToken: true,
-        context: context)
+            widget.is_farm ? 'Cart/offline_pay/act/farm' : 'Cart/offline_pay',
+            formData,
+            withToken: true,
+            context: context)
         .then((response) async {
       await DialogUtils.showToastDialog(context, response['msg']);
       if (response['status'].toString() == '1') {
         await DataUtils.freshUserinfo(context);
         Navigator.pop(context);
-      }  else{
+      } else {
         setState(() {
-          _payed=false;
+          _payed = false;
         });
       }
     });
@@ -423,62 +752,57 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
       "pay_code": "apptest"
     };
     await HttpUtils.dioappi(
-        widget.is_farm
-            ? 'Cart/order_action/act/farm'
-            : 'Cart/order_action',
-        params,
-        withToken: true,
-        context: context)
+            widget.is_farm ? 'Cart/order_action/act/farm' : 'Cart/order_action',
+            params,
+            withToken: true,
+            context: context)
         .then((response) async {
       await DialogUtils.showToastDialog(context, response['msg']);
       if (response['status'].toString() == '1') {
         await DataUtils.freshUserinfo(context);
         Application.run(context, "/home");
-      }
-      else{
+      } else {
         setState(() {
-          _payed=false;
+          _payed = false;
         });
       }
     });
   }
-  Future wxsubmit()async{
+
+  Future wxsubmit() async {
     Map<String, String> params = {
       "order_sn": _payinfo['order_sn'],
-      "farm": widget.is_farm ? '0':'1',
+      "farm": widget.is_farm ? '0' : '1',
     };
-    await HttpUtils.dioappi('WxAppPay/getWxpay',
-        params,
-        withToken: true,
-        context: context)
+    await HttpUtils.dioappi('WxAppPay/getWxpay', params,
+            withToken: true, context: context)
         .then((response) async {
       if (response['status'] == 1) {
-        var result= response['data'];
+        var result = response['data'];
         /*
      * {"appid":"wx39e1569fa6461815","noncestr":"ZuWneIWJccaUT1Xsg7MzD5f9SYDNa9YA","package":"Sign=WXPay",
      * "partnerid":"1254837501","prepayid":"wx311745171449585cd648ac611956873300","timestamp":1564566317,"sign":"A0F7079F3A0726BA92A3C7B401AD00D2"},"config":*/
-        await  fluwx.pay(
-            appId: result['appid'].toString(),
-            partnerId: result['partnerid'].toString(),
-            prepayId: result['prepayid'].toString(),
-            packageValue: result['package'].toString(),
-            nonceStr: result['noncestr'].toString(),
-            timeStamp:int.tryParse( result['timestamp'].toString()),
-            sign: result['sign'].toString(),
-            extData: "买:$_payname"
-        ).then((data) async{
+        await fluwx
+            .pay(
+                appId: result['appid'].toString(),
+                partnerId: result['partnerid'].toString(),
+                prepayId: result['prepayid'].toString(),
+                packageValue: result['package'].toString(),
+                nonceStr: result['noncestr'].toString(),
+                timeStamp: int.tryParse(result['timestamp'].toString()),
+                sign: result['sign'].toString(),
+                extData: "买:$_payname")
+            .then((data) async {
           print("---》$data");
           return data;
 //    await DataUtils.freshUserinfo(context);
-        }).whenComplete((){
+        }).whenComplete(() {
           Navigator.pushReplacement(
             context,
-            new MaterialPageRoute(
-                builder: (context) => OrderListPage()),
+            new MaterialPageRoute(builder: (context) => OrderListPage()),
           );
         });
       }
     });
-
   }
 }

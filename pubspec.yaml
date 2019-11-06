@@ -29,7 +29,7 @@ dependencies:
   http: any
 
   video_player: any
-  chewie: any
+  chewie: 0.9.7
   shared_preferences: 0.4.3
   dio: any
   json_serializable: ^2.0.2

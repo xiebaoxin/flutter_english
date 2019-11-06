@@ -49,13 +49,16 @@ class BandPhonePageState extends State<BandPhonePage> {
         child: Container(
             margin: EdgeInsets.all(20.0),
             color: Colors.white,
-            child: Form(
+            child:
+            widget.phone!=""
+                ?Text("您已绑定手机${widget.phone}")
+                : Form(
               //绑定状态属性
               key: _formKey,
               child: ListView(
                 children: [
                   _buildPhoneText(),
-//                  _buildVerifyCodeEdit(),
+                  _buildVerifyCodeEdit(),
                   _buidPassword(),
                   _buidpayPassword(),
                   const SizedBox(height: 24.0),
@@ -84,14 +87,23 @@ class BandPhonePageState extends State<BandPhonePage> {
       "type": '2',
     };
 
-    await HttpUtils.apipost(context, "Api/smsSend", params, (response) async{
-      if (response['status'] == '1') {
+    await HttpUtils.dioappi(
+        "Api/smsSend", params,
+        context: context).then((response) async {
+      print(response);
+      if (response['status'] == 1) {
+        _seconds=int.tryParse(response['timeout'])??180;
         setState(() {
-          _startTimer();
+          _verifyStr = '${_seconds.toString()}(s)重新发送';
+        });
+
+        _startTimer();
+      }else{
+        setState(() {
+          _seconds=0;
         });
       }
       await DialogUtils.showToastDialog(context, response['msg']);
-
     });
   }
 
@@ -139,6 +151,7 @@ class BandPhonePageState extends State<BandPhonePage> {
     return TextFormField(
       controller: _payPasswordCtrl,
       obscureText: _obscurepayText,
+      keyboardType:TextInputType.number,
       validator: (String value) {
         if (value.isEmpty || value.length < 6) {
           return '密码过短';
@@ -181,8 +194,8 @@ class BandPhonePageState extends State<BandPhonePage> {
         return;
       }
       setState(() {
-      _seconds--;
-      _verifyStr = '$_seconds(s)';
+        _seconds--;
+        _verifyStr = '${_seconds.toString()}(s)重新发送';
         if (_seconds == 0) {
           _verifyStr = '重新发送';
         }
@@ -212,7 +225,7 @@ class BandPhonePageState extends State<BandPhonePage> {
 
       Map<String, String> params = {
         "mobile": _phoneNo,
-//        "verify_code": _verifyCode,
+        "verify_code": _verifyCode,
         "password":_PasswordCtrl.text,
         "paypwd":_payPasswordCtrl.text,
       };
@@ -236,6 +249,7 @@ class BandPhonePageState extends State<BandPhonePage> {
     var node = new FocusNode();
     return TextFormField(
       controller: _phoneNoCtrl,
+      enabled: widget.phone!=""?false:true,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
         icon: Icon(Icons.phone) ,
@@ -270,7 +284,7 @@ class BandPhonePageState extends State<BandPhonePage> {
     Widget verifyCodeEdit = new TextFormField(
       controller: _verifyCodeCtrl,
 //      autovalidate: true,
-       decoration: new InputDecoration(
+      decoration: new InputDecoration(
         contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
         icon: Icon(Icons.assignment_late) ,
         hintText:  "请输入验证码",

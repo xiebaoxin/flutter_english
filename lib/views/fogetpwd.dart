@@ -52,7 +52,7 @@ class fogetpwdPageState extends State<fogetpwdPage> {
                       child: Text(
                         '确定',
                         style:
-                        new TextStyle(color: Colors.white, fontSize: 14.0),
+                            new TextStyle(color: Colors.white, fontSize: 14.0),
                       ),
                     ),
                     onPressed: _forSubmitted,
@@ -75,37 +75,42 @@ class fogetpwdPageState extends State<fogetpwdPage> {
     }
 
     Map<String, String> params = {
-      "phone": _phoneNo,
-      "type": '2',
-    };
-setState(() {
-  _verifyStr="请求中……";
-});
-    await HttpUtils.apipost(context, "Api/smsSend", params, (response) async{
-      await DialogUtils.showToastDialog(context, response['msg']);
+        "phone": _phoneNo,
+        "type": '2',
+      };
+    await HttpUtils.dioappi(
+        "Api/smsSend", params,
+        context: context).then((response) async {
+      print(response);
       if (response['status'] == 1) {
+        _seconds=int.tryParse(response['timeout'])??180;
         setState(() {
-          _startTimer();
+          _verifyStr = '${_seconds.toString()}(s)重新发送';
+        });
+
+        _startTimer();
+      }else{
+        setState(() {
+          _seconds=0;
         });
       }
-
+      await DialogUtils.showToastDialog(context, response['msg']);
     });
 
   }
 
   _startTimer() {
-    _seconds = 60;
     _timer = new Timer.periodic(new Duration(seconds: 1), (timer) {
       if (_seconds == 0) {
         _cancelTimer();
         return;
       }
       setState(() {
-        _seconds--;
-          if (_seconds == 0) {
+      _seconds--;
+      _verifyStr = '${_seconds.toString()}(s)重新发送';
+        if (_seconds == 0) {
           _verifyStr = '重新发送';
-        }else
-          _verifyStr = "$_seconds(s)";
+        }
       });
 
     });
@@ -127,6 +132,7 @@ setState(() {
     _phoneNo= _phoneNoCtrl.text.trim();
 
     form.save();
+
     if (_phoneNo!='' && _password!='' && _verifyCode != '') {
 
       Map<String, String> params = {
@@ -134,16 +140,17 @@ setState(() {
         "password": _password,
         "code": _verifyCode
       };
-
-      await HttpUtils.apipost(context, "Pub/findPasswrod", params, (response) async{
+      await HttpUtils.dioappi( "Pub/findPasswrod", params,
+          withToken: true, context: context).then((response) async{
         await  DialogUtils.showToastDialog(context, response['msg']);
         if (response['status'] == 1)
-        {
-          Navigator.pop(context, "1");
-        }
+          {
+            Navigator.pop(context, "1");
+          }
       });
 
-    }
+    }else
+      await  DialogUtils.showToastDialog(context, "请填写完整参数");
   }
 
   Widget _buidPassword() {
@@ -228,7 +235,7 @@ setState(() {
     Widget verifyCodeEdit = new TextFormField(
       controller: _verifyCodeCtrl,
 //      autovalidate: true,
-      decoration: new InputDecoration(
+       decoration: new InputDecoration(
         contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
         icon: Icon(Icons.assignment_late) ,
         hintText:  "请输入验证码",
@@ -269,7 +276,7 @@ setState(() {
             )
         ),
         child: Text(
-          _verifyStr,
+          '$_verifyStr',
           style: new TextStyle(fontSize: 11),
         ),
       ),

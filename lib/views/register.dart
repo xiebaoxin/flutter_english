@@ -80,6 +80,10 @@ class registerState extends State<register> {
   }
 
   void _getsmsCode() async {
+    setState(() {
+      _seconds=1;
+      _verifyStr = '正在请求…';
+    });
     _phoneNo= _phoneNoCtrl.text;
     if(_phoneNo==null ||_phoneNo=='' ||  !ComFunUtil.isChinaPhoneLegal(_phoneNo) ){
       DialogUtils.showToastDialog(context,  '手机号必须填写');
@@ -91,14 +95,23 @@ class registerState extends State<register> {
         "type": '1',
       };
     await HttpUtils.dioappi(
-        "Api/smsSend", params, context: context).then((response) async{
-        if (response['status'] == 1) {
-         setState(() {
-           _startTimer();
-         });
-        }
-        await DialogUtils.showToastDialog(context, response['msg']);
-      });
+        "Api/smsSend", params,
+        context: context).then((response) async {
+      print(response);
+      if (response['status'] == 1) {
+        _seconds=int.tryParse(response['timeout'])??180;
+        setState(() {
+          _verifyStr = '${_seconds.toString()}(s)重新发送';
+        });
+
+        _startTimer();
+      }else{
+        setState(() {
+          _seconds=0;
+        });
+      }
+      await DialogUtils.showToastDialog(context, response['msg']);
+    });
 
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
 import '../globleConfig.dart';
+import '../components/keyboard/keyboard_main.dart';
 
 class ComFunUtil {
   static padNum(String pad) {
@@ -13,6 +14,34 @@ class ComFunUtil {
       len++;
     }
     return num;
+  }
+
+  static void getPassword(context, Function callback) {
+    Widget bottomShowWidget = Material(
+      color: Color.fromRGBO(0, 0, 0, 0.5),
+      child: SafeArea(
+          bottom: true,
+          child: Container(
+            height: MediaQuery.of(context).size.height,
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              color: Color(0xFFFFFFFF),
+              height: 400,
+              child: MpsKeyboard(),
+            ),
+          )),
+    );
+    Navigator.of(context)
+        .push(PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return bottomShowWidget;
+        }))
+        .then((v) {
+      if (v != null) {
+        callback(v);
+      }
+    });
   }
 
   static dealDuration(String duration,{bool ismil=false}) {
@@ -328,6 +357,49 @@ class ComFunUtil {
     }
 
   }
+  /// 格式化歌词
+  static List<Lyric> formatLyric(String lyricStr) {
+    RegExp reg = RegExp(r"^\[\d{2}");
+
+    List<Lyric> result =
+    lyricStr.split("\n").where((r) => reg.hasMatch(r)).map((s) {
+      String time = s.substring(0, s.indexOf(']'));
+      String lyric = s.substring(s.indexOf(']') + 1);
+      time = s.substring(1, time.length - 1);
+      int hourSeparatorIndex = time.indexOf(":");
+      int minuteSeparatorIndex = time.indexOf(".");
+      return Lyric(
+        lyric,
+        startTime: Duration(
+          minutes: int.parse(
+            time.substring(0, hourSeparatorIndex),
+          ),
+          seconds: int.parse(
+              time.substring(hourSeparatorIndex + 1, minuteSeparatorIndex)),
+          milliseconds: int.parse(time.substring(minuteSeparatorIndex + 1)),
+        ),
+      );
+    }).toList();
+
+    for (int i = 0; i < result.length - 1; i++) {
+      result[i].endTime = result[i + 1].startTime;
+    }
+    result[result.length - 1].endTime = Duration(hours: 1);
+    return result;
+  }
 
 
+}
+
+class Lyric{
+  String lyric;
+  Duration startTime;
+  Duration endTime;
+
+  Lyric(this.lyric, {this.startTime, this.endTime});
+
+  @override
+  String toString() {
+    return 'Lyric{lyric: $lyric, startTime: $startTime, endTime: $endTime}';
+  }
 }

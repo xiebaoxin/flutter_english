@@ -177,7 +177,7 @@ class sharePageState extends State<sharePage>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Container(
+                  !widget.ishome ?  Container(
                       padding: EdgeInsets.all(0),
                       height: 40,
                       width: 40,
@@ -187,16 +187,15 @@ class sharePageState extends State<sharePage>
                       child: Padding(
                         padding: const EdgeInsets.all(0),
                         child: Center(
-                          child:
-                          !widget.ishome ? IconButton(
+                          child:IconButton(
                             icon: Icon(Icons.arrow_back_ios,color: Color(0xFFFFFFFF),),
                             tooltip: '返回',
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
-                          ):SizedBox(width: 10,),
+                          ),
                         ),
-                      )),
+                      )):SizedBox(width: 10,),
                   Container(
                       padding: EdgeInsets.all(0),
                       height: 40,

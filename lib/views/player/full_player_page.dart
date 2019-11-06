@@ -1,5 +1,8 @@
-import 'dart:async';
 import 'dart:ui';
+import 'dart:io';
+import 'dart:core';
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provide/provide.dart';
 import 'package:rxdart/rxdart.dart';
@@ -8,6 +11,7 @@ import 'player_provide.dart';
 import 'opacity_tap_widget.dart';
 import '../../utils/comUtil.dart';
 import '../../utils/DialogUtils.dart';
+import '../../utils/screen_util.dart';
 import 'audio_tool.dart';
 import 'player_tool.dart';
 
@@ -55,111 +59,20 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   int _txtid = -1;
   int _offsetPositonn = 0;
   Duration _curtNextDuration = Duration(seconds: 0);
-  double _maxscrlen = 0.0;
+
+  int _totalrows = 0;
+
+  int _maxnum = 38; //一行多少个字符
+//  _maxnum=2*(342/18).toInt();//(348/(ScreenUtil.textScaleFactory*18)).toInt();//一行多少个字符
+
+  double _maxscrlen = 600.0;
+  double _divhight = 540.0; //容器高度
+  double _rowhight = 20; //行高
 
   Color backgrd = Colors.white;
   Color fontcolor = Colors.black54;
   String _statustext = "准备开始…";
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _provide ??= widget.provide;
-
-    controllerRecord = new AnimationController(
-        duration: const Duration(milliseconds: 1500), vsync: this);
-/*
-    animationRecord =
-        new CurvedAnimation(parent: controllerRecord, curve: Curves.linear);
-*/
-
-    var s = PlayerTools.instance.stateSubject.listen((state) {
-      print("----------- AudioToolsState.${state}--------------");
-      if (state == AudioToolsState.isPlaying) {
-        hideLoadingDialog();
-        controllerRecord.forward();
-        _statustext = "正在播放中……(点击字幕可以点读)";
-
-      } else if (state == AudioToolsState.beginPlay) {
-        controllerRecord.forward();
-        _statustext = "播放准备…";
-        _goToElement(0);
-      } else if (state == AudioToolsState.isError) {
-        controllerRecord.stop(canceled: false);
-        _statustext = "出错了";
-      } else if (state == AudioToolsState.isCacheing) {
-        showLoadingDialog('加载中…');
-        controllerRecord.stop();
-        _statustext = "加载中…";
-      } else if (state == AudioToolsState.isEnd) {
-        controllerRecord.stop(canceled: false);
-        _statustext = "已结束";
-      } else {
-        controllerRecord.stop(canceled: false);
-        _statustext = "已停止";
-      }
-      hideLoadingDialog();
-      setState(() {
-        ;
-      });
-    });
-
-    _subscriptions.add(s);
-
-/*
-    animationRecord.addStatusListener((status) {
-      if (status == AnimationStatus.completed &&
-          PlayerTools.instance.currentState == AudioToolsState.isPlaying) {
-        controllerRecord.repeat();
-      } else if (status == AnimationStatus.dismissed) {
-        controllerRecord.forward();
-      }
-    });
-*/
-
-    ges_controller = new AnimationController(
-        duration: const Duration(milliseconds: 300), vsync: this);
-    ges_curve =
-        new CurvedAnimation(parent: ges_controller, curve: Curves.linear);
-
-    _scrollController = new ScrollController();
-    _scrollController.addListener(() {
-      /*     if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        print('滑动到了最底部');
-      }*/
-    });
-  }
-
-  @override
-  void dispose() {
-    controllerRecord.dispose();
-    ges_controller.dispose();
-    _subscriptions.dispose();
-    super.dispose();
-  }
-
-  bool _loading = false;
-  // 显示加载进度条
-  void showLoadingDialog(String msg) async {
-    if (!_loading) {
-      setState(() {
-        _loading = true;
-      });
-
-      await DialogUtils.showLoadingDialog(context, text: msg);
-    }
-  }
-
-  // 隐藏加载进度条
-  hideLoadingDialog() {
-    if (_loading) {
-      Navigator.of(context).pop();
-      setState(() {
-        _loading = false;
-      });
-    }
-  }
+//  FlutterDriver driver;
 
   @override
   Widget build(BuildContext context) {
@@ -238,7 +151,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   Provide<PlayerProvide> _setupContent() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-          return Stack(
+      return Stack(
         children: <Widget>[
           _setupMiddle(),
           Positioned(
@@ -275,7 +188,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: new Icon(
-                    Icons.close,
+                    Icons.headset,
                     color: this.fontcolor,
                     size: 27,
                   ),
@@ -301,17 +214,15 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   }
 
   Provide<PlayerProvide> _setupMiddle() {
-    double widthd = MediaQuery.of(context).size.width;
-
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-          _txtid = plyprvd.txtid;
+      _txtid = plyprvd.txtid;
 //          print("------------------==${plyprvd.songProgress.toString()}======${plyprvd.txtid.toString()}========Provide=_setupMiddle==------------");
-          return Padding(
+      return Padding(
         padding: const EdgeInsets.only(top: 90.0, bottom: 125),
-        child: Container(
+        child: Center(
 //          width: widthd,
-          child: plyprvd.currentSong.txtlist.length > 0
+          child: plyprvd.currentSong.txtlist != null
               ? buildTxt(plyprvd)
               : Text("抱歉，没有对应字幕文件！"),
         ),
@@ -320,68 +231,85 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   }
 
   Widget buildTxt(PlayerProvide plyprvd) {
-    List<Map<String, dynamic>> list=plyprvd.currentSong.txtlist;
-    return ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        itemCount: list.length,
-        scrollDirection: Axis.vertical,
-        controller: _scrollController,
-        itemBuilder: (BuildContext context, int i) {
-          Map<String, dynamic> item = list[i];
+    List<Map<String, dynamic>> list = plyprvd.currentSong.txtlist;
+    if (_totalrows == 0) {
+      _totalrows = getTotalCols(list);
+    }
+    _maxscrlen = _totalrows * _rowhight;
+    if (_txtid > list.length) _txtid = list.length;
 
-          return Padding(
-              padding: const EdgeInsets.all(2.0),
-              child: InkWell(
-                onTap: () {
-                  _txtid =i;
-                  plyprvd.settxtid=i;
-                },
-                child: Column(
-                  children: <Widget>[
-                    item['eng'] != null
-                        ? Text(item['eng'],
-                            maxLines: 5,
-                            overflow: TextOverflow.ellipsis,
-                            style: _txtid == i
-                                ? TextStyle(color: Colors.green, fontSize: 18)
-                                : TextStyle(color: Colors.black45))
-                        : SizedBox(
-                            height: 1,
-                          ),
-                    plyprvd.currentSong.video['txt_type'] == 'txt'
-                        ? item['cn'] != null
-                            ? Text(item['cn'],
-                                maxLines: 5,
-                                overflow: TextOverflow.ellipsis,
+    return Container(
+        color: Colors.amber,
+        height: _divhight,
+        width: 348, //方便计算长度 一行32个字符
+        child: ListView.builder(
+//        padding: EdgeInsets.symmetric(horizontal: 10),
+            shrinkWrap: true,
+            itemCount: list.length,
+            scrollDirection: Axis.vertical,
+            controller: _scrollController,
+            itemBuilder: (BuildContext context, int i) {
+              Map<String, dynamic> item = list[i];
+
+              return Padding(
+                  padding: const EdgeInsets.all(0),
+                  child: GestureDetector(
+                    onTap: () {
+                      if (PlayerTools.instance.currentState !=
+                          AudioToolsState.isEnd) {
+                        if(i<_txtid&& i>0){
+                          _txtid = i-1;
+                          plyprvd.settxtid = i-1;
+                        }else{
+                          _txtid = i;
+                          plyprvd.settxtid = i;
+                        }
+
+                        _goToElement(gettxtpositon(_txtid));
+                      } else {
+                        plyprvd.play();
+                      }
+                    },
+                    child: Column(
+//                  mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      key: Key('item_${i.toString()}_text'),
+                      children: <Widget>[
+                        item['eng'].toString().length > 0
+                            ? XbxText(item['eng'],
                                 style: _txtid == i
                                     ? TextStyle(
-                                        color: Color(0xFFFF9933), fontSize: 18)
-                                    : TextStyle(color: Colors.black45))
+                                        color: Colors.green, fontSize: 18)
+                                    : TextStyle(
+                                        color: Colors.black45, fontSize: 18))
                             : SizedBox(
-                                height: 1,
-                              )
-                        : SizedBox(
-                            height: 1,
-                          ),
-                  ],
-                ),
-              ));
-        });
-  }
-
-
-  void _goToElement(double index) {
-    if(_scrollController!=null){
-      _scrollController.animateTo((index), // 100 is the height of container and index of 6th element is 5
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeIn);
-    }
-
+                                height: 0.1,
+                              ),
+                        plyprvd.currentSong.video['txt_type'] == 'txt'
+                            ? item['cn'].toString().length > 0
+                                ? XbxCnText(item['cn'],
+                                    style: _txtid == i
+                                        ? TextStyle(
+                                            color: Color(0xFFFF9933),
+                                            fontSize: 16)
+                                        : TextStyle(
+                                            color: Colors.black45,
+                                            fontSize: 16))
+                                : SizedBox(
+                                    height: 1,
+                                  )
+                            : SizedBox(
+                                height: 0.1,
+                              ),
+                      ],
+                    ),
+                  ));
+            }));
   }
 
   Widget _setupBottom() {
     return Container(
-         height: 121,
+      height: 121,
       color: Color(0xdfcccccc),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -400,18 +328,8 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   Provide<PlayerProvide> _setupSlide() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-          _txtid=plyprvd.txtid;
-      if (_scrollController != null) {
-            if (_scrollController.position != null) {
-              _maxscrlen = _scrollController.position.maxScrollExtent ?? 500.0;
-              //当前大概位置,超过200就滚动一下
-              double inndexoffset =
-                  (plyprvd.txtid * _maxscrlen) / plyprvd.currentSong.txtlist.length;//当前节点位于这段中的位置
-            if(inndexoffset>150 && inndexoffset<=_maxscrlen)
-              _goToElement(inndexoffset);
-//              print("-------${plyprvd.songProgress}-------_setupSlide--_txtid=$_txtid-----$_maxscrlen------$inndexoffset---_offsetPositonn$_tempidx-------");
-            }
-          }
+      _txtid = plyprvd.txtid;
+      _goToElement(gettxtpositon(_txtid));
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
@@ -439,12 +357,10 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                 },
                 onChangeEnd: (endValue) {
                   print('onChangeEnd:$endValue');
-
-                  if (plyprvd.currentSong.txtlist.length > 0 ) {
-                  _txtid = (plyprvd.currentSong.txtlist.length * endValue)
-                        .toInt();
-                    plyprvd.settxtid=_txtid;
-
+                  if (plyprvd.currentSong.txtlist.length > 0) {
+                    _txtid =
+                        (plyprvd.currentSong.txtlist.length * endValue).toInt();
+                    plyprvd.settxtid = _txtid;
                   } else
                     plyprvd.seek(endValue);
                 },
@@ -500,4 +416,287 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
       child: _provide.controls[index],
     );
   }
+
+  @override
+  void initState() {
+    super.initState();
+    _provide ??= widget.provide;
+
+    controllerRecord = new AnimationController(
+        duration: const Duration(milliseconds: 1500), vsync: this);
+/*
+    animationRecord =
+        new CurvedAnimation(parent: controllerRecord, curve: Curves.linear);
+*/
+
+    var s = PlayerTools.instance.stateSubject.listen((state) {
+//      print("----------- AudioToolsState.${state}--------------");
+      if (state == AudioToolsState.isPlaying) {
+        hideLoadingDialog();
+        controllerRecord.forward();
+        _statustext = "正在播放中……(点击字幕可以点读)";
+      } else if (state == AudioToolsState.beginPlay) {
+        showLoadingDialog("加载中");
+        controllerRecord.forward();
+        _statustext = "播放准备…";
+        _totalrows = 0;
+        _txtid = 0;
+        _cindex = 0;
+        _scrollController.animateTo(0,
+            duration: const Duration(milliseconds: 200), curve: Curves.linear);
+      } else if (state == AudioToolsState.isError) {
+        hideLoadingDialog();
+        controllerRecord.stop(canceled: false);
+        _statustext = "出错了";
+      } else if (state == AudioToolsState.isCacheing) {
+        showLoadingDialog('加载中…');
+        controllerRecord.stop();
+        _statustext = "加载中…";
+      }
+      /*   else if (state == AudioToolsState.isEnd) {
+        hideLoadingDialog();
+        controllerRecord.stop(canceled: false);
+        _statustext = "已结束";
+
+        _totalrows=0;
+        _txtid=0;
+        _cindex=0;
+        _scrollController.animateTo(0,duration: const Duration(milliseconds: 200), curve: Curves.linear);
+
+      }*/
+      else {
+        controllerRecord.stop(canceled: false);
+        hideLoadingDialog();
+        _statustext = "已停止";
+
+        _totalrows = 0;
+        _txtid = 0;
+        _cindex = 0;
+        _scrollController.animateTo(0,
+            duration: const Duration(milliseconds: 200), curve: Curves.linear);
+      }
+      hideLoadingDialog();
+      setState(() {
+        ;
+      });
+    });
+
+    _subscriptions.add(s);
+
+/*
+    animationRecord.addStatusListener((status) {
+      if (status == AnimationStatus.completed &&
+          PlayerTools.instance.currentState == AudioToolsState.isPlaying) {
+        controllerRecord.repeat();
+      } else if (status == AnimationStatus.dismissed) {
+        controllerRecord.forward();
+      }
+    });
+*/
+
+    ges_controller = new AnimationController(
+        duration: const Duration(milliseconds: 300), vsync: this);
+    ges_curve =
+        new CurvedAnimation(parent: ges_controller, curve: Curves.linear);
+
+    _scrollController = new ScrollController();
+    _scrollController.addListener(() {
+      print(
+          "-==========-----addListener---  scrollController.position:----------${_scrollController.position.pixels}-------------------$_txtid----------======--");
+
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        print('滑动到了最底部$_txtid');
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    controllerRecord.dispose();
+    ges_controller.dispose();
+    _subscriptions.dispose();
+//    if (driver != null) {
+//       driver.close();
+//    }
+    super.dispose();
+  }
+
+  bool _loading = false;
+  // 显示加载进度条
+  void showLoadingDialog(String msg) async {
+    if (!_loading) {
+      setState(() {
+        _loading = true;
+      });
+
+      await DialogUtils.showLoadingDialog(context, text: msg);
+    }
+  }
+
+  // 隐藏加载进度条
+  hideLoadingDialog() {
+    if (_loading) {
+      Navigator.of(context).pop();
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
+
+  int _cindex = 0;
+  void _goToElement(double pxt) async {
+    if (_scrollController != null) {
+      if (_txtid < 1) _cindex = 0;
+      if ( _txtid != _cindex) {
+        double topix = pxt - 30;
+//  pxt > _divhight / 2 &&
+        _cindex = _txtid;
+        _scrollController.animateTo(topix,
+            duration: const Duration(milliseconds: 200), curve: Curves.linear);
+      }
+    }
+  }
+
+  double gettxtpositon(int index) {
+    double inndexoffset = 0;
+    int txtrows = 0;
+
+    Map<String, dynamic> item;
+    if (index >= 0 && index < PlayerTools.instance.currentSong.txtlist.length) {
+      for (int i = 0; i < index; i++) {
+        item = PlayerTools.instance.currentSong.txtlist[i];
+
+        if (item['eng'] != null) {
+          if (item['eng'].toString().length > 0) {
+            _strlist = List();
+            txtrows += Str2Item(item['eng'].toString()).length;
+          }
+        }
+        if (item['cn'] != null) {
+          if (item['cn'].toString().length > 0) {
+            _strlist = List();
+            txtrows += StrCn2Item(item['cn'].toString()).length;
+          }
+        }
+      }
+    }
+
+    inndexoffset = txtrows * _rowhight;
+    print(
+        "---+++--总高度$_maxscrlen------当前位置$inndexoffset------当前段累计共$txtrows行------index-$index-------总$_totalrows---+++---");
+    return inndexoffset;
+  }
+
+  Widget XbxText(String text, {TextStyle style = null}) {
+    _strlist = List();
+    List<String> liststr = Str2Item(text);
+    return Column(
+        children: liststr.map((String str) {
+      return Container(
+        height: _rowhight,
+        child: Text(
+          str,
+          style: style,
+        ),
+      );
+    }).toList());
+  }
+
+  Widget XbxCnText(String text, {TextStyle style = null}) {
+    _strlist = List();
+    List<String> liststr = StrCn2Item(text);
+    return Column(
+        children: liststr.map((String str) {
+      return Text(
+        str,
+        style: style,
+      );
+    }).toList());
+  }
+
+  /**
+   * 拆分行
+   */
+  List<String> _strlist = List();
+  List<String> Str2Item(String str) {
+    int rlen = _maxnum;
+    RegExp exp = new RegExp(r"(\W)");
+    int lidx = rlen - 1;
+    if (str.length > rlen) {
+      String str1 = str.substring(0, lidx);
+      if (exp.hasMatch(str[lidx])) {
+//      最后一个字母不是字符,可以换行
+        _strlist.add(str1);
+
+        str = str.substring(lidx + 1);
+        return Str2Item(str);
+      } else {
+        int lastpt0 = str1.lastIndexOf(exp); //最后一个非字母位置
+        if (lastpt0 > 0) {
+          _strlist.add(str.substring(0, lastpt0));
+          str = str.substring(lastpt0 + 1);
+        } else {
+          _strlist.add(str1);
+          str = str.substring(rlen);
+        }
+        return Str2Item(str);
+      }
+    } else
+      _strlist.add(str);
+    return _strlist;
+  }
+
+  /**
+   * 中文
+   */
+  List<String> StrCn2Item(String str) {
+    int rlen = (_maxnum / 2).toInt();
+    if(str!=''){
+      String str1=byteCut(str,rlen);
+      _strlist.add(str1);
+       str=str.replaceFirst(str1, "");
+      return StrCn2Item(str);
+    }
+
+    return _strlist;
+
+  }
+
+  int getTotalCols(List<Map<String, dynamic>> list) {
+    int totalrows = 0;
+    for (int i = 0; i < list.length; i++) {
+      if (list[i]['eng'] != null) if (list[i]['eng'].toString().length > 0) {
+        _strlist = List();
+        totalrows += Str2Item(list[i]['eng'].toString()).length;
+      }
+
+      if (list[i]['cn'] != null) {
+        if (list[i]['cn'].toString().length > 0) {
+          _strlist = List();
+          totalrows += StrCn2Item(list[i]['cn'].toString()).length;
+        }
+      }
+    }
+    return totalrows;
+  }
+
+  String byteCut (String str, int n) {      // str： 被截取字符串；n：截取长度else {
+    int len = 0;
+    String tmpStr = '';
+    for (int i = 0; i < str.length; i++) { // 遍历字符串
+      if (RegExp(r"/[\u4e00-\u9fa5]/").hasMatch(str[i])) { // 判断为中文  长度为三字节（可根据实际需求更换长度，将所加长度更改即可）
+    len += 3;
+    } else {  // 其余则长度为一字节
+    len += 1;
+    }
+    if (len > n) { // 当长度大于传入的截取长度时，退出循环
+    break;
+    } else {
+    tmpStr += str[i]; // 将每个长度范围内的字节加入到新的字符串中
+    }
+  }
+    return tmpStr;    // 返回截取好的字符串
+  }
+
 }
