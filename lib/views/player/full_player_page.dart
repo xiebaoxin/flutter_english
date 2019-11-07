@@ -153,7 +153,14 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
 
           return Stack(
         children: <Widget>[
-          _setupMiddle(),
+          Padding(
+            padding: const EdgeInsets.only(top: 90.0, bottom: 125),
+            child: Center(
+              child: plyprvd.currentSong.txtlist != null
+                  ? buildTxt(plyprvd)
+                  : Text("抱歉，没有对应字幕文件！"),
+            ),
+          ),
           Positioned(
               top: 0,
               left: 0,
@@ -213,23 +220,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     });
   }
 
-  Provide<PlayerProvide> _setupMiddle() {
-    return Provide<PlayerProvide>(
-        builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-
-//          print("------------------==${plyprvd.songProgress.toString()}======${plyprvd.txtid.toString()}========Provide=_setupMiddle==------------");
-      return Padding(
-        padding: const EdgeInsets.only(top: 90.0, bottom: 125),
-        child: Center(
-//          width: widthd,
-          child: plyprvd.currentSong.txtlist != null
-              ? buildTxt(plyprvd)
-              : Text("抱歉，没有对应字幕文件！"),
-        ),
-      );
-    });
-  }
-
+  int _jtindx=0;
   Widget buildTxt(PlayerProvide plyprvd) {
     List<Map<String, dynamic>> list = plyprvd.currentSong.txtlist;
     if (_totalrows == 0) {
@@ -237,7 +228,11 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     }
     _maxscrlen = _totalrows * _rowhight;
 
-    if (_txtid > list.length) _txtid = list.length;
+  if( _jtindx!=_txtid){
+    _jtindx=_txtid;
+    if (_jtindx > list.length-1)
+      _jtindx = list.length-1;
+  }
 
     return Container(
         color: Colors.amber,
@@ -251,14 +246,13 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
             controller: _scrollController,
             itemBuilder: (BuildContext context, int i) {
               Map<String, dynamic> item = list[i];
-
               return Padding(
                   padding: const EdgeInsets.all(0),
                   child: GestureDetector(
                     onTap: () {
                       if (PlayerTools.instance.currentState !=
                           AudioToolsState.isEnd) {
-                        if(i<_txtid&& i>0){
+                        if(i<_jtindx && i>0){
                           _txtid = i-1;
                           plyprvd.settxtid = i-1;
                         }else{
@@ -278,7 +272,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                       children: <Widget>[
                         item['eng'].toString().length > 0
                             ? XbxText(item['eng'],
-                                style: _txtid == i
+                                style: _jtindx == i
                                     ? TextStyle(
                                         color: Colors.green, fontSize: 18)
                                     : TextStyle(
@@ -289,7 +283,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                         plyprvd.currentSong.video['txt_type'] == 'txt'
                             ? item['cn'].toString().length > 0
                                 ? XbxCnText(item['cn'],
-                                    style: _txtid == i
+                                    style: _jtindx == i
                                         ? TextStyle(
                                             color: Color(0xFFFF9933),
                                             fontSize: 16)
@@ -329,7 +323,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   Provide<PlayerProvide> _setupSlide() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-
+          _txtid = plyprvd.txtid;
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
@@ -546,10 +540,9 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   int _cindex = 0;
   void _goToElement(double pxt) async {
     if (_scrollController != null) {
-      if ( _txtid != _cindex) {
-        double topix = pxt - 60;
+      if ( _txtid != _cindex &&  _jtindx < PlayerTools.instance.currentSong.txtlist.length-2) {
         _cindex = _txtid;
-        _scrollController.animateTo(topix,
+        _scrollController.animateTo(pxt - 60,
             duration: const Duration(milliseconds: 200), curve: Curves.linear);
       }
     }
