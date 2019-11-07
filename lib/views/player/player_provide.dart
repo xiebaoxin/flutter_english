@@ -137,7 +137,15 @@ class PlayerProvide extends BaseProvide {
     _txtid=0;
     this.songProgress=0;
     if (_currentSong.nextid > 0) {
-      if(await DataUtils.isCheckedGoods(_currentSong.info['goods_id'],videoid:_currentSong.nextid,vd_level: _currentSong.info['vd_level'])){
+      int ind=0;
+      for(int i=0;i<_currentSong.vdlist.length;i++){
+        if(_currentSong.vdlist[i]['video_id']==_currentSong.nextid)
+        {ind=i;
+        break;
+        }
+      }
+
+      if(await DataUtils.isCheckedGoods(this._currentSong.info['goods_id'],videoid:ind,vd_level: this._currentSong.info['vd_level'])){
         PlayerTools.instance.nextAction();
       }
       else

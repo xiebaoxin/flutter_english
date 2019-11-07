@@ -148,9 +148,6 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   Provide<PlayerProvide> _setupContent() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-          _txtid = plyprvd.txtid;
-          _goToElement(gettxtpositon());
-
           return Stack(
         children: <Widget>[
           _setupMiddle(),
@@ -231,6 +228,9 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   }
 
   Widget buildTxt(PlayerProvide plyprvd) {
+    _txtid = plyprvd.txtid;
+    _goToElement(gettxtpositon());
+
     List<Map<String, dynamic>> list = plyprvd.currentSong.txtlist;
     if (_totalrows == 0) {
       _totalrows = getTotalCols(list);
@@ -329,7 +329,8 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   Provide<PlayerProvide> _setupSlide() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-
+          _txtid = plyprvd.txtid;
+          _goToElement(gettxtpositon());
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
@@ -547,9 +548,8 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   void _goToElement(double pxt) async {
     if (_scrollController != null) {
       if ( _txtid != _cindex) {
-        double topix = pxt - 60;
         _cindex = _txtid;
-        _scrollController.animateTo(topix,
+        _scrollController.animateTo(pxt - 60,
             duration: const Duration(milliseconds: 200), curve: Curves.linear);
       }
     }
