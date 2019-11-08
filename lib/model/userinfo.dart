@@ -44,7 +44,7 @@ class Userinfo {
           phone: '18888888888',
           name: '新人驾到',
           acount: '88888888',
-          id: "1",
+          id: "0",
           nickname: '新人驾到',
           avtar: GlobalConfig.server +
               '/public/images/icon_goods_thumb_empty_300.png',

@@ -36,6 +36,8 @@ if(_currentSong.txtlist!=null){
 
   }
   this.songProgress =progress;
+  _songProgress = progress;
+  notify();
 }
 
     });
@@ -133,7 +135,7 @@ if(_currentSong.txtlist!=null){
     }else if (PlayerTools.instance.currentState == AudioToolsState.isPaued) {
       PlayerTools.instance.resume();
     }else {
-      _txtid=1;
+      _txtid=0;
       this.songProgress=0;
       PlayerTools.instance.play(_currentSong);
     }

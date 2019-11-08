@@ -148,10 +148,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   Provide<PlayerProvide> _setupContent() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-          _txtid = plyprvd.txtid;
-          _goToElement(gettxtpositon());
-
-          return Stack(
+    return Stack(
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.only(top: 90.0, bottom: 125),
@@ -228,6 +225,9 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     }
     _maxscrlen = _totalrows * _rowhight;
 
+    _txtid = plyprvd.txtid;
+    _goToElement(gettxtpositon());
+
   if( _jtindx!=_txtid){
     _jtindx=_txtid;
     if (_jtindx > list.length-1)
@@ -250,20 +250,25 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                   padding: const EdgeInsets.all(0),
                   child: GestureDetector(
                     onTap: () {
+                      _txtid=i;
                       if (PlayerTools.instance.currentState !=
                           AudioToolsState.isEnd) {
-                        if(i<_jtindx && i>0){
-                          _txtid = i-1;
-                          plyprvd.settxtid = i-1;
-                        }else{
-                          _txtid = i;
-                          plyprvd.settxtid = i;
+                        if (i < _jtindx && i > 0) {
+                          _txtid = i - 1;
+                        } else if ((i == list.length - 1)) {
+                          //最后一个
+                          _txtid = list.length - 2;
                         }
 
+                        _jtindx=_txtid;
                         _goToElement(gettxtpositon());
-                      } else {
-                        plyprvd.play();
+                        plyprvd.settxtid = _txtid;
+
+                      }else{
+                        _provide.play();
                       }
+
+
                     },
                     child: Column(
 //                  mainAxisAlignment: MainAxisAlignment.start,
@@ -276,7 +281,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                                     ? TextStyle(
                                         color: Colors.green, fontSize: 18)
                                     : TextStyle(
-                                        color: Colors.black45, fontSize: 18))
+                                        color:(i>=(list.length-2))?Color(0xFF8BBC9D): Colors.black45, fontSize: 18))
                             : SizedBox(
                                 height: 0.1,
                               ),
@@ -285,10 +290,10 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                                 ? XbxCnText(item['cn'],
                                     style: _jtindx == i
                                         ? TextStyle(
-                                            color: Color(0xFFFF9933),
+                                            color:  Color(0xFFFF9933),
                                             fontSize: 16)
                                         : TextStyle(
-                                            color: Colors.black45,
+                                            color: (i>=(list.length-2))?Color(0xFFFF6633):Colors.black45,
                                             fontSize: 16))
                                 : SizedBox(
                                     height: 1,
@@ -319,11 +324,12 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
       ),
     );
   }
-
+double _dollars=0.0;
   Provide<PlayerProvide> _setupSlide() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
           _txtid = plyprvd.txtid;
+          _dollars=_provide.sliderValue();
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
@@ -340,11 +346,23 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                   child: Slider(
                 activeColor: this.fontcolor,
                 inactiveColor: Colors.grey,
-                value: _provide.sliderValue(),
+                value:  _dollars,
                 min: 0,
                 max: 1,
                 onChanged: (newValue) {
                   print('onChanged:$newValue');
+                  if (plyprvd.currentSong.txtlist.length > 0) {
+                    if( newValue==1){
+                      //结尾
+                      _txtid =plyprvd.currentSong.txtlist.length-2;
+                    }else
+                    _txtid =
+                        (plyprvd.currentSong.txtlist.length * newValue).toInt();
+
+                    _goToElement(gettxtpositon());
+                    plyprvd.settxtid =_txtid;
+                  }
+
                 },
                 onChangeStart: (startValue) {
                   print('onChangeStart:$startValue');
@@ -352,14 +370,21 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                 onChangeEnd: (endValue) {
                   print('onChangeEnd:$endValue');
                   if (plyprvd.currentSong.txtlist.length > 0) {
-                    _txtid =
-                        (plyprvd.currentSong.txtlist.length * endValue).toInt();
-                    plyprvd.settxtid = _txtid;
-                  } else
-                    plyprvd.seek(endValue);
+                    if( endValue==1){
+                      //结尾
+                      _txtid =plyprvd.currentSong.txtlist.length-2;
+                    }else
+                      _txtid =
+                          (plyprvd.currentSong.txtlist.length * endValue).toInt();
+                    _goToElement(gettxtpositon());
+                    plyprvd.settxtid =_txtid;
+
+                  }
                 },
+                label: '$_dollars dollars',
                 semanticFormatterCallback: (newValue) {
-                  return "${newValue.round()}---- ${_txtid}";
+                  print("-semanticFormatterCallback+=======--${newValue}- ${_txtid}") ;
+                  return '${newValue.round()} dollars';
                 },
               )),
               new Text(
@@ -433,11 +458,6 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
         showLoadingDialog("加载中");
         controllerRecord.forward();
         _statustext = "播放准备…";
-        _totalrows = 0;
-        _txtid = 0;
-        _cindex = 0;
-        _scrollController.animateTo(0,
-            duration: const Duration(milliseconds: 200), curve: Curves.linear);
       } else if (state == AudioToolsState.isError) {
         hideLoadingDialog();
         controllerRecord.stop(canceled: false);
@@ -447,27 +467,15 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
         controllerRecord.stop();
         _statustext = "加载中…";
       }
-      /*   else if (state == AudioToolsState.isEnd) {
+      else if (state == AudioToolsState.isEnd) {
         hideLoadingDialog();
         controllerRecord.stop(canceled: false);
         _statustext = "已结束";
-
-        _totalrows=0;
-        _txtid=0;
-        _cindex=0;
-        _scrollController.animateTo(0,duration: const Duration(milliseconds: 200), curve: Curves.linear);
-
-      }*/
+      }
       else {
         controllerRecord.stop(canceled: false);
         hideLoadingDialog();
         _statustext = "已停止";
-
-        _totalrows = 0;
-        _txtid = 0;
-        _cindex = 0;
-        _scrollController.animateTo(0,
-            duration: const Duration(milliseconds: 200), curve: Curves.linear);
       }
       hideLoadingDialog();
       setState(() {

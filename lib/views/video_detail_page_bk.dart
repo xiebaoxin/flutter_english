@@ -34,6 +34,12 @@ import 'player/full_player_page.dart';
 import 'player/player_tool.dart';
 import '../model/song.dart';
 
+final List<Map<String, dynamic>> VIDEO_DETAIL_TAB = [
+//  {"icon": Icon(Icons.video_library, size: 18.5), "name": "视频详情"},
+  {"icon": Icon(Icons.view_list, size: 18.5), "name": "播放列表"},
+  {"icon": Icon(Icons.details, size: 18.5), "name": "介绍"},
+];
+
 class VideoDetailPage extends StatefulWidget {
   int videoId;
   String type;
@@ -55,7 +61,9 @@ class _VideoDetailPageState extends State<VideoDetailPage> with AutomaticKeepAli
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return Material(
+      child:  Scaffold(
+          body:FutureBuilder(
             future: _futureBuilderFuture,
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               //snapshot就是_calculation在时间轴上执行过程的状态快照
@@ -73,88 +81,99 @@ class _VideoDetailPageState extends State<VideoDetailPage> with AutomaticKeepAli
                       Map<String, dynamic> fdata=snapshot.data;
                       if(fdata['goods'] !=null) {
                         _goodsinfo = fdata['goods'];
-                        return    Material(
-                            child:  Scaffold(
-                            body:NestedScrollView(
-                          headerSliverBuilder:
-                              (BuildContext context, bool innerBoxIsScrolled) {
-                            return <Widget>[
-                              // 标题
-                              SliverAppBar(
-                                elevation: 0.0,
-                                floating: false,
-                                pinned: true,
-                                expandedHeight: ScreenUtil.screenWidth * 1.05,
+                        return   DefaultTabController(
+                          length: VIDEO_DETAIL_TAB.length,
+                          child: NestedScrollView(
+                            headerSliverBuilder:
+                                (BuildContext context, bool innerBoxIsScrolled) {
+                              return <Widget>[
+                                // 标题
+                                SliverAppBar(
+                                  elevation: 0.0,
+                                  floating: false,
+                                  pinned: true,
+                                  expandedHeight: ScreenUtil.screenWidth * 1.05,
 //                    DeviceUtil.getScreenSize(context).width * 1.05,
-                                flexibleSpace: FlexibleSpaceBar(
-                                  title: Shimmer.fromColors(
-                                    baseColor: Colors.white,
-                                    highlightColor: Theme
-                                        .of(context)
-                                        .primaryColor,
-                                    period: Duration(milliseconds: 6000),
-                                    child: Text(
-                                      _goodsinfo['goods_name'],
-                                      style: TextStyle(
-                                        fontSize: 16.0,
+                                  flexibleSpace: FlexibleSpaceBar(
+                                    title: Shimmer.fromColors(
+                                      baseColor: Colors.white,
+                                      highlightColor: Theme
+                                          .of(context)
+                                          .primaryColor,
+                                      period: Duration(milliseconds: 6000),
+                                      child: Text(
+                                        _goodsinfo['goods_name'],
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                        ),
                                       ),
                                     ),
+                                    centerTitle: true,
+                                    background:
+                                    /*   widget.type!=''? Container(
+                          width: ScreenUtil.screenWidth,
+                          height: ScreenUtil().H(300),
+                          child: ChewieListItem(
+                          videoPlayerController: VideoPlayerController.network(widget.vdurl,
+                          ),
+                          )//TxVideoPlayer(url),
+                          ):*/
+                                    HeaderBackGroundCover(
+                                      _goodsinfo, vdurl: widget.vdurl,
+                                      type: widget.type,),
                                   ),
-                                  centerTitle: true,
-                                  background: HeaderBackGroundCover(
-                                    _goodsinfo, vdurl: widget.vdurl,
-                                    type: widget.type,),
+                                  actions: <Widget>[
+                                    IconButton(
+                                      icon: Icon(Icons.favorite_border,
+                                        color: _favorate ? Color(0xFFFF9933) : Colors
+                                            .white12,),
+                                      tooltip: '喜欢它',
+                                      onPressed: () {
+                                        Application().checklogin(context, () {
+                                          _favorate
+                                              ? cancel_favorite()
+                                              : add_favorite();
+                                        });
+                                      },
+                                    ),
+                                  ],
                                 ),
-                                actions: <Widget>[
-                                  IconButton(
-                                    icon: Icon(Icons.favorite_border,
-                                      color: _favorate ? Color(0xFFFF9933) : Colors
-                                          .white12,),
-                                    tooltip: '喜欢它',
-                                    onPressed: () {
-                                      Application().checklogin(context, () {
-                                        _favorate
-                                            ? cancel_favorite()
-                                            : add_favorite();
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                              // Tab
+                                // Tab
+                                SliverPersistentHeader(
+                                  pinned: true,
+                                  delegate: SliverAppBarDelegate(TabBar(
+                                    labelColor: Theme
+                                        .of(context)
+                                        .primaryColor,
+                                    labelStyle: TextStyle(fontSize: 16.5),
+                                    unselectedLabelColor:
+                                    Color.fromARGB(255, 192, 193, 195),
+                                    indicatorColor: Theme
+                                        .of(context)
+                                        .primaryColor,
+                                    indicatorWeight: 2.0,
+                                    tabs: VIDEO_DETAIL_TAB
+                                        .map<Tab>((item) =>
+                                        Tab(
+                                          child: Row(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              item["icon"],
+                                              SizedBox(width: 3.0),
+                                              Text(item["name"],
+                                                  style: TextStyle(fontSize: 15.0))
+                                            ],
+                                          ),
+                                        ))
+                                        .toList(),
+                                  )),
+                                )
+                              ];
+                            },
+                            body: VideoDetailContent(fdata, _isbuyed),
+                          ),
 
-                            ];
-                          },
-                          body: VideoDetailContent(fdata, _isbuyed),
-                            ),
-                              floatingActionButton: FloatingActionButton(
-                                backgroundColor:_isbuyed?Colors.green: Colors.deepOrange,
-                                child: Icon(_isbuyed ?Icons.lock_open:Icons.lock),
-                                onPressed: ()async{
-                                  setState(() {
-                                    _action = "0";
-                                  });
-                                  await Application().checklogin(context, () {
-                                    GoodInfo _mgoodsinfo = GoodInfo.fromJson(fdata);
-                                    BuyModel param = BuyModel(
-                                        goodsinfo: _mgoodsinfo,
-                                        goods_id: _mgoodsinfo.goodsId.toString(),
-                                        goods_num: "1",
-                                        imgurl: _mgoodsinfo.comPic,
-                                        goods_price:
-                                        double.tryParse(_mgoodsinfo.presentPrice));
-
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-//                            builder: (context) => BuyPage(param),
-                                          builder: (context) => GoodsBuyPage(param),
-                                        ));
-                                  });
-
-                                },
-                              ),
-                            )
                         );
                       }
                       else
@@ -166,10 +185,11 @@ class _VideoDetailPageState extends State<VideoDetailPage> with AutomaticKeepAli
                   }
               }
             },
-          );
+          ),
+          bottomNavigationBar:buildbottomsheet(context,_isloaddate)
+      ),
 
-//          bottomNavigationBar:buildbottomsheet(context,_isloaddate)
-
+    );
   }
 
   bool _isload=false;
@@ -472,7 +492,9 @@ class VideoDetailContent extends StatelessWidget {
     if(isbuyed)
       videoinfo['vd_level']=0;
 
-    return  ListView.builder(
+    return TabBarView(
+      children: <Widget>[
+        ListView.builder(
           itemCount: retvdlistinfo.length,
           itemExtent: 38,
           itemBuilder: (BuildContext context, int index) {
@@ -559,8 +581,33 @@ class VideoDetailContent extends StatelessWidget {
               ),
             );
           },
-        );
-
+        ),
+//
+        ListView(
+          children: <Widget>[
+            VideoDetailItemComponent(
+                icon: "assets/images/icon_videodetail_desc.png", content: "简介"),
+            Container(
+                margin: EdgeInsets.all(13.0),
+                child: Center(
+                    child:
+                    videoinfo['content'].isNotEmpty?
+                    Html(data: videoinfo['content']):Text("无")
+                  /*        AnimationTextComponent(
+                    delayTime: 1500,
+                    duration: 6000,
+                    text:
+                        "详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍详细介绍",
+                    textStyle: TextStyle(
+                      color: Colors.black,
+                      // letterSpacing: 1.0
+                    ),
+                  ),*/
+                ))
+          ],
+        )
+      ],
+    );
   }
 }
 

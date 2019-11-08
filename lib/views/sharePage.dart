@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:core';
 import 'dart:math' as math;
@@ -29,10 +30,12 @@ class sharePageState extends State<sharePage>
   int _curindex = 0;
   int _defindex = 0;
   List<String> _picList=[] ;
-  String _userid, _userName;
+  String _userid="1", _userName;
   int _regtype=1;
 
   Future<List<String>> _initPicList() async {
+    if(int.tryParse(_userid)<1) _userid="1";
+
     await HttpUtils.dioappi('Pub/getWxShareImgs/user_id/${_userid}', {},context: context)
         .then((response) async {
       if (response['imglist'].isNotEmpty) {
@@ -52,7 +55,6 @@ class sharePageState extends State<sharePage>
 
   @override
   void initState() {
-//    _initPicList();
     super.initState();
     fluwx.responseFromShare.listen((data) {
 //      print(data);
@@ -129,112 +131,129 @@ class sharePageState extends State<sharePage>
 
     EdgeInsets padding = MediaQuery.of(context).padding;
     double top = math.max(padding.top, EdgeInsets.zero.top);
-    final model = globleModel().of(context);
-    _userid = model.userinfo.id;
-    _userName = model.userinfo.name;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body:
-      Stack(children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(0),
-          child:   ConstrainedBox(
-              constraints: BoxConstraints.expand(),
-              child:
-              Center(
-                  child: FutureBuilder(
-                    future: _futureBuilderFuture,
-                    builder: (BuildContext context, AsyncSnapshot snapshot) {      //snapshot就是_calculation在时间轴上执行过程的状态快照
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.none: return new Text('Press button to start');    //如果_calculation未执行则提示：请点击开始
-                        case ConnectionState.waiting: return new Text('页面过期，请返回重新进入...');  //如果_calculation正在执行则提示：加载中
-                        default:    //如果_calculation执行完毕
-                          if (snapshot.hasError)    //若_calculation执行出现异常
-                            return new Text('Error: ${snapshot.error}');
-                          else {
-                            if (snapshot.hasData) {
-                              return _initSwiper(snapshot.data);//SwipperBanner(banners:snapshot.data,nheight:ScreenUtil.screenHeight,);
-                            } else {
-                              return Center(
-                                child: Text("加载中"),
-                              );
-                            }
-                          }   //若_calculation执行正常完成
+    return ScopedModelDescendant<globleModel>(
+        rebuildOnChange: true,
+        builder: (context, child, model)
+    {
+
+      _userid = model.userinfo.id;
+      _userName = model.userinfo.name;
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body:
+        Stack(children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(0),
+            child: ConstrainedBox(
+                constraints: BoxConstraints.expand(),
+                child:
+                Center(
+                    child: FutureBuilder(
+                      future: _futureBuilderFuture,
+                      builder: (BuildContext context,
+                          AsyncSnapshot snapshot) { //snapshot就是_calculation在时间轴上执行过程的状态快照
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.none:
+                            return new Text(
+                                'Press button to start'); //如果_calculation未执行则提示：请点击开始
+                          case ConnectionState.waiting:
+                            return new Text(
+                                '页面过期，请返回重新进入...'); //如果_calculation正在执行则提示：加载中
+                          default: //如果_calculation执行完毕
+                            if (snapshot.hasError) //若_calculation执行出现异常
+                              return new Text('Error: ${snapshot.error}');
+                            else {
+                              if (snapshot.hasData) {
+                                return _initSwiper(snapshot
+                                    .data); //SwipperBanner(banners:snapshot.data,nheight:ScreenUtil.screenHeight,);
+                              } else {
+                                return Center(
+                                  child: Text("加载中"),
+                                );
+                              }
+                            } //若_calculation执行正常完成
 //                    return new Text('Result: ${snapshot.data}');
-                      }
-                    },
-                  )
+                        }
+                      },
+                    )
 
+                )),
+          ),
+          Positioned(
+              top: top,
+              left: 10.0,
+              right: 10.0,
+              child: Container(
+                padding: const EdgeInsets.all(0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    !widget.ishome ? Container(
+                        padding: EdgeInsets.all(0),
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: GlobalConfig.mainColor,
+                          shape: BoxShape.circle,),
+                        child: Padding(
+                          padding: const EdgeInsets.all(0),
+                          child: Center(
+                            child: IconButton(
+                              icon: Icon(Icons.arrow_back_ios,
+                                color: Color(0xFFFFFFFF),),
+                              tooltip: '返回',
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ),
+                        )) : SizedBox(width: 10,),
+                    Container(
+                        padding: EdgeInsets.all(0),
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: GlobalConfig.mainColor,
+                          shape: BoxShape.circle,),
+                        child: Padding(
+                          padding: const EdgeInsets.all(0),
+                          child: Center(
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.share, color: Color(0xFFFFFFFF),),
+                              tooltip: '分享',
+                              onPressed: () {
+                                final model = globleModel().of(context);
+                                _regtype = model.regtype;
+                                print(_regtype);
+                                print(_picList[_curindex]);
+                                ComFunUtil().showSnackDialog(
+                                  context: context,
+                                  child: wxShareDialog(
+                                    title: Text('微信分享'),
+                                    content: Text('微信分享详细'),
+                                    img: _picList[_curindex],
+                                    url: _regtype == 0
+                                        ? '${GlobalConfig
+                                        .server}/Appi/api/register/fromuid/$_userid'
+                                        : '${GlobalConfig
+                                        .server}/Appi/WxAuth/reg/fromuid/$_userid',
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ))
+
+                  ],
+                ),
               )),
-        ),
-        Positioned(
-            top: top,
-            left: 10.0,
-            right: 10.0,
-            child: Container(
-              padding: const EdgeInsets.all(0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  !widget.ishome ?  Container(
-                      padding: EdgeInsets.all(0),
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: GlobalConfig.mainColor,
-                        shape: BoxShape.circle,),
-                      child: Padding(
-                        padding: const EdgeInsets.all(0),
-                        child: Center(
-                          child:IconButton(
-                            icon: Icon(Icons.arrow_back_ios,color: Color(0xFFFFFFFF),),
-                            tooltip: '返回',
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ),
-                      )):SizedBox(width: 10,),
-                  Container(
-                      padding: EdgeInsets.all(0),
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: GlobalConfig.mainColor,
-                        shape: BoxShape.circle,),
-                      child: Padding(
-                        padding: const EdgeInsets.all(0),
-                        child: Center(
-                          child:IconButton(
-                            icon: Icon(Icons.share,color: Color(0xFFFFFFFF),),
-                            tooltip: '分享',
-                            onPressed: () {
-                              final model = globleModel().of(context);
-                              _regtype = model.regtype;
-                              print(_regtype);
-                              print(_picList[_curindex]);
-                              ComFunUtil().showSnackDialog(
-                                context: context,
-                                child: wxShareDialog(
-                                  title: Text('微信分享'),
-                                  content: Text('微信分享详细'),
-                                  img: _picList[_curindex],
-                                  url:_regtype==0 ?  '${GlobalConfig.server}/Appi/api/register/fromuid/$_userid':'${GlobalConfig.server}/Appi/WxAuth/reg/fromuid/$_userid',
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ))
-
-                ],
-              ),
-            )),
-      ]),
+        ]),
 
 
-    );
+      );
+    });
+    }
   }
 
-}
