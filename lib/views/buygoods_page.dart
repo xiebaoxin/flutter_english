@@ -68,7 +68,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 2.0),
                     child: Column(
                       children: <Widget>[
-                        dizhi(),
+//                        dizhi(),
                         shuomin(),
                         shuliang(),
 //                        const SizedBox(height: 10.0),
@@ -191,7 +191,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
                             children: <Widget>[
                               Text('￥${widget.buyparam.goods_price}',
                                   style: KfontConstant.defaultSubStyle),
-                              Padding(
+                            /*  Padding(
                                 padding: const EdgeInsets.only(right: 10.0),
                                 child: AddPlus(
                                     count: int.tryParse(widget.buyparam.goods_num),
@@ -203,7 +203,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
                                         _count = v;
                                       });
                                     }),
-                              ),
+                              ),*/
                             ],
                           ),
                         ],
@@ -255,7 +255,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
               child: Card(
                   child: ListTile(
                       title: Text(
-                        "可用TML${_userinfo.point.toStringAsFixed(4)},[抵扣${(_userinfo.point / _point_rate).toStringAsFixed(2)}元]",
+                        "可用积分${_userinfo.point.toStringAsFixed(4)},[抵扣${(_userinfo.point / _point_rate).toStringAsFixed(2)}元]",
                         style: KfontConstant.defaultSubStyle,
                       ),
                       trailing:  Radio(
@@ -288,7 +288,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
                 child: Card(
                   child: ListTile(
                       title: Text(
-                        "现金卷${_userinfo.money.toStringAsFixed(2)}元",
+                        "余额${_userinfo.money.toStringAsFixed(2)}元",
                         style: KfontConstant.defaultSubStyle,
                       ),
                       trailing: Radio(
@@ -313,39 +313,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
                   ),
                 ),
               )):SizedBox(height: 1,),
-          _userinfo.jiangli>0? Semantics(
-            container: true,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-              child: Card(
-                child: ListTile(
-                    title: Text(
-                      "余额${_userinfo.jiangli.toStringAsFixed(2)}",
-                      style: KfontConstant.defaultSubStyle,
-                    ),
-                    trailing: Radio(
-                      value:4,
-                      groupValue:_optionValue,
-                      activeColor: Colors.blue,
-                      onChanged:(v){
-                        setState(() {
-                          _optionValue = v;
-                        });
-                      },
-                    )
-                  /*   Switch(
-                      value: _switchValuejl,
-                      activeColor: Colors.deepOrange,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _switchValuejl = value;
-                        });
-                      },
-                    )*/
-                ),
-              ),
-            ),
-          ):SizedBox(height: 1,),
+
         ],
       ),
     );
@@ -511,8 +479,6 @@ class GoodsBuyState extends State<GoodsBuyPage> {
         "pay_points":   _userinfo.point.toStringAsFixed(4) ,
         "money_type": _optionValue==2 ? "1" : "0",
         "user_money": _optionValue==3 ? _userinfo.money.toStringAsFixed(2) : "0",
-        "user_jiangli":
-        _optionValue==4 ? _userinfo.jiangli.toStringAsFixed(2) : "0",
         "pay_pwd": _pwd,
         "address_id": _dee != '' ? _address['address_id'].toString() : "0",
         "action": "buy_now" //立即购买

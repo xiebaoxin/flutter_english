@@ -148,7 +148,7 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
                 ),
               ),
             ),
-            dizhi(),
+//            dizhi(),
             _orderItemsList(),
             Padding(
                 padding: EdgeInsets.only(left: 8, right: 8),
@@ -186,7 +186,7 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
                                         style: KfontConstant.defaultStyle,
                                       ),
                                     ]),
-                                Row(
+    /*     Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
@@ -199,33 +199,20 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
                                         style: KfontConstant.defaultStyle,
                                       ),
                                     ]),
-                              /*  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        _payinfo['use_jiangli']==0 ?"现金卷抵扣：":"奖金抵扣：",
-                                        style: KfontConstant.defaultStyle,
-                                      ),
-                                      Text(
-                                        "${_payinfo['user_money']}元",
-                                        style: KfontConstant.defaultStyle,
-                                      ),
-                                    ]),
-
+                              */
                                 Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        _payinfo['money_type']==0 ? "TML支付：":"GE支付：",
+                                        "积分：",
                                         style: KfontConstant.defaultStyle,
                                       ),
                                       Text(
-                                        "${_payinfo['integral']}${_payinfo['money_type']==0 ? 'TML':'GE'}",
+                                        "${_payinfo['integral']}'TML'}",
                                         style: KfontConstant.defaultStyle,
                                       ),
-                                    ]),*/
+                                    ]),
                               ]),
                         )))),
           ],

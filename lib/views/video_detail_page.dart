@@ -127,13 +127,14 @@ class _VideoDetailPageState extends State<VideoDetailPage> with AutomaticKeepAli
                           },
                           body: VideoDetailContent(fdata, _isbuyed),
                             ),
-                              floatingActionButton: FloatingActionButton(
+                            /*  floatingActionButton: FloatingActionButton(
                                 backgroundColor:_isbuyed?Colors.green: Colors.deepOrange,
                                 child: Icon(_isbuyed ?Icons.lock_open:Icons.lock),
                                 onPressed: ()async{
                                   setState(() {
                                     _action = "0";
                                   });
+                                  if(!_isbuyed)
                                   await Application().checklogin(context, () {
                                     GoodInfo _mgoodsinfo = GoodInfo.fromJson(fdata);
                                     BuyModel param = BuyModel(
@@ -153,7 +154,7 @@ class _VideoDetailPageState extends State<VideoDetailPage> with AutomaticKeepAli
                                   });
 
                                 },
-                              ),
+                              ),*/
                             )
                         );
                       }
@@ -489,7 +490,22 @@ class VideoDetailContent extends StatelessWidget {
                       if (await DialogUtils().showMyDialog(context, '需要购买才能收听或观看，是否去购买?')) {
                         Application().checklogin(context, () {
                           Navigator.pop(context);
+                          GoodInfo _mgoodsinfo = GoodInfo.fromJson(video);
                           BuyModel param = BuyModel(
+                              goodsinfo: _mgoodsinfo,
+                              goods_id: _mgoodsinfo.goodsId.toString(),
+                              goods_num: "1",
+                              imgurl: _mgoodsinfo.comPic,
+                              goods_price:
+                              double.tryParse(_mgoodsinfo.presentPrice));
+
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+//                            builder: (context) => BuyPage(param),
+                                builder: (context) => GoodsBuyPage(param),
+                              ));
+                        /*  BuyModel param = BuyModel(
                               goods_id: videoinfo['goods_id'].toString(),
                               goods_num:"1",
                               item_id:"0",
@@ -500,7 +516,7 @@ class VideoDetailContent extends StatelessWidget {
                               MaterialPageRoute(
 //                            builder: (context) => BuyPage(param),
                                 builder: (context) => GoodsBuyPage(param),
-                              ));
+                              ));*/
                         });
                       }
                     }
