@@ -18,12 +18,7 @@ class PlayerProvide extends BaseProvide {
     });
 
     PlayerTools.instance.progressSubject.listen((progress) {
-      if (_currentSong.txtlist != null) {
-        int  value = Duration(milliseconds: progress).inSeconds;
-        _txtid=ComFunUtil.getProgressIndex(value,this.currentSong.txtlist, this.currentSong.video['txt_type']);
-        _songProgress = progress;
-      }
-      notify();
+      this.songProgress=progress;
     });
 
     PlayerTools.instance.currentSongSubject.listen((song) {
