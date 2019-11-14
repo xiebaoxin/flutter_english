@@ -1,7 +1,3 @@
-/**
- * 视频详情
- * Create by Songlcy
- */
 import 'dart:core';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -505,18 +501,7 @@ class VideoDetailContent extends StatelessWidget {
 //                            builder: (context) => BuyPage(param),
                                 builder: (context) => GoodsBuyPage(param),
                               ));
-                        /*  BuyModel param = BuyModel(
-                              goods_id: videoinfo['goods_id'].toString(),
-                              goods_num:"1",
-                              item_id:"0",
-                              imgurl:  videoinfo['original_img'],
-                              goods_price: double.tryParse( videoinfo['shop_price']));
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-//                            builder: (context) => BuyPage(param),
-                                builder: (context) => GoodsBuyPage(param),
-                              ));*/
+
                         });
                       }
                     }

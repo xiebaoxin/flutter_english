@@ -90,15 +90,15 @@ class globleModel extends Model {
 
 
   Future setConfig(Map<String, dynamic> respon ) async{
-    if (respon["point_rate"].isNotEmpty)
+    if (respon["point_rate"]!=null)
       _point_rate =  double.tryParse(respon["point_rate"])??1.0;
-    if (respon["regtype"].isNotEmpty)
+    if (respon["regtype"]!=null)
       _regtype =  int.tryParse(respon["regtype"])??0;
 
-    if (respon["exchan_fee"].isNotEmpty)
+    if (respon["exchan_fee"]!=null)
       _exchan_fee =  double.tryParse(respon["exchan_fee"])??0.0;
 
-    if (respon["withdraw_fee"].isNotEmpty)
+    if (respon["withdraw_fee"]!=null)
       _withdraw_fee =  double.tryParse(respon["withdraw_fee"])??0.0;
 
     notifyListeners();

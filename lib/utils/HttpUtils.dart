@@ -269,6 +269,12 @@ class HttpUtils {
             data: params, options: Options(method: method));
 
       Map<String, dynamic> nrespon = response.data;
+
+      if (context!=null){
+        final modelw = globleModel().of(context);
+        if(nrespon["config"]!=null)
+          await modelw.setConfig(nrespon["config"]);
+      }
       print("==================dioapp--$url----end=================================");
       return nrespon;
 //      Entity entity = Entity.fromJson(map);

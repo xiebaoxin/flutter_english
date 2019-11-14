@@ -357,6 +357,52 @@ class ComFunUtil {
     }
 
   }
+
+
+  static Duration getTxtDuration(Map<String, dynamic> item,String vtype) {
+    Duration tempcurtDuration = Duration(seconds: 0);
+    if (item != null) {
+//      String vtype = _currentSong.video['txt_type'] ?? 'txt';
+      if (vtype == "txt" || vtype == "lrc") {
+        List<String> dtime = item['st'].toString().split(":");
+        if (dtime.length == 3) {
+          tempcurtDuration = Duration(
+              hours: int.tryParse(dtime[0]),
+              minutes: int.tryParse(dtime[1]),
+              milliseconds: vtype == 'txt'
+                  ? int.tryParse(dtime[2].replaceAll(",", "").trim())
+                  : (int.tryParse(dtime[2].split(".")[0]) * 1000 +
+                  int.tryParse(dtime[2].split(".")[1]) * 10));
+        } else if (dtime.length == 2) {
+          tempcurtDuration = Duration(
+              minutes: int.tryParse(dtime[0]),
+              milliseconds: vtype == 'txt'
+                  ? int.tryParse(dtime[1].replaceAll(",", "").trim())
+                  : (int.tryParse(dtime[1].split(".")[0]) * 1000 +
+                  int.tryParse(dtime[1].split(".")[1]) * 10));
+        } else if (dtime.length == 1) {
+          if (int.tryParse(dtime[0].split(".")[0]) != null) {
+            tempcurtDuration = Duration(
+                milliseconds: vtype == 'txt'
+                    ? int.tryParse(dtime[0].replaceAll(",", "").trim())
+                    : (int.tryParse(dtime[0].split(".")[0]) * 1000 +
+                    int.tryParse(dtime[0].split(".")[1]) * 10));
+          }
+        }
+      }
+    }
+    return tempcurtDuration;
+  }
+
+  static int getProgressIndex(int progress,List<Map<String, dynamic>> result,String vtype) {
+    for (int i = 0;  i <result.length - 1; i++) {
+     if(progress<getTxtDuration(result[i],vtype).inSeconds)
+         return i-1;
+    }
+    return 0;
+  }
+
+
   /// 格式化歌词
   static List<Lyric> formatLyric(String lyricStr) {
     RegExp reg = RegExp(r"^\[\d{2}");

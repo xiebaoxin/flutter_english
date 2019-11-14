@@ -115,8 +115,7 @@ class OrderListPageState extends State<OrderListPage>
           "Order/order_list/p/${_page.toString()}/tp/${_type}/", {},
           context: context, withToken: true)
           .then((response) {
-            print(response);
-            print("_____________________________");
+
         setState(() {
           if (response['data']['list']!=null) {
             _page += 1;
@@ -266,6 +265,7 @@ class OrderListPageState extends State<OrderListPage>
           ],
         ),
         onTap: () {
+
           Application.goodsDetail(context,
               goods['goods_id'],vdtype: goods['videotype'],item:goods);
         },
@@ -364,18 +364,18 @@ class OrderListPageState extends State<OrderListPage>
   _orderTitle(Map<String, dynamic> goods) {
     return Container(
       padding: EdgeInsets.all(5),
-      height: 70,
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
+
               Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Text(
-                  goods['goods_name'].length<=8 ? goods['goods_name'] : goods['goods_name'].substring(0,8)+"…",
+                  goods['goods_name'],
+                  softWrap: true, //是否自动换行 false文字不考虑容器大小  单行显示   超出；屏幕部分将默认截断处理
+                  overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.start,
                 ),
               ),
@@ -384,19 +384,18 @@ class OrderListPageState extends State<OrderListPage>
                 child: RichText(
                   textAlign: TextAlign.right,
                   text: TextSpan(
-                      text: "￥${goods['member_goods_price']}",
+                      text: "￥${goods['member_goods_price']}元",
                       style: TextStyle(color: Colors.black),
                       children: [
                         TextSpan(
-                            text: "\n x${goods['goods_num']}",
+                            text: " x${goods['goods_num']}",
                             style: TextStyle(color: Colors.black54))
-                      ]),
+                      ]
+                  ),
                 ),
               ) // 单价&数量
-            ],
-          ),
 
-          goods['spec_key_name'] != null
+  /*        goods['spec_key_name'] != null
               ? Expanded(
             child: Text(
               "规格：${goods['spec_key_name']}",
@@ -404,7 +403,7 @@ class OrderListPageState extends State<OrderListPage>
               style: TextStyle(fontSize: 12, color: Colors.black54),
             ),
           )
-              : Text(""), //规格
+              : Text(""), //规格*/
         ],
       ),
     );

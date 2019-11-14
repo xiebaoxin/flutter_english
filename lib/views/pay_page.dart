@@ -209,7 +209,7 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
                                         style: KfontConstant.defaultStyle,
                                       ),
                                       Text(
-                                        "${_payinfo['integral']}'TML'}",
+                                        "${_payinfo['integral']}BX",
                                         style: KfontConstant.defaultStyle,
                                       ),
                                     ]),
@@ -757,27 +757,28 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
   }
 
   Future wxsubmit() async {
-    Map<String, String> params = {
-      "order_sn": _payinfo['order_sn'],
-      "farm": widget.is_farm ? '0' : '1',
+    Map<String, dynamic> params = {
+      "order_sn": _payinfo['order_sn'].toString(),
     };
+
     await HttpUtils.dioappi('WxAppPay/getWxpay', params,
             withToken: true, context: context)
         .then((response) async {
-      if (response['status'] == 1) {
-        var result = response['data'];
+    print(response);
+    if (response['status'] == 1) {
+    var result = response['data'];
+
         /*
      * {"appid":"wx39e1569fa6461815","noncestr":"ZuWneIWJccaUT1Xsg7MzD5f9SYDNa9YA","package":"Sign=WXPay",
      * "partnerid":"1254837501","prepayid":"wx311745171449585cd648ac611956873300","timestamp":1564566317,"sign":"A0F7079F3A0726BA92A3C7B401AD00D2"},"config":*/
-        await fluwx
-            .pay(
-                appId: result['appid'].toString(),
-                partnerId: result['partnerid'].toString(),
-                prepayId: result['prepayid'].toString(),
-                packageValue: result['package'].toString(),
-                nonceStr: result['noncestr'].toString(),
-                timeStamp: int.tryParse(result['timestamp'].toString()),
-                sign: result['sign'].toString(),
+        await fluwx.pay(
+        appId: result['appid'].toString(),
+      partnerId: result['partnerid'].toString(),
+      prepayId: result['prepayid'].toString(),
+      packageValue: result['package'].toString(),
+      nonceStr: result['noncestr'].toString(),
+      timeStamp: int.tryParse(result['timestamp'].toString()),
+      sign: result['sign'].toString(),
                 extData: "买:$_payname")
             .then((data) async {
           print("---》$data");
@@ -792,4 +793,7 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
       }
     });
   }
+
+
+
 }

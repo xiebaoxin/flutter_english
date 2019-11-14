@@ -12,41 +12,24 @@ import '../buygoods_page.dart';
 import 'music_list_page.dart';
 
 class PlayerProvide extends BaseProvide {
-
   PlayerProvide() {
     PlayerTools.instance.stateSubject.listen((state) {
       setControlls();
     });
 
     PlayerTools.instance.progressSubject.listen((progress) {
-if(_currentSong.txtlist!=null){
-  int slen= PlayerTools.instance.currentSong.txtlist.length;
-  if(PlayerTools.instance.currentState==AudioToolsState.isPlaying && _txtid==0 && progress>10){
-    var endValue = Duration(milliseconds:progress).inSeconds/PlayerTools.instance.duration;
-    this.settxtid =(slen * endValue) .toInt()+1;
-  }
-  if (_currentSong.txtlist!=null && ( progress > _curtNextDuration.inMilliseconds &&
-      _txtid < slen-1)) {
-    _txtid ++;
-    int ntd=_txtid + 1;
-    if( ntd < slen-1)
-      _curtNextDuration = getTxtDuration(_currentSong.txtlist[ntd]);
-    else
-      _curtNextDuration =Duration(seconds:PlayerTools.instance.duration);// Duration(seconds: _curtNextDuration.inSeconds+5);
-
-  }
-  this.songProgress =progress;
-  _songProgress = progress;
-  notify();
-}
-
+      if (_currentSong.txtlist != null) {
+        int  value = Duration(milliseconds: progress).inSeconds;
+        _txtid=ComFunUtil.getProgressIndex(value,this.currentSong.txtlist, this.currentSong.video['txt_type']);
+        _songProgress = progress;
+      }
+      notify();
     });
 
     PlayerTools.instance.currentSongSubject.listen((song) {
       this.currentSong = song;
       this.notify();
     });
-
 
     setControlls();
   }
@@ -69,28 +52,35 @@ if(_currentSong.txtlist!=null){
   Song get currentSong => _currentSong;
   set currentSong(Song currentSong) {
     _txtid = 0;
-    _curtNextDuration = Duration(seconds: 0);
     _currentSong = currentSong;
   }
 
   /// 歌曲进度
   int _songProgress = 0;
-  Duration _curtNextDuration = Duration(seconds: 0);
   int _txtid = 0;
   int get songProgress => _songProgress;
-  int get txtid => _txtid;
-  set settxtid(int txid){
-    _txtid=txid;
-    _curtNextDuration = getTxtDuration(_currentSong.txtlist[_txtid + 1]);
-    seekmilscd(getTxtDuration(_currentSong.txtlist[_txtid]).inSeconds);
+  int get txtid {
+  if ((PlayerTools.instance.currentState == AudioToolsState.isPlaying ||
+        PlayerTools.instance.currentState == AudioToolsState.isPaued)) {
+
+      int  value = Duration(milliseconds: _songProgress).inSeconds;
+      _txtid=ComFunUtil.getProgressIndex(value,this.currentSong.txtlist, this.currentSong.video['txt_type']);
+
+    }
+
+    return _txtid;
+  }
+
+  set settxtid(int txid) {
+    _txtid = txid;
+   seekmilscd(ComFunUtil.getTxtDuration(_currentSong.txtlist[_txtid], _currentSong.video['txt_type']).inSeconds);
     notify();
   }
+
   set songProgress(int progress) {
     _songProgress = progress;
     notify();
   }
-
-
 
   /// 歌曲时长
   String songDuration() {
@@ -103,7 +93,9 @@ if(_currentSong.txtlist!=null){
       return 0.0;
     }
 
-    var value = (Duration(milliseconds:songProgress).inSeconds/PlayerTools.instance.duration) ?? 0.0;
+    var value = (Duration(milliseconds: songProgress).inSeconds /
+            PlayerTools.instance.duration) ??
+        0.0;
 //    var value = (PlayerTools.instance.currentProgress/PlayerTools.instance.duration) ?? 0.0;
     if (value > 1) {
       value = 1.0;
@@ -118,68 +110,64 @@ if(_currentSong.txtlist!=null){
   }
 
   seekmilscd(int value) {
-   PlayerTools.instance.seek(value);
+    PlayerTools.instance.seek(value);
   }
 
-
   pre() {
-    if(_checkvdlistItem(PlayerTools.instance.currentSong.preid)){
-      _txtid=0;
-      this.songProgress=0;
+    if (_checkvdlistItem(PlayerTools.instance.currentSong.preid)) {
+      _txtid = 0;
+      this.songProgress = 0;
       PlayerTools.instance.preAction();
     }
   }
+
   play() {
     if (PlayerTools.instance.currentState == AudioToolsState.isPlaying) {
       PlayerTools.instance.pause();
-    }else if (PlayerTools.instance.currentState == AudioToolsState.isPaued) {
+    } else if (PlayerTools.instance.currentState == AudioToolsState.isPaued) {
       PlayerTools.instance.resume();
-    }else {
-      _txtid=0;
-      this.songProgress=0;
+    } else {
+      _txtid = 0;
+      this.songProgress = 0;
       PlayerTools.instance.play(_currentSong);
     }
-
   }
-  next(BuildContext context) async{
-    _txtid=0;
-    this.songProgress=0;
+
+  next(BuildContext context) async {
+    _txtid = 0;
+    this.songProgress = 0;
     if (_currentSong.nextid > 0) {
-      int ind=0;
-      for(int i=0;i<_currentSong.vdlist.length;i++){
-        if(_currentSong.vdlist[i]['video_id']==_currentSong.nextid)
-        {ind=i;
-        break;
+      int ind = 0;
+      for (int i = 0; i < _currentSong.vdlist.length; i++) {
+        if (_currentSong.vdlist[i]['video_id'] == _currentSong.nextid) {
+          ind = i;
+          break;
         }
       }
 
-      if(await DataUtils.isCheckedGoods(this._currentSong.info['goods_id'],videoid:ind,vd_level: this._currentSong.info['vd_level'])){
+      if (await DataUtils.isCheckedGoods(this._currentSong.info['goods_id'],
+          videoid: ind, vd_level: this._currentSong.info['vd_level'])) {
         PlayerTools.instance.nextAction();
-      }
-      else
-        {
-          if (await DialogUtils().showMyDialog(context, '需要购买才能收听或观看，是否去购买?')) {
-            Application().checklogin(context, () {
-              Navigator.pop(context);
-              BuyModel param = BuyModel(
-                  goods_id: _currentSong.info['goods_id'].toString(),
-                  goods_num:"1",
-                  item_id:"0",
-                  imgurl:  _currentSong.info['original_img'],
-                  goods_price: double.tryParse( _currentSong.info['shop_price']));
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
+      } else {
+        if (await DialogUtils().showMyDialog(context, '需要购买才能收听或观看，是否去购买?')) {
+          Application().checklogin(context, () {
+            Navigator.pop(context);
+            BuyModel param = BuyModel(
+                goods_id: _currentSong.info['goods_id'].toString(),
+                goods_num: "1",
+                item_id: "0",
+                imgurl: _currentSong.info['original_img'],
+                goods_price: double.tryParse(_currentSong.info['shop_price']));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
 //                            builder: (context) => BuyPage(param),
-                    builder: (context) => GoodsBuyPage(param),
-                  ));
-            });
-          }
+                  builder: (context) => GoodsBuyPage(param),
+                ));
+          });
         }
+      }
     }
-
-
-
   }
 /*
   Widget _getModeWidget() {
@@ -209,13 +197,12 @@ if(_currentSong.txtlist!=null){
     }
   }
 
-  bool _checkvdlistItem(int index){
-    bool ttt=false;
-    if(PlayerTools.instance.currentSong.vdlist!=null){
+  bool _checkvdlistItem(int index) {
+    bool ttt = false;
+    if (PlayerTools.instance.currentSong.vdlist != null) {
       PlayerTools.instance.currentSong.vdlist.forEach((ele) {
-        if(ele['video_id']==index)
-        {
-          ttt= true;
+        if (ele['video_id'] == index) {
+          ttt = true;
         }
       });
     }
@@ -225,12 +212,37 @@ if(_currentSong.txtlist!=null){
 
   setControlls() {
     this.controls = [
-      new Icon(Icons.skip_previous, color:_checkvdlistItem(PlayerTools.instance.currentSong.preid)? Colors.black54 :Colors.white70,size: 27,),
-      PlayerTools.instance.currentState == AudioToolsState.isPlaying ? new Icon(Icons.pause_circle_outline, color: Colors.black54,size: 27,):new Icon(Icons.play_circle_outline, color: Colors.black54,size: 27,),
-      new Icon(Icons.skip_next, color:_checkvdlistItem(PlayerTools.instance.currentSong.nextid) ? Colors.black54:Colors.white70,size: 27,),
-      new Icon(Icons.menu, color: Colors.black54,size: 27,)
+      new Icon(
+        Icons.skip_previous,
+        color: _checkvdlistItem(PlayerTools.instance.currentSong.preid)
+            ? Colors.black54
+            : Colors.white70,
+        size: 27,
+      ),
+      PlayerTools.instance.currentState == AudioToolsState.isPlaying
+          ? new Icon(
+              Icons.pause_circle_outline,
+              color: Colors.black54,
+              size: 27,
+            )
+          : new Icon(
+              Icons.play_circle_outline,
+              color: Colors.black54,
+              size: 27,
+            ),
+      new Icon(
+        Icons.skip_next,
+        color: _checkvdlistItem(PlayerTools.instance.currentSong.nextid)
+            ? Colors.black54
+            : Colors.white70,
+        size: 27,
+      ),
+      new Icon(
+        Icons.menu,
+        color: Colors.black54,
+        size: 27,
+      )
     ];
-
 
     /*
 //    Colors.white
@@ -244,7 +256,6 @@ if(_currentSong.txtlist!=null){
   }
 
   showMenu(BuildContext context) {
-
 //    Navigator.push(context, MaterialPageRoute(
 //        builder: (_) => MusicListPage())).then((value) {
 //      if (value) {
@@ -259,15 +270,16 @@ if(_currentSong.txtlist!=null){
         context,
         PageRouteBuilder(
           opaque: false,
-          transitionsBuilder: (___, Animation<double> animation, ____, Widget child) {
+          transitionsBuilder:
+              (___, Animation<double> animation, ____, Widget child) {
             return new FadeTransition(
               opacity: animation,
               child: child,
             );
           },
-          pageBuilder: (BuildContext context, _, __) => MusicListPage(_currentSong.vdlist,_currentSong),
-        )
-    ).then((value) {
+          pageBuilder: (BuildContext context, _, __) =>
+              MusicListPage(_currentSong.vdlist, _currentSong),
+        )).then((value) {
       if (value) {
         this.notify();
       }
@@ -278,42 +290,4 @@ if(_currentSong.txtlist!=null){
     notifyListeners();
   }
 
-
-  Duration getTxtDuration(Map<String, dynamic> item) {
-    Duration tempcurtDuration = Duration(seconds: 0);
-    if(item!=null){
-      String vtype = _currentSong.video['txt_type'] ?? 'txt';
-      if (vtype == "txt" || vtype == "lrc") {
-        List<String> dtime = item['st'].toString().split(":");
-        if (dtime.length == 3) {
-          tempcurtDuration = Duration(
-              hours: int.tryParse(dtime[0]),
-              minutes: int.tryParse(dtime[1]),
-              milliseconds: vtype == 'txt'
-                  ? int.tryParse(dtime[2].replaceAll(",", "").trim())
-                  : (int.tryParse(dtime[2].split(".")[0]) * 1000 +
-                  int.tryParse(dtime[2].split(".")[1]) * 10));
-        } else if (dtime.length == 2) {
-          tempcurtDuration = Duration(
-              minutes: int.tryParse(dtime[0]),
-              milliseconds: vtype == 'txt'
-                  ? int.tryParse(dtime[1].replaceAll(",", "").trim())
-                  : (int.tryParse(dtime[1].split(".")[0]) * 1000 +
-                  int.tryParse(dtime[1].split(".")[1]) * 10));
-        } else if (dtime.length == 1) {
-          if(int.tryParse(dtime[0].split(".")[0])!=null){
-            tempcurtDuration = Duration(
-                milliseconds: vtype == 'txt'
-                    ? int.tryParse(dtime[0].replaceAll(",", "").trim())
-                    : (int.tryParse(dtime[0].split(".")[0]) * 1000 +
-                    int.tryParse(dtime[0].split(".")[1]) * 10));
-          }
-
-        }
-      }
-    }
-
-//    _curtDuration = tempcurtDuration;
-    return tempcurtDuration;
-  }
 }

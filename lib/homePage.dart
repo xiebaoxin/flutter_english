@@ -35,14 +35,15 @@ class _AppContentPage extends StatefulWidget {
 
 class _AppState extends State<_AppContentPage>
     with TickerProviderStateMixin<_AppContentPage> {
+
+  @override
+  bool get wantKeepAlive => true;
+
   MainProvide _provide;
   TabController controller;
   Animation<double> _animationMini;
   AnimationController _miniController;
   final _tranTween = new Tween<double>(begin: 1, end: 0);
-
-  @override
-  bool get wantKeepAlive => true;
 
   String _token = '';
   bool _login = true;

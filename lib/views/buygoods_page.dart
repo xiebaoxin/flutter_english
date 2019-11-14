@@ -48,10 +48,8 @@ class GoodsBuyState extends State<GoodsBuyPage> {
   Widget build(BuildContext context) {
     final model = globleModel().of(context);
 
-    if (model.token != '') {
       _userinfo = model.userinfo;
       _point_rate = model.point_rate;
-    }
 
     return new Scaffold(
         appBar: new AppBar(
@@ -135,6 +133,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
     Map<String, dynamic> response = await HttpUtils.dioappi(
         'User/ajaxAddress', {},
         withToken: true, context: context);
+    print(response);
     if (response['status'].toString() == '1') {
       var dte = response['result'] as List;
       if (dte.length > 0) {
@@ -143,6 +142,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
         });
       }
     }
+
   }
 
   Widget shuomin() {
@@ -191,6 +191,8 @@ class GoodsBuyState extends State<GoodsBuyPage> {
                             children: <Widget>[
                               Text('￥${widget.buyparam.goods_price}',
                                   style: KfontConstant.defaultSubStyle),
+                            Text("${_point_rate*widget.buyparam.goods_price}BX" , style: KfontConstant.defaultPriceStyle),
+                              SizedBox(width: 20,)
                             /*  Padding(
                                 padding: const EdgeInsets.only(right: 10.0),
                                 child: AddPlus(
@@ -255,7 +257,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
               child: Card(
                   child: ListTile(
                       title: Text(
-                        "可用积分${_userinfo.point.toStringAsFixed(4)},[抵扣${(_userinfo.point / _point_rate).toStringAsFixed(2)}元]",
+                        "可用${_userinfo.point.toStringAsFixed(4)}BX,[抵扣${(_userinfo.point / _point_rate).toStringAsFixed(2)}元]",
                         style: KfontConstant.defaultSubStyle,
                       ),
                       trailing:  Radio(
@@ -292,7 +294,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
                         style: KfontConstant.defaultSubStyle,
                       ),
                       trailing: Radio(
-                        value:3,
+                        value:2,
                         groupValue:_optionValue,
                         activeColor: Colors.blue,
                         onChanged:(v){
@@ -324,9 +326,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
     if (_optionValue==1 && money >= (_userinfo.point / _point_rate))
       money -= (_userinfo.point / _point_rate);
 
-    if (_optionValue==3 && money >= _userinfo.money) money -= _userinfo.money;
-    if (_optionValue==4 && money >= _userinfo.jiangli)
-      money -= _userinfo.jiangli;
+    if (_optionValue==2 && money >= _userinfo.money) money -= _userinfo.money;
 
    return Card(
       // This ensures that the Card's children are clipped correctly.
@@ -367,9 +367,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
     if (_optionValue==1 && money >= (_userinfo.point / _point_rate))
       money -= (_userinfo.point / _point_rate);
 
-    if (_optionValue==3 && money >= _userinfo.money) money -= _userinfo.money;
-    if (_optionValue==4 && money >= _userinfo.jiangli)
-      money -= _userinfo.jiangli;
+    if (_optionValue==2 && money >= _userinfo.money) money -= _userinfo.money;
 
     return Container(
       width: ScreenUtil.screenWidth,
@@ -437,7 +435,7 @@ class GoodsBuyState extends State<GoodsBuyPage> {
       "goods_id": widget.buyparam.goods_id,
       "item_id": widget.buyparam.item_id,
       "goods_num": widget.buyparam.goods_num,
-      "address_id": _address['address_id'].toString() ?? "0",
+//      "address_id": _address['address_id'].toString() ?? "0",
       "action": "buy_now" //立即购买
     };
     Map<String, dynamic> response = await HttpUtils.dioappi(
@@ -446,11 +444,16 @@ class GoodsBuyState extends State<GoodsBuyPage> {
 //    {"status":1,"msg":"计算成功","result"://:'Cart/integralBuy'
 // {"shipping_price":0,"coupon_price":0,"user_money":0,"integral_money":0,"pay_points":0,
 // "order_amount":6,"total_amount":6,"goods_price":6,"total_num":3,"order_prom_amount":0}}
-//    print(response);
+   print(response);
     setState(() {
       _prebuyinfo = response['result'];
       _picurl = response['pic_url'];
       _name = response['name'];
+
+
+        var ddd=response["config"];
+        _point_rate= double.tryParse(ddd["point_rate"])??1.0;
+
     });
     return response['result'];
   }
@@ -463,7 +466,6 @@ class GoodsBuyState extends State<GoodsBuyPage> {
       if(_optionValue>0){
         if (_pwd.isEmpty) return ComFunUtil.getPassword(context, (String pwd) {
           setState(() {
-            print("=====vv=$pwd===========");
             _pwd = pwd;
             submit();
           });
@@ -476,34 +478,22 @@ class GoodsBuyState extends State<GoodsBuyPage> {
         "item_id": widget.buyparam.item_id,
         "goods_num": widget.buyparam.goods_num,
 
-        "pay_points":   _userinfo.point.toStringAsFixed(4) ,
-        "money_type": _optionValue==2 ? "1" : "0",
-        "user_money": _optionValue==3 ? _userinfo.money.toStringAsFixed(2) : "0",
+        "pay_points": _optionValue==1 ?   _userinfo.point.toStringAsFixed(4):"0" ,
+
+        "user_money": _optionValue==2 ? _userinfo.money.toStringAsFixed(2) : "0",
         "pay_pwd": _pwd,
-        "address_id": _dee != '' ? _address['address_id'].toString() : "0",
+//        "address_id": _dee != '' ? _address['address_id'].toString() : "0",
         "action": "buy_now" //立即购买
       };
 
-/*      Map<String, String> params = {
-        "goods_id": widget.buyparam.goods_id,
-        "item_id": widget.buyparam.item_id,
-        "goods_num": widget.buyparam.goods_num,
-        "pay_points":!_switchValuege ? (!_switchValue ? "" : _userinfo.point.toStringAsFixed(4)): _userinfo.ge.balance.toStringAsFixed(4),
-        "money_type": _switchValuege ? "1" :"0",
-        "user_money": _switchValueye ? _userinfo.money.toStringAsFixed(2) : "0",
-        "user_jiangli":
-            _switchValuejl ? _userinfo.jiangli.toStringAsFixed(2) : "0",
-        "pay_pwd": _pwd,
-        "address_id": _dee != '' ? _address['address_id'].toString() : "0",
-        "action": "buy_now" //立即购买
-      };*/
       Application().checklogin(context, () async {
         await HttpUtils.dioappi('Cart/cart3/act/submit_order', params,
             withToken: true, context: context)
             .then((response) async {
+              print(response);
           Navigator.of(context).pop();
           if (response['status'].toString() == '1') {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => PayPage(response['result'].toString()),

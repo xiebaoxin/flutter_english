@@ -71,14 +71,17 @@ class GoodsListWidget extends StatelessWidget {
                                       style: KfontConstant.defaultSubStyle
                                   ),
                                   Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      SizedBox(
-                                        width: 5,
+
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          '￥${item['shop_price']}',
+                                            style: KfontConstant.defaultSubStyle
+                                        ),
                                       ),
-                                      Text(
-                                        '￥${item['shop_price']}',
-                                          style: KfontConstant.defaultSubStyle
-                                      ),
+                                      Text("${item['shop_point']}BX")
                                     ],
                                   ),
                             /*        Text(

@@ -80,6 +80,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   }
 
   Provide<PlayerProvide> _buildGesture() {
+
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide value) {
       return new GestureDetector(
@@ -148,7 +149,12 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   Provide<PlayerProvide> _setupContent() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-    return Stack(
+
+         _txtid = plyprvd.txtid;
+
+
+          _goToElement(gettxtpositon());
+      return Stack(
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.only(top: 90.0, bottom: 125),
@@ -217,7 +223,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     });
   }
 
-  int _jtindx=0;
+  int _jtindx = 0;
   Widget buildTxt(PlayerProvide plyprvd) {
     List<Map<String, dynamic>> list = plyprvd.currentSong.txtlist;
     if (_totalrows == 0) {
@@ -225,14 +231,10 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     }
     _maxscrlen = _totalrows * _rowhight;
 
-    _txtid = plyprvd.txtid;
-    _goToElement(gettxtpositon());
-
-  if( _jtindx!=_txtid){
-    _jtindx=_txtid;
-    if (_jtindx > list.length-1)
-      _jtindx = list.length-1;
-  }
+    if (_jtindx != _txtid) {
+      _jtindx = _txtid;
+      if (_jtindx > list.length - 1) _jtindx = list.length - 1;
+    }
 
     return Container(
         color: Colors.amber,
@@ -250,7 +252,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                   padding: const EdgeInsets.all(0),
                   child: GestureDetector(
                     onTap: () {
-                      _txtid=i;
+                      _txtid = i;
                       if (PlayerTools.instance.currentState !=
                           AudioToolsState.isEnd) {
                         if (i < _jtindx && i > 0) {
@@ -260,15 +262,13 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                           _txtid = list.length - 2;
                         }
 
-                        _jtindx=_txtid;
+                        _jtindx = _txtid;
                         _goToElement(gettxtpositon());
                         plyprvd.settxtid = _txtid;
-
-                      }else{
+                      } else {
+                        showLoadingDialog("加载中");
                         _provide.play();
                       }
-
-
                     },
                     child: Column(
 //                  mainAxisAlignment: MainAxisAlignment.start,
@@ -281,7 +281,10 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                                     ? TextStyle(
                                         color: Colors.green, fontSize: 18)
                                     : TextStyle(
-                                        color:(i>=(list.length-2))?Color(0xFF8BBC9D): Colors.black45, fontSize: 18))
+                                        color: (i >= (list.length - 2))
+                                            ? Color(0xFF8BBC9D)
+                                            : Colors.black45,
+                                        fontSize: 18))
                             : SizedBox(
                                 height: 0.1,
                               ),
@@ -290,10 +293,12 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                                 ? XbxCnText(item['cn'],
                                     style: _jtindx == i
                                         ? TextStyle(
-                                            color:  Color(0xFFFF9933),
+                                            color: Color(0xFFFF9933),
                                             fontSize: 16)
                                         : TextStyle(
-                                            color: (i>=(list.length-2))?Color(0xFFFF6633):Colors.black45,
+                                            color: (i >= (list.length - 2))
+                                                ? Color(0xFFFF6633)
+                                                : Colors.black45,
                                             fontSize: 16))
                                 : SizedBox(
                                     height: 1,
@@ -324,12 +329,13 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
       ),
     );
   }
-double _dollars=0.0;
+
+  double _dollars = 0.0;
   Provide<PlayerProvide> _setupSlide() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-          _txtid = plyprvd.txtid;
-          _dollars=_provide.sliderValue();
+
+      _dollars = _provide.sliderValue();
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
@@ -346,44 +352,50 @@ double _dollars=0.0;
                   child: Slider(
                 activeColor: this.fontcolor,
                 inactiveColor: Colors.grey,
-                value:  _dollars,
+                value: _dollars,
                 min: 0,
                 max: 1,
                 onChanged: (newValue) {
                   print('onChanged:$newValue');
-                  if (plyprvd.currentSong.txtlist.length > 0) {
-                    if( newValue==1){
-                      //结尾
-                      _txtid =plyprvd.currentSong.txtlist.length-2;
-                    }else
-                    _txtid =
-                        (plyprvd.currentSong.txtlist.length * newValue).toInt();
+                  if (PlayerTools.instance.currentState !=
+                      AudioToolsState.isEnd) {
+                    if (plyprvd.currentSong.txtlist.length > 0) {
+                      if (newValue == 1) {
+                        //结尾
+                        _txtid = plyprvd.currentSong.txtlist.length - 2;
+                      } else
+                        _txtid = (plyprvd.currentSong.txtlist.length * newValue)
+                            .toInt();
 
-                    _goToElement(gettxtpositon());
-                    plyprvd.settxtid =_txtid;
+                      _goToElement(gettxtpositon());
+                      plyprvd.settxtid = _txtid;
+                    }
                   }
-
                 },
                 onChangeStart: (startValue) {
                   print('onChangeStart:$startValue');
                 },
                 onChangeEnd: (endValue) {
                   print('onChangeEnd:$endValue');
-                  if (plyprvd.currentSong.txtlist.length > 0) {
-                    if( endValue==1){
-                      //结尾
-                      _txtid =plyprvd.currentSong.txtlist.length-2;
-                    }else
-                      _txtid =
-                          (plyprvd.currentSong.txtlist.length * endValue).toInt();
-                    _goToElement(gettxtpositon());
-                    plyprvd.settxtid =_txtid;
-
+                  if (PlayerTools.instance.currentState !=
+                      AudioToolsState.isEnd) {
+                    if (plyprvd.currentSong.txtlist.length > 0) {
+                      if (endValue == 1) {
+                        //结尾
+                        _txtid = plyprvd.currentSong.txtlist.length - 2;
+                      } else
+                        _txtid = (plyprvd.currentSong.txtlist.length * endValue)
+                            .toInt();
+                      _goToElement(gettxtpositon());
+                      plyprvd.settxtid = _txtid;
+                    }
                   }
                 },
                 label: '$_dollars dollars',
                 semanticFormatterCallback: (newValue) {
-                  print("-semanticFormatterCallback+=======--${newValue}- ${_txtid}") ;
+
+                  print(
+                      "-semanticFormatterCallback+=======--${newValue}- ${_txtid}");
                   return '${newValue.round()} dollars';
                 },
               )),
@@ -455,6 +467,7 @@ double _dollars=0.0;
         controllerRecord.forward();
         _statustext = "正在播放中……(点击字幕可以点读)";
       } else if (state == AudioToolsState.beginPlay) {
+        hideLoadingDialog();
         showLoadingDialog("加载中");
         controllerRecord.forward();
         _statustext = "播放准备…";
@@ -463,24 +476,21 @@ double _dollars=0.0;
         controllerRecord.stop(canceled: false);
         _statustext = "出错了";
       } else if (state == AudioToolsState.isCacheing) {
+        hideLoadingDialog();
         showLoadingDialog('加载中…');
         controllerRecord.stop();
         _statustext = "加载中…";
-      }
-      else if (state == AudioToolsState.isEnd) {
+      } else if (state == AudioToolsState.isEnd) {
         hideLoadingDialog();
         controllerRecord.stop(canceled: false);
         _statustext = "已结束";
-      }
-      else {
+      } else {
         controllerRecord.stop(canceled: false);
         hideLoadingDialog();
         _statustext = "已停止";
       }
       hideLoadingDialog();
-      setState(() {
-        ;
-      });
+
     });
 
     _subscriptions.add(s);
@@ -548,19 +558,23 @@ double _dollars=0.0;
   int _cindex = 0;
   void _goToElement(double pxt) async {
     if (_scrollController != null) {
-      if ( _txtid != _cindex &&  _jtindx < PlayerTools.instance.currentSong.txtlist.length-2) {
+      if (_txtid != _cindex &&
+          _jtindx < PlayerTools.instance.currentSong.txtlist.length - 2) {
         _cindex = _txtid;
+        if(pxt>60)
         _scrollController.animateTo(pxt - 60,
             duration: const Duration(milliseconds: 200), curve: Curves.linear);
       }
     }
   }
 
-  double gettxtpositon() {
+  double gettxtpositon({int txtindex}) {
+    if(txtindex==null) txtindex=_txtid;
     int txtrows = 0;
     Map<String, dynamic> item;
-    if (_txtid >= 0 && _txtid < PlayerTools.instance.currentSong.txtlist.length) {
-      for (int i = 0; i <= _txtid; i++) {
+    if (txtindex >= 0 &&
+        txtindex < PlayerTools.instance.currentSong.txtlist.length) {
+      for (int i = 0; i <= txtindex; i++) {
         item = PlayerTools.instance.currentSong.txtlist[i];
 
         if (item['eng'] != null) {
@@ -577,7 +591,7 @@ double _dollars=0.0;
         }
       }
     }
-    if(_txtid >= PlayerTools.instance.currentSong.txtlist.length)
+    if (txtindex >= PlayerTools.instance.currentSong.txtlist.length)
       return _maxscrlen;
 
     double inndexoffset = txtrows * _rowhight;
@@ -649,15 +663,14 @@ double _dollars=0.0;
    */
   List<String> StrCn2Item(String str) {
     int rlen = (_maxnum / 2).toInt();
-    if(str!=''){
-      String str1=byteCut(str,rlen);
+    if (str != '') {
+      String str1 = byteCut(str, rlen);
       _strlist.add(str1);
-       str=str.replaceFirst(str1, "");
+      str = str.replaceFirst(str1, "");
       return StrCn2Item(str);
     }
 
     return _strlist;
-
   }
 
   int getTotalCols(List<Map<String, dynamic>> list) {
@@ -678,22 +691,26 @@ double _dollars=0.0;
     return totalrows;
   }
 
-  String byteCut (String str, int n) {      // str： 被截取字符串；n：截取长度else {
+  String byteCut(String str, int n) {
+    // str： 被截取字符串；n：截取长度else {
     int len = 0;
     String tmpStr = '';
-    for (int i = 0; i < str.length; i++) { // 遍历字符串
-      if (RegExp(r"/[\u4e00-\u9fa5]/").hasMatch(str[i])) { // 判断为中文  长度为三字节（可根据实际需求更换长度，将所加长度更改即可）
-    len += 3;
-    } else {  // 其余则长度为一字节
-    len += 1;
+    for (int i = 0; i < str.length; i++) {
+      // 遍历字符串
+      if (RegExp(r"/[\u4e00-\u9fa5]/").hasMatch(str[i])) {
+        // 判断为中文  长度为三字节（可根据实际需求更换长度，将所加长度更改即可）
+        len += 3;
+      } else {
+        // 其余则长度为一字节
+        len += 1;
+      }
+      if (len > n) {
+        // 当长度大于传入的截取长度时，退出循环
+        break;
+      } else {
+        tmpStr += str[i]; // 将每个长度范围内的字节加入到新的字符串中
+      }
     }
-    if (len > n) { // 当长度大于传入的截取长度时，退出循环
-    break;
-    } else {
-    tmpStr += str[i]; // 将每个长度范围内的字节加入到新的字符串中
-    }
+    return tmpStr; // 返回截取好的字符串
   }
-    return tmpStr;    // 返回截取好的字符串
-  }
-
 }
