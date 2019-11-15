@@ -63,9 +63,9 @@ class WithdrawalPageState extends State<WithdrawalPage> {
 //    _countCtrl.text = '0';
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('补贴转余额'),
+        title: new Text('余额'),
           actions: <Widget>[
-  /*          IconButton(
+           IconButton(
               icon: Icon(Icons.settings),
               tooltip: '提现设置',
               onPressed: () {
@@ -76,7 +76,7 @@ class WithdrawalPageState extends State<WithdrawalPage> {
                   _loadData();
                 });
               },
-            ),*/
+            ),
             IconButton(
               icon: Icon(Icons.history),
               tooltip: '历史',
@@ -135,8 +135,8 @@ class WithdrawalPageState extends State<WithdrawalPage> {
                   ),
                   const SizedBox(height: 10.0),
                   payword(),
-                  Center(child: Text("手续费${(_withdraw_fee*100).toStringAsFixed(2)}%"),),
-//                  shuomin(),
+                  Center(child: Text("手续费20%"),),
+//                  shuomin(),${(_withdraw_fee*double.tryParse(_countCtrl.text)??0.0).toStringAsFixed(2)}
                   ComFunUtil().buildMyButton(context, '确定', () {
                     submit(context);
                   }, disabled: _countCtrl.text !='' ? false : true),
@@ -211,7 +211,7 @@ class WithdrawalPageState extends State<WithdrawalPage> {
       };
 
       Application().checklogin(context, () async {
-        await HttpUtils.dioappi('User/withdrawal/stype/${widget.type}', params,
+        await HttpUtils.dioappi('User/withdrawals/stype/${widget.type}', params,
             withToken: true, context: context)
             .then((response) async {
           await DialogUtils.showToastDialog(context, response['msg'].toString());

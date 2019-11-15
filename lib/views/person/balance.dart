@@ -64,7 +64,7 @@ class BalancePage extends StatelessWidget {
 
                               Padding(
                                 padding: const EdgeInsets.all(18.0),
-                                child: Text("余额：${(count0-count1).toString()}",style: KfontConstant.bigfontSize,),
+                                child: Text("余额：${(userinfo.money).toString()}",style: KfontConstant.bigfontSize,),
                               ),
                               const SizedBox(height: 10.0),
                               /*          ComFunUtil().buildMyButton(context, '充值', () {

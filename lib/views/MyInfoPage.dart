@@ -127,9 +127,19 @@ class MyInfoPageState extends State<MyInfoPage> {
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text("余额:${_userinfo.money.toStringAsFixed(2)}",
-                                      style: TextStyle(
-                                          color: Color(0xFFFFFFFF))),
+                                  child: InkWell(
+                                    onTap: (){
+                                      Application().checklogin(context, () {
+                                        Navigator.push(
+                                          context,
+                                          new MaterialPageRoute(builder: (context) => new BalancePage()),
+                                        );
+                                      });
+                                    },
+                                    child: Text("余额:${_userinfo.money.toStringAsFixed(2)}",
+                                        style: TextStyle(
+                                            color: Color(0xFFFFFFFF))),
+                                  ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -193,14 +203,14 @@ class MyInfoPageState extends State<MyInfoPage> {
               Divider(),
               renderRow('images/账户安全.png', "登录密码", index: 5),
               Divider(),
-              renderRow(
+            /*  renderRow(
                   'images/攻略.png',
                   "新手攻略",index: 19
               ),
 
               Divider(),
               renderRow('images/收货地址.png', "收货地址", index: 3),
-              Divider(),
+              Divider(),*/
               renderRow('images/关于.png', "关于我们",index: 20),
               Divider(),
               renderRow('images/客服.png', "客服"),
@@ -212,7 +222,7 @@ class MyInfoPageState extends State<MyInfoPage> {
     );
 
     return ScopedModelDescendant<globleModel>(
-        rebuildOnChange: true,
+//        rebuildOnChange: true,
         builder: (context, child, model) {
           _token = model.token;
           if (_token != '') {

@@ -99,7 +99,7 @@ class globleModel extends Model {
       _exchan_fee =  double.tryParse(respon["exchan_fee"])??0.0;
 
     if (respon["withdraw_fee"]!=null)
-      _withdraw_fee =  double.tryParse(respon["withdraw_fee"])??0.0;
+      _withdraw_fee =  double.tryParse(respon["withdraw_fee"])??0.2;
 
     notifyListeners();
   }

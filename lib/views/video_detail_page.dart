@@ -207,7 +207,10 @@ class _VideoDetailPageState extends State<VideoDetailPage> with AutomaticKeepAli
         withToken: true, context: context);
 
     if (response['status'] == 1) {
-      _favorate=true;
+      setState(() {
+        _favorate=true;
+      });
+
     }
   }
 
