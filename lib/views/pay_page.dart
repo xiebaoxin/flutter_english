@@ -26,7 +26,7 @@ class PayPage extends StatefulWidget {
 }
 
 class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
-  AnimationController _controller;
+//  AnimationController _controller;
 
   File _image;
   int _objtype = 0;
@@ -79,7 +79,7 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
-    _controller = AnimationController(vsync: this);
+//    _controller = AnimationController(vsync: this);
     _getdata();
     super.initState();
 
@@ -92,7 +92,7 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
-    _controller.dispose();
+//    _controller.dispose();
     super.dispose();
     _image?.delete();
   }
@@ -420,41 +420,47 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: <Widget>[
-                                    Container(
-                                      height: 35,
-                                      child: ListTile(
-                                          title: Text(
-                                            "支付宝",
-                                            style: KfontConstant.defaultSubStyle,
-                                          ),
-                                          trailing:  Radio(
-                                            value:1,
-                                            groupValue:_objtype,
-                                            activeColor: Colors.blue,
-                                            onChanged:(v){
-                                              refreshShowpayform(v);
-                                            },
-                                          )
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        height: 45,
+                                        child: ListTile(
+                                            title: Text(
+                                              "支付宝",
+                                              style: KfontConstant.defaultSubStyle,
+                                            ),
+                                            trailing:  Radio(
+                                              value:1,
+                                              groupValue:_objtype,
+                                              activeColor: Colors.blue,
+                                              onChanged:(v){
+                                                refreshShowpayform(v);
+                                              },
+                                            )
+                                        ),
                                       ),
                                     ),
-                                    Container(
-                                      height: 35,
-                                      child: ListTile(
-                                          title: Text(
-                                            "微信",
-                                            style: KfontConstant.defaultSubStyle,
-                                          ),
-                                          trailing:  Radio(
-                                            value:0,
-                                            groupValue:_objtype,
-                                            activeColor: Colors.blue,
-                                            onChanged:(v){
-                                              refreshShowpayform(v);
-                                            },
-                                          )
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        height: 45,
+                                        child: ListTile(
+                                            title: Text(
+                                              "微信",
+                                              style: KfontConstant.defaultSubStyle,
+                                            ),
+                                            trailing:  Radio(
+                                              value:0,
+                                              groupValue:_objtype,
+                                              activeColor: Colors.blue,
+                                              onChanged:(v){
+                                                refreshShowpayform(v);
+                                              },
+                                            )
+                                        ),
                                       ),
                                     ),
-                                    Container(
+                               /*     Container(
                                       height: 35,
                                       child: ListTile(
                                           title: Text(
@@ -470,7 +476,7 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
                                             },
                                           )
                                       ),
-                                    ),
+                                    ),*/
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: <Widget>[
@@ -686,7 +692,9 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
   }
 
   void submit() async {
-    Application().checklogin(context, () async {
+    await DialogUtils.showToastDialog(context, "暂不支持支付宝支付");
+/*    Application().checklogin(context, () async {
+
       String strurlprm =
           "order_sn=${widget.order_sn}&type=$_objtype&user=${_userinfo.id}&price=&money=${_payinfo['order_amount'].toString()}";
       Application.webto(context, "/web",
@@ -696,7 +704,7 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
           .then((response) {
         _getdata();
       });
-    });
+    });*/
   }
 
   void submitteOutPay(File image) async {
@@ -783,8 +791,9 @@ class PayPageState extends State<PayPage> with SingleTickerProviderStateMixin {
             .then((data) async {
           print("---》$data");
           return data;
-//    await DataUtils.freshUserinfo(context);
-        }).whenComplete(() {
+
+        }).whenComplete(() async{
+            await DataUtils.freshUserinfo(context);
           Navigator.pushReplacement(
             context,
             new MaterialPageRoute(builder: (context) => OrderListPage()),

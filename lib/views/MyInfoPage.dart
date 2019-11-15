@@ -93,7 +93,6 @@ class MyInfoPageState extends State<MyInfoPage> {
                     padding: EdgeInsets.fromLTRB(
                         0, _top, 0, 2.0), //const EdgeInsets.all(8.0),
                     color: GlobalConfig.mainColor,
-                    height: 95,
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -101,7 +100,7 @@ class MyInfoPageState extends State<MyInfoPage> {
                           SizedBox(height: _top + 25),
                           Container(
                             padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                            height: 70,
+                            height: 50,
                             child: Row(
                               mainAxisAlignment:
                               MainAxisAlignment.spaceBetween,
@@ -126,39 +125,48 @@ class MyInfoPageState extends State<MyInfoPage> {
                                       style: TextStyle(
                                           color: Color(0xFFFFFFFF))),
                                 ),
-                                InkWell(
-                                  child: Container(
-                                    height: 40,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: <Widget>[
-                                        Text("签到",
-                                            style: TextStyle(
-                                                color: Color(0xFFFFFFFF))),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Image.asset(
-                                          "images/签到.png",
-                                          width: 30.0,
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        )
-                                      ],
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text("余额:${_userinfo.money.toStringAsFixed(2)}",
+                                      style: TextStyle(
+                                          color: Color(0xFFFFFFFF))),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: InkWell(
+                                    child: Container(
+                                      height: 40,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: <Widget>[
+                                          Text("签到",
+                                              style: TextStyle(
+                                                  color: Color(0xFFFFFFFF))),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Image.asset(
+                                            "images/签到.png",
+                                            width: 30.0,
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  onTap: () {
-                                    Application().checklogin(context, () {
-                                      HttpUtils.dioappi('User/user_sign', {},
-                                          context: context, withToken: true)
-                                          .then((response) async {
-                                        await DialogUtils.showToastDialog(
-                                            context, response['msg']);
-                                        await DataUtils.freshUserinfo(context);
+                                    onTap: () {
+                                      Application().checklogin(context, () {
+                                        HttpUtils.dioappi('User/user_sign', {},
+                                            context: context, withToken: true)
+                                            .then((response) async {
+                                          await DialogUtils.showToastDialog(
+                                              context, response['msg']);
+                                          await DataUtils.freshUserinfo(context);
+                                        });
                                       });
-                                    });
-                                  },
+                                    },
+                                  ),
                                 ),
                               ],
                             ),
