@@ -20,6 +20,10 @@ class globleModel extends Model {
 
   bool get showMini=>_showMini;
   String get url=>_url;
+
+  Map<String, dynamic> _sysconfig={'syswxurl':'https://u.wechat.com/MIGuR02W6E7n77GE0-qy9uc','syswx':'wxid_iit2zoseg77p12'};
+
+  Map<String, dynamic> get sysconfig=> _sysconfig;
   Map<String, dynamic> get video=>_video; //字幕文件
   Map<String, dynamic> get info=>_info;
 
@@ -83,6 +87,18 @@ class globleModel extends Model {
         .then((response) {
       if (response["status"].toString() == '1') {
         _userinfo=Userinfo.fromJson(response["userinfo"]);
+        notifyListeners();
+      }
+    });
+  }
+
+
+  Future getsysconfig(context) async{
+    await HttpUtils.dioappi("Api/getInitConfig", {},
+        withToken: true, context: context)
+        .then((response) {
+      if (response['result'] != null) {
+        _sysconfig= response['result'];
         notifyListeners();
       }
     });

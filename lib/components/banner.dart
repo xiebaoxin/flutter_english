@@ -76,6 +76,68 @@ class SwipperBanner extends StatelessWidget {
       height: height,
       child: Swiper(
         itemBuilder: (BuildContext context, index) {
+          return  Container(
+            margin: const EdgeInsets.all(8),
+            decoration: new BoxDecoration(
+              color: Colors.white,
+          borderRadius: BorderRadius.all(
+          Radius.circular(10.0),),
+              image: new DecorationImage(image: new NetworkImage( banners[index]), fit: BoxFit.cover),
+//              shape: BoxShape.circle,
+            ),
+          );/*CachedNetworkImage(
+            errorWidget: (context, url, error) =>Container(
+              height: height,
+              width: width,
+              child: Center(
+                child:    Image.asset(
+                  'images/logo-灰.png',),
+              ),
+            ),
+            placeholder: (context, url) =>  Loading(),
+            imageUrl:  banners[index],
+            height: height,
+            width: width,
+            fit: BoxFit.fill,
+          )*/;
+
+        },
+        itemCount: banners.length,
+        //viewportFraction: 0.9,
+        pagination:  SwiperPagination(
+            alignment:potype?Alignment.bottomRight: Alignment.bottomCenter,
+            builder: potype?FractionPaginationBuilder(
+                color: Colors.grey,
+                activeColor: Colors.redAccent,
+                activeFontSize: 20
+            ):DotSwiperPaginationBuilder(
+//              RectSwiperPaginationBuilder
+              color: Color(0xFF999999),
+              activeColor: Colors.white,
+//                size: Size(5.0, 2),
+//                activeSize: Size(5, 5)
+            )),
+
+
+        scrollDirection: Axis.horizontal,
+        autoplay: true,
+        index: defindex,
+        onTap: (index){
+          print('点击了第$index个');
+
+        }  ,
+      ),
+    );
+  }
+
+  Widget build11(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height =this.nheight ?? ScreenUtil().H(115);
+    return Container(
+      width: width,
+      height: height,
+      child: Swiper(
+        itemBuilder: (BuildContext context, index) {
           return  CachedNetworkImage(
             errorWidget: (context, url, error) =>Container(
               height: height,

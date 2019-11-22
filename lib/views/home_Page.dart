@@ -73,17 +73,17 @@ class HomeIndexPageState extends State<HomeIndexPage>
               flexibleSpace: SizedBox(
                 height: 1,
               ),
-              toolbarOpacity: 0.8,
-              bottomOpacity: 0.7,
+//              toolbarOpacity: 0.8,
+//              bottomOpacity: 0.7,
               backgroundColor: Color(0xFFe7281d), //把appbar的背景色改成透明
               elevation: 0.5,
               brightness: Brightness.light, //黑底白字，light 白底黑字
-              leading: Image.asset(
-                "images/logo.png",
-                height: 15,
-                width: 18,
-//        fit: BoxFit.fill,
-              ),
+              leading:  Image.asset(
+                  "images/logo.png",
+                  height: 36,
+                  width: 36,
+                  fit: BoxFit.contain,
+                ),
 
               title: GestureDetector(
                   onTap: () {
@@ -128,7 +128,7 @@ class HomeIndexPageState extends State<HomeIndexPage>
                   )),
               actions: <Widget>[
                 IconButton(
-                    icon: !_islogin ?Icon(Icons.perm_identity):Icon(Icons.person,color: Colors.lime,),
+                    icon: !_islogin ?Icon(Icons.perm_identity,):Icon(Icons.person,color: Colors.redAccent,),
                     onPressed: !_islogin
                         ? () {
                             Application().checklogin(context, () {
@@ -149,7 +149,7 @@ class HomeIndexPageState extends State<HomeIndexPage>
                     body: ListView(
                       controller: _strollCtrl,
                       children: [
-                     /*   FutureBuilder(
+                       FutureBuilder(
                           future: _futureBannerBuilderFuture,
                           builder:
                               (BuildContext context, AsyncSnapshot snapshot) {
@@ -157,11 +157,11 @@ class HomeIndexPageState extends State<HomeIndexPage>
                             switch (snapshot.connectionState) {
                               case ConnectionState.none:
                                 return new Text(
-                                    'Press button to start'); //如果_calculation未执行则提示：请点击开始
+                                    '需重新加载'); //如果_calculation未执行则提示：请点击开始
                               case ConnectionState.waiting:
                                 return Image.asset(
                                   "images/bg_img.png",
-                                  height: 180,
+                                  height: 160,
                                   width: ScreenUtil.screenWidth,
                                   fit: BoxFit.fill,
                                 );
@@ -173,7 +173,7 @@ class HomeIndexPageState extends State<HomeIndexPage>
                                       Text('Error: ${snapshot.error}'),
                                       Image.asset(
                                         "images/bg_img.png",
-                                        height: 180,
+                                        height: 160,
                                         width: ScreenUtil.screenWidth,
                                         fit: BoxFit.fill,
                                       )
@@ -198,24 +198,35 @@ class HomeIndexPageState extends State<HomeIndexPage>
                                     }
 
                                     return Container(
-                                        height: 180,
-                                        child: Column(
-                                          children: <Widget>[
-                                            banners.length <= 0
-                                                ? Image.asset(
-                                                    "images/bg_img.png",
-                                                    height: 180,
-                                                    width:
-                                                        ScreenUtil.screenWidth,
-                                                    fit: BoxFit.fill,
-                                                  )
-                                                : SwipperBanner(
-                                                    banners: banners,
-                                                    nheight: 180,
-                                                    urllinks: linkers,
-                                                  )
-                                          ],
-                                        ));
+                                        height: 160,
+//                                        padding: EdgeInsets.only(left: 8,right: 8),
+                                      decoration: new BoxDecoration(
+                                     /*   image: new DecorationImage(
+                                          image: AssetImage('images/排行榜.png'),
+                                          fit: BoxFit.fill,
+//这里是从assets静态文件中获取的，也可以new NetworkImage(）从网络上获取
+                                          centerSlice: new Rect.fromLTRB(
+                                              270.0, 180.0, 1360.0, 730.0),
+                                        ),
+                                */
+                                        border:null,// Border.all(width: 2, color: Colors.white),
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                        child:
+                                              banners.length <= 0
+                                                  ? Image.asset(
+                                                "images/bg_img.png",
+                                                height: 160,
+                                                width:
+                                                ScreenUtil.screenWidth,
+                                                fit: BoxFit.fill,
+                                              )
+                                                  : SwipperBanner(
+                                                banners: banners,
+                                                nheight: 160,
+                                                urllinks: linkers,
+                                              )
+                                        );
                                   } else {
                                     return Center(
                                       child: Text("加载中"),
@@ -225,34 +236,29 @@ class HomeIndexPageState extends State<HomeIndexPage>
 //                    return new Text('Result: ${snapshot.data}');
                             }
                           },
-                        ),*/
-                        stackmsg(),
+                        ),
+                  /*      stackmsg(),
 //                  mainTopitem(),
                         SizedBox(
                           height: 10,
-                        ),
+                        ),*/
 
                         getIndexCatList(),
-//                    Divider(),
+
                         _tabs.isEmpty
                             ? SizedBox(
                                 height: 1,
                               )
                             : Container(
-                                height: 120,
+                          height: 80,
                                 color: Colors.white70,
                                 child: Padding(
                                   padding:
-                                      const EdgeInsets.fromLTRB(3.0, 0, 3, 3.0),
-                                  child: Card(
-                                    borderOnForeground: false,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: TabBarView(
+                                      const EdgeInsets.fromLTRB(3.0, 5, 3, 3.0),
+                                  child: TabBarView(
                                         children: _buildTabItemView(),
                                       ),
-                                    ),
-                                  ),
+
                                 ),
                               ),
 
@@ -260,6 +266,11 @@ class HomeIndexPageState extends State<HomeIndexPage>
                         _recommondList.length == 0
                             ? Text("没有热门推荐")
                             : RecommendFloor(_recommondList),
+                       Container(
+                         height: 8,
+                         color: Color(0xFFeeeeee),
+                       ),
+
                         divdertext('热门'),
                         IndexHotListFloor(_goodsList, cnum: 2),
                       ],
@@ -287,13 +298,6 @@ class HomeIndexPageState extends State<HomeIndexPage>
                 .map((i) => Container(
                       child: Tab(
                         text: i['text'],
-                        /* icon: i['icon'] != null
-                            ? Image.network(
-                                i['icon'],
-                                height: 40,
-                                width: 40,
-                              )
-                            : Icons.hearing,*/
                       ),
                     ))
                 .toList()),
@@ -311,7 +315,10 @@ class HomeIndexPageState extends State<HomeIndexPage>
           ),
           width: ScreenUtil.screenWidthDp / 2 - 100,
         ),
-        Text(title, style: KfontConstant.fLoorTitleStyle),
+        Text(title, style:TextStyle(
+          fontSize:12,
+          color: Color(0xaf666666),
+        )),
         Container(
           child: Divider(
             height: 2,
@@ -466,11 +473,13 @@ class HomeIndexPageState extends State<HomeIndexPage>
   List<Widget> _buildTabItemView() {
     return _tabs.map((item) {
       return Center(
-        child: Wrap(
-          spacing: 5,
-          runSpacing: 3,
+        child: ListView(
+          itemExtent:66,
+          scrollDirection: Axis.horizontal,
+//          spacing: 5,
+//          runSpacing: 3,
           children: (item['lists'] as List).map((it) {
-            return InkWell(
+         /*   return InkWell(
                 onTap: () {
                   Navigator.push(context,
                       CupertinoPageRoute(builder: (BuildContext context) {
@@ -488,7 +497,8 @@ class HomeIndexPageState extends State<HomeIndexPage>
                         it['name'].toString().substring(0, 1),
                         style: TextStyle(fontSize: 10),
                       )
-                      /*             CachedNetworkImage(
+                      */
+         /*             CachedNetworkImage(
                 errorWidget: (context, url, error) => Container(
                   height: 30,
                   width: 30,
@@ -515,13 +525,14 @@ class HomeIndexPageState extends State<HomeIndexPage>
                 width: 40,
                 fit: BoxFit.fill,
               )*/
+         /*
                       ),
                   label: Text(
                     it['name'],
                     style: TextStyle(fontSize: 12),
                   ),
-                ));
-            /*   return  Container(
+                ));*/
+               return  Container(
                 height: 70,
                 child: InkWell(
                     onTap: () {
@@ -538,33 +549,27 @@ class HomeIndexPageState extends State<HomeIndexPage>
                         margin: EdgeInsets.all(2),
                         child: Column(
                           children: <Widget>[
-                            CachedNetworkImage(
-                              errorWidget: (context, url, error) => Container(
-                                height: 40,
-                                width: 40,
-                                child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      Image.asset(
-                                        'images/logo_b.png',
-                                      ),
-                                      Text(
-                                        "图片无法显示",
-                                        style: TextStyle(color: Colors.black26),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              placeholder: (context, url) => Loading(),
-                              imageUrl: it['icon'],
-                              height: 40,
-                              width: 40,
-                              fit: BoxFit.fill,
-                            ),
+                        Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+//                            borderRadius: BorderRadius.circular(3.0),
+                            gradient: LinearGradient(
+                                colors: [Colors.red, Color(0xFFff64a4)], begin: Alignment.center, end: Alignment.topRight),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            it['name'].toString().substring(0, 1),
+                            style: TextStyle(fontSize: 10,fontWeight: FontWeight.bold,color: Color(0xFFFFFFFF)),
+                          )
+                     /*     CircleAvatar(
+                          backgroundColor: KColorConstant.themeColor,
+                            child: Text(
+                              it['name'].toString().substring(0, 1),
+                              style: TextStyle(fontSize: 10,fontWeight: FontWeight.bold,color: Color(0xFFFFFFFF)),
+                            )),*/
+                        ),
                             Text(
                               it['name'],
                               style: TextStyle(fontSize: 10),
@@ -572,7 +577,7 @@ class HomeIndexPageState extends State<HomeIndexPage>
                           ],
                         ))
 //
-                    ));*/
+                    ));
           }).toList(),
         ),
       );
@@ -629,7 +634,7 @@ class HomeIndexPageState extends State<HomeIndexPage>
     });
 
     super.initState();
-//    _futureBannerBuilderFuture = _getbannerdata();
+    _futureBannerBuilderFuture = _getbannerdata();
     _futureMessageBuilderFuture = _getNotice();
   }
 }

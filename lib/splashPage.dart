@@ -64,6 +64,7 @@ class SplashState extends State<SplashPage> {
 
     timer = Timer(const Duration(milliseconds: 1500), () async {
       final model = globleModel().of(context);
+      await model.getsysconfig(context);
       String token = model.token;
         var response = await HttpUtils.dioappi(
             'User/userInfo', {},

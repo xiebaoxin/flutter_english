@@ -41,6 +41,7 @@ class SearchPageState extends State<SearchPage> {
 
   void initData() async {
     List querys = await getHotSugs(context);
+    if(querys!=null)
     setState(() {
       hotWords = querys;
     });

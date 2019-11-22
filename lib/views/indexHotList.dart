@@ -145,12 +145,15 @@ class IndexHotListFloor extends StatelessWidget {
                     fit: BoxFit.fill,
                   )),
                 ),
-                Text(
-                  i['title'],
-                  maxLines: 2,
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis,
-                  style: KfontConstant.defaultSubStyle,
+                Padding(
+                  padding: const EdgeInsets.only(left:5.0,right:5),
+                  child: Text(
+                    i['title'],
+                    maxLines: 2,
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
+                    style: KfontConstant.defaultSubStyle,
+                  ),
                 ),
 
               ],

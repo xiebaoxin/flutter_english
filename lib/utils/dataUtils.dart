@@ -151,7 +151,7 @@ class DataUtils {
     await HttpUtils.dioappi("Shop/ajaxGoodsList/p/${page.toString()}/id/${catid.toString()}/recmd/${recommend.toString()}", {},
         context: context)
         .then((response) {
-      if (response['list'].isNotEmpty) {
+      if (response['list']!=null) {
         response['list'].forEach((ele) {
           if (ele.isNotEmpty) {
             goodsList.add(ele);

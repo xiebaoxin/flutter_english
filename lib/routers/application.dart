@@ -16,34 +16,6 @@ class Application {
     if (appuri.startsWith('/web')) {
       if (url != '') {
         await webto(context, appuri, title: title, url: url);
-/*        if (withToken == true) {
-          final model = globleModel().of(context);
-          String token = model.token;
-          if (token == '')
-            DialogUtils.close2Logout(context);
-          else {
-            url = url.endsWith('token/')
-                ? url + token
-                : "$url/$token"; // "$url/token/$token";
-            appuri =
-            "/web?url=${Uri.encodeComponent(url)}&title=${Uri.encodeComponent(
-                title ?? '浏览')}";
-            await HttpUtils.dioappi("User/checktoken", {},
-                context: context, withToken: true)
-                .then((response) {
-              if (response["status"].toString() == '1') {
-                router.navigateTo(context, appuri,
-                    transition: TransitionType.fadeIn);
-              } else
-                DialogUtils.close2Logout(context);
-            });
-          }
-        } else {
-          appuri =
-          "/web?url=${Uri.encodeComponent(url)}&title=${Uri.encodeComponent(
-              title ?? '浏览')}";
-          router.navigateTo(context, appuri, transition: TransitionType.fadeIn);
-        }*/
       } else {
         await DialogUtils.showToastDialog(context, '无效网址');
       }
@@ -73,17 +45,10 @@ class Application {
     if (response["status"] == 1) {
       callBack();
     } else {
-      await Navigator.pushNamed(context, '/login');
-/*      await HttpUtils.dioappi('User/checktoken', {},
-          context: context, withToken: true);
-      if (response["status"] == 1) {
-        callBack();
-      }*/
-//   Navigator.pushNamed(context, '/login').then((Object result) async{
-//        if (result) {
-//         await callBack();
-//        }
-//      });
+      await Navigator.pushNamed(context, '/login').then((v){
+        if(v!=null && v==true && callBack!=null)
+          callBack();
+      });
     }
   }
 

@@ -15,63 +15,73 @@ class RecommendFloor extends StatelessWidget {
 
     List<Widget> listWidgets = data.map((i) {
       return Container(
-          width: 100,
-          height: 100,
-          margin: EdgeInsets.all(2),
-          padding: EdgeInsets.all(5),
           child: InkWell(
             onTap: () {
               Application.goodsDetail(context, i['goods_id'],
                   vdtype: i['videotype'], item: i);
             },
-            child: Column(
+            child: Container(
+              width: 88,
+              height: 88,
+            padding: EdgeInsets.all(2),
+            decoration: new BoxDecoration(
+            color:bgColor,
+            border:  Border(right: BorderSide(color:KColorConstant.searchBarBgColor,width: 1.0)),
+            ),
+            child:Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Container(
-                  width: 80,
-                  height: 80,
+                  width: 88,
+                  height: 88,
                   child: Padding(
-                    padding: const EdgeInsets.all(2.0),
+                    padding: const EdgeInsets.all(1),
                     child:  CachedNetworkImage(
                             errorWidget: (context, url, error) => Container(
-                              width: 80,
-                              height: 80,
+                              width: 88,
+                              height:88,
                               child: Image.asset(
                                 'images/logo_b.png',
-                                height: 20,
-                                width: 20,
+                                height: 88,
+                                width: 88,
                                 fit: BoxFit.fill,
                               ),
                             ),
                             placeholder: (context, url) => Loading(),
                             imageUrl: i[
                             'pic_url'], //"http://testapp.hukabao.com:8008/public/upload/goods/thumb/236/goods_thumb_236_0_400_400.png",//
-                            width: 80,
-                            height: 80,
+                            width: 88,
+                            height: 88,
                             fit: BoxFit.fill,
                           ),
                   ),
                 ),
-                Text(
-                  i['title'],
-                  maxLines: 2,
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis,
-                  style: KfontConstant.defaultSubStyle,
+                Padding(
+                  padding: const EdgeInsets.only(left:5.0,right:5),
+                  child: Text(
+                    i['title'],
+                    maxLines: 2,
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
+                    style: KfontConstant.defaultSubStyle,
+                  ),
                 ),
 
               ],
-            ),
+            ),)
           ));
     }).toList();
 
-    return Container(
+    return Padding(
+        padding: const EdgeInsets.only(top:8.0),
+    child: Container(
         width: deviceWidth,
         color:bgColor,
-        height: 165,
+        height: 135,
         child: ListView(
-          children: listWidgets,
-          scrollDirection: Axis.horizontal,
+            children: listWidgets,
+            scrollDirection: Axis.horizontal,
+          ),
         ));
   }
 

@@ -32,15 +32,13 @@ class upgGradePageState extends State<upgGradePage> {
   Future<bool> checkInfo() async {
     print("<net---> download :");
     bool retslt = false;
-//    setState(() {
-      _ostypename =await UpdateApp.defaultTargetPlatform;
-//    });
 
     final packageInfo = await PackageInfo.fromPlatform();
-//    setState(() {
-      _packageInfovs = packageInfo.version; //1.0.0
-      _packageInfobn = packageInfo.buildNumber; //1
-//    });
+    setState(() {
+      _ostypename = UpdateApp.defaultTargetPlatform;
+    _packageInfovs = packageInfo.version; //1.0.0
+    _packageInfobn = packageInfo.buildNumber; //1
+    });
 
     String errorMsg = "";
     int statusCode;
@@ -72,9 +70,9 @@ class upgGradePageState extends State<upgGradePage> {
           DialogUtils().showMyDialog(context, errorMsg);
         }
         if (response.data["update"] != null) {
-          String newVersion = response.data["update"]['verCode'].toString();
-          if (newVersion.compareTo(packageInfo.buildNumber) > 0) {
-            print(newVersion + "|compareTo|" + packageInfo.buildNumber);
+          int newVersion = int.tryParse(response.data["update"]['verCode']);
+          if (newVersion.compareTo(int.tryParse(packageInfo.buildNumber)) > 0) {
+//            print(newVersion + "|compareTo|" + packageInfo.buildNumber);
 
             setState(() {
               _newVersioncontent = "${response.data["update"]['ver']}(${newVersion})";
@@ -113,8 +111,8 @@ class upgGradePageState extends State<upgGradePage> {
 
     return Scaffold(
       key: _key,
-          body: Center(
-              child: AlertDialog(
+      body: Center(
+          child: AlertDialog(
             title: Text("${GlobalConfig.appName}温馨提示"),
             content: Container(
               padding: const EdgeInsets.all(10.0),
@@ -146,27 +144,27 @@ class upgGradePageState extends State<upgGradePage> {
                         launchURL(_downurl);
 
                       }):   SizedBox(height: 10,),
-            Align(
+                  Align(
                       alignment: Alignment.centerLeft,
-                     child:
-                     Row(
-                       children: <Widget>[
-                         FlatButton(
-                           child: new Text("取消"),
-                           onPressed: () {
-                             Navigator.of(context).pop(false);
-                           },
-                         ),
-                         FlatButton(
-                           child: new Text("确定"),
-                           onPressed: () {
-                             Navigator.of(context).pop(true);
-                           },
-                         )
-                       ],
-                     )),
-                      //Text(_loading == '0' ? "正在下载……，" : "已下载：$_loading%",style: TextStyle(color: Colors.red, fontSize: 14.0),)),
-     /*           LinearProgressIndicator(
+                      child:
+                      Row(
+                        children: <Widget>[
+                          FlatButton(
+                            child: new Text("取消"),
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                            },
+                          ),
+                          FlatButton(
+                            child: new Text("确定"),
+                            onPressed: () {
+                              Navigator.of(context).pop(true);
+                            },
+                          )
+                        ],
+                      )),
+                  //Text(_loading == '0' ? "正在下载……，" : "已下载：$_loading%",style: TextStyle(color: Colors.red, fontSize: 14.0),)),
+                  /*           LinearProgressIndicator(
                     backgroundColor: Colors.blue,
                     value: _loading,
                     semanticsLabel: '正在下载新版本……',
@@ -176,7 +174,7 @@ class upgGradePageState extends State<upgGradePage> {
               ),
             ),
           )),
-        );
+    );
   }
 
   Future launchURL(String url) async {

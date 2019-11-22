@@ -80,7 +80,6 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   }
 
   Provide<PlayerProvide> _buildGesture() {
-
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide value) {
       return new GestureDetector(
@@ -149,34 +148,55 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   Provide<PlayerProvide> _setupContent() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-
-         _txtid = plyprvd.txtid;
-
-
-          _goToElement(gettxtpositon());
-      return Stack(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 90.0, bottom: 125),
-            child: Center(
-              child: plyprvd.currentSong.txtlist != null
-                  ? buildTxt(plyprvd)
-                  : Text("抱歉，没有对应字幕文件！"),
-            ),
-          ),
-          Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Container(color: Color(0xdfeeeeee), child: _setupTop())),
-          Positioned(
-            bottom: 2,
-            left: 0,
-            right: 0,
-            child: Container(child: _setupBottom()),
-          )
-        ],
-      );
+      _txtid = plyprvd.txtid;
+      _goToElement(gettxtpositon());
+      return Scaffold(
+          backgroundColor: Color(0x0a0000000),
+          body: SafeArea(
+              bottom: true,
+              child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                      height: 700.0,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: new BoxDecoration(
+                        color: Color(0xdfcccccc),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(20)),
+                        border: null,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(0),
+                        child: Stack(
+                          children: <Widget>[
+                            Container(
+                              padding:
+                                  const EdgeInsets.only(top: 60.0, bottom: 125),
+                              child: Center(
+                                child: Container(
+                                  color: Color(0xdfffffff),
+                                  width: MediaQuery.of(context).size.width,
+                                  child: plyprvd.currentSong.txtlist != null
+                                      ? buildTxt(plyprvd)
+                                      : Text("抱歉，没有对应字幕文件！"),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                child: Container(child: _setupTop())),
+                            Positioned(
+                              bottom: 2,
+                              left: 0,
+                              right: 0,
+                              child: Container(child: _setupBottom()),
+                            )
+                          ],
+                        ),
+                      )))));
     });
   }
 
@@ -184,8 +204,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide value) {
       String titile = _provide.currentSong.video['video_name'] ?? "播放器";
-      return new SafeArea(
-          child: Container(
+      return Container(
         child: new Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
@@ -219,7 +238,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
             )),
           ],
         ),
-      ));
+      );
     });
   }
 
@@ -237,7 +256,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     }
 
     return Container(
-        color: Colors.amber,
+//        color: Colors.amber,
         height: _divhight,
         width: 348, //方便计算长度 一行32个字符
         child: ListView.builder(
@@ -314,7 +333,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
 
   Widget _setupBottom() {
     return Container(
-      height: 121,
+      height: 125,
       color: Color(0xdfcccccc),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -334,7 +353,6 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   Provide<PlayerProvide> _setupSlide() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-
       _dollars = _provide.sliderValue();
       return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -393,7 +411,6 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                 },
                 label: '$_dollars dollars',
                 semanticFormatterCallback: (newValue) {
-
                   print(
                       "-semanticFormatterCallback+=======--${newValue}- ${_txtid}");
                   return '${newValue.round()} dollars';
@@ -490,7 +507,6 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
         _statustext = "已停止";
       }
       hideLoadingDialog();
-
     });
 
     _subscriptions.add(s);
@@ -561,15 +577,16 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
       if (_txtid != _cindex &&
           _jtindx < PlayerTools.instance.currentSong.txtlist.length - 2) {
         _cindex = _txtid;
-        if(pxt>60)
-        _scrollController.animateTo(pxt - 60,
-            duration: const Duration(milliseconds: 200), curve: Curves.linear);
+        if (pxt > 60)
+          _scrollController.animateTo(pxt - 60,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.linear);
       }
     }
   }
 
   double gettxtpositon({int txtindex}) {
-    if(txtindex==null) txtindex=_txtid;
+    if (txtindex == null) txtindex = _txtid;
     int txtrows = 0;
     Map<String, dynamic> item;
     if (txtindex >= 0 &&

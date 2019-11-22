@@ -70,11 +70,11 @@ class KukabaoState extends State<Bixue> {
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
 //              platform: TargetPlatform.iOS,
-              primarySwatch: Colors.deepOrange,
+              primarySwatch: Colors.red,
 //              primaryColor: GlobalConfig.mainColor,
               primaryIconTheme: const IconThemeData(color: Colors.white),
 //              brightness: Brightness.dark,
-              accentColor: Colors.orange,
+//              accentColor: Colors.orange,
             ),
 //            color: GlobalConfig.mainColor,
 //      initialRoute: "/",

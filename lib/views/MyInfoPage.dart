@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:math' as math;
 import 'package:scoped_model/scoped_model.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../utils/screen_util.dart';
 import '../constants/index.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,8 +14,7 @@ import '../utils/HttpUtils.dart';
 import '../utils/comUtil.dart';
 import '../components/ImageCropPage.dart';
 import '../utils/dataUtils.dart';
-import 'package:marquee_flutter/marquee_flutter.dart';
-import 'message_page.dart';
+import '../utils/DialogUtils.dart';
 import '../model/userinfo.dart';
 import 'TradePage.dart';
 import 'person/address.dart';
@@ -49,6 +50,7 @@ class MyInfoPageState extends State<MyInfoPage> {
   var rightArrowIcon = Icon(Icons.chevron_right, color: Colors.black26);
   final double _appBarHeight = 230; // ScreenUtil.screenHeight; //256.0;
   AppBarBehavior _appBarBehavior = AppBarBehavior.pinned;
+  Map<String, dynamic> _sysconfig={'syswxurl':'https://u.wechat.com/MIGuR02W6E7n77GE0-qy9uc','syswx':'wxid_iit2zoseg77p12'};
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -59,10 +61,12 @@ class MyInfoPageState extends State<MyInfoPage> {
 
     Widget mainscreen = Scaffold(
       key: _scaffoldKey,
+backgroundColor: Color(0xFFFFFFFF),
+
       body: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
-              expandedHeight: 180,
+              expandedHeight: 165,
               pinned: _appBarBehavior == AppBarBehavior.pinned,
               floating: _appBarBehavior == AppBarBehavior.floating ||
                   _appBarBehavior == AppBarBehavior.snapping,
@@ -91,97 +95,117 @@ class MyInfoPageState extends State<MyInfoPage> {
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                     padding: EdgeInsets.fromLTRB(
-                        0, _top, 0, 2.0), //const EdgeInsets.all(8.0),
-                    color: GlobalConfig.mainColor,
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          SizedBox(height: _top + 25),
-                          Container(
-                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                            height: 50,
-                            child: Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                userinfo(),
-                                Padding(
-                                  padding: const EdgeInsets.all(15.0),
-                                  child: userlevel(),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text("积分:${_userinfo.point.toStringAsFixed(2)}",
-                                      style: TextStyle(
-                                          color: Color(0xFFFFFFFF))),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: InkWell(
-                                    onTap: (){
-                                      Application().checklogin(context, () {
-                                        Navigator.push(
-                                          context,
-                                          new MaterialPageRoute(builder: (context) => new BalancePage()),
-                                        );
-                                      });
-                                    },
-                                    child: Text("余额:${_userinfo.money.toStringAsFixed(2)}",
-                                        style: TextStyle(
-                                            color: Color(0xFFFFFFFF))),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: InkWell(
-                                    child: Container(
-                                      height: 40,
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: <Widget>[
-                                          Text("签到",
-                                              style: TextStyle(
-                                                  color: Color(0xFFFFFFFF))),
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          Image.asset(
-                                            "images/签到.png",
-                                            width: 30.0,
-                                          ),
-                                          SizedBox(
-                                            width: 10,
-                                          )
-                                        ],
-                                      ),
+                        0, _top, 0, 0), //const EdgeInsets.all(8.0),
+                    color:  GlobalConfig.mainColor,
+                    child:Stack(
+                      children: <Widget>[
+                        Container(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: <Widget>[
+                              Container(height: _top + 25,),
+                              Container(
+                                padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                                height: 50,
+                                child: Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    userinfo(),
+                                    Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: userlevel(),
                                     ),
-                                    onTap: () {
-                                      Application().checklogin(context, () {
-                                        HttpUtils.dioappi('User/user_sign', {},
-                                            context: context, withToken: true)
-                                            .then((response) async {
-                                          await DialogUtils.showToastDialog(
-                                              context, response['msg']);
-                                          await DataUtils.freshUserinfo(context);
-                                        });
-                                      });
-                                    },
-                                  ),
+                                  ],
                                 ),
-                              ],
+                              ),
+//                              Container(height: 20,  color: Color(0xFFFFFFFF),)
+                            ]),
+                        ),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Padding(
+                          padding: const EdgeInsets.all(0),
+                          child: Container(
+                            decoration: new BoxDecoration(
+                              color: Color(0xFFFFFFFF),
+                              borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(20)),
+                              border: null,
                             ),
-                          ),
-                        ])),
+                            child:
+                            Padding(
+                              padding: const EdgeInsets.only(left:8,right: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text("积分:${_userinfo.point.toStringAsFixed(2)}",
+                                        style: TextStyle(
+                                            color: Color(0xFF333333))),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: InkWell(
+                                      onTap: (){
+                                        Application().checklogin(context, () {
+                                          Navigator.push(
+                                            context,
+                                            new MaterialPageRoute(builder: (context) => new BalancePage()),
+                                          );
+                                        });
+                                      },
+                                      child: Text("余额:${_userinfo.money.toStringAsFixed(2)}",
+                                          style: TextStyle(
+                                              color: Color(0xFF333333))),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: InkWell(
+                                      child: Container(
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: <Widget>[
+                                            Text("签到",
+                                                style: TextStyle(
+                                                    color: Color(0xFF333333))),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            Image.asset(
+                                              "images/签到.png",
+                                              width: 30.0,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        Application().checklogin(context, () {
+                                          HttpUtils.dioappi('User/user_sign', {},
+                                              context: context, withToken: true)
+                                              .then((response) async {
+                                            await DialogUtils.showToastDialog(
+                                                context, response['msg']);
+                                            await DataUtils.freshUserinfo(context);
+                                          });
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )))
+
+                      ],
+                    )
+                       ),
 //                  stackmsg()
               )),
           SliverList(
@@ -213,7 +237,7 @@ class MyInfoPageState extends State<MyInfoPage> {
               Divider(),*/
               renderRow('images/关于.png', "关于我们",index: 20),
               Divider(),
-              renderRow('images/客服.png', "客服"),
+              renderRow('images/客服.png', "客服",index: 21),
               Divider(),
             ]),
           ),
@@ -225,10 +249,9 @@ class MyInfoPageState extends State<MyInfoPage> {
 //        rebuildOnChange: true,
         builder: (context, child, model) {
           _token = model.token;
-          if (_token != '') {
             _userinfo = model.userinfo;
             _userAvatar = model.userinfo.avtar;
-          }
+          _sysconfig=model.sysconfig;
           return mainscreen;
         });
   }
@@ -336,47 +359,14 @@ class MyInfoPageState extends State<MyInfoPage> {
 
   Widget buildIconitem(String asimg, String title,) {
     return  ListTile(
-        /*  leading:  Container(
-                height: 28,
-                width: 28,
-                child: Icon(Icons.account_balance,color: Colors.grey,),
-                decoration: new BoxDecoration(
-                  color: Colors.white,
-                  *//*        image: new DecorationImage(
-                    image: AssetImage(asimg),
-                    fit: BoxFit.fill,
-                  ),*//*
-                ),
-              ),*/
+
             title:
             Text(
               title,
               style: KfontConstant.defaultStyle,
             ),
        trailing: Icon(Icons.keyboard_arrow_right,color: Colors.grey,),
-       /* Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                height: 28,
-                width: 28,
-                child: Icon(Icons.account_balance,color: Colors.grey,),
-                decoration: new BoxDecoration(
-                  color: Colors.white,
-          *//*        image: new DecorationImage(
-                    image: AssetImage(asimg),
-                    fit: BoxFit.fill,
-                  ),*//*
-                ),
-              ),
-            ),
-            Text(
-              title,
-              style: KfontConstant.defaultSubStyle,
-            )
-          ],
-        )*/
+
     );
   }
 
@@ -444,82 +434,6 @@ class MyInfoPageState extends State<MyInfoPage> {
         ),
     );
   }
-  Widget mainbuid111() {
-    return Column(
-      children: <Widget>[
-//        SizedBox(
-//          height: 60,
-//        ),
-        Container(
-          alignment: Alignment.center,
-          width: GlobalConfig.cardWidth,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              clipBehavior: Clip.antiAlias,
-              shape: _shape, //,
-              elevation: 5,
-              child: Column(
-                children: <Widget>[
-               /*   SizedBox(
-                    height: 50,
-                  ),*/
-                  Padding(
-                      padding: const EdgeInsets.all(0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(18.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                renderRow('images/订单.png', "我的订单", index: 12),
-                                renderRow('images/二维码.png', "专属二维码", index: 7),
-                                renderRow('images/账户安全.png', "账户安全", index: 6),
-                                renderRow('images/攻略.png', "邀请明细", index: 11),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(18.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                renderRow('images/收货地址.png', "收货地址", index: 3),
-                                renderRow('images/账户安全.png', "支付密码", index: 4),
-                                renderRow('images/账户安全.png', "登录密码", index: 5),
-                                renderRow(
-                                    'images/攻略.png',
-                                    "新手攻略",index: 19
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(18.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                renderRow('images/客服.png', "充值",index: 8),
-                                renderRow('images/关于.png', "关于我们",index: 20),
-                                renderRow('images/客服.png', "客服"),
-                                SizedBox(height: 50,width: 50,)
-                              ],
-                            ),
-                          )
-                        ],
-                      )
-
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   renderRow(
       String iconnm,
@@ -549,6 +463,49 @@ class MyInfoPageState extends State<MyInfoPage> {
     else if(index==20){
       Application.run(context, "/web",url: '${GlobalConfig.base}/Api/about',title: '关于我们',withToken: false);
     }
+    else if(index==21)
+      {
+            showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => new AlertDialog(
+                    title: new Text("微信加我"),
+                    content: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child:  Center(
+                          child: Container(
+                            margin: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 20.0),
+                            color: Colors.white,
+                            child: Column(
+                              children: <Widget>[
+                                QrImage(
+                                  data: '${_sysconfig['syswxurl']}',
+                                  size: 120.0,
+                                ),
+                                Text("微信扫一扫加我",),
+                                Divider(),
+                                FlatButton(onPressed:  () {
+
+                                    Clipboard.setData(ClipboardData(
+                                        text:"${_sysconfig['syswx']}"));
+                                    DialogUtils.showToastDialog(context, "已复制到粘贴板");
+                                }, child: Text('复制微信号'))
+
+                              ],
+
+                            ),
+                          )),
+                    ),
+                    actions: <Widget>[
+                      new FlatButton(
+                        child: new Text("确定"),
+                        onPressed: () {
+                          Navigator.of(context).pop(true);
+                        },
+                      )
+                    ]));
+
+      }
     else{
       await Application().checklogin(context, () {
         switch (index) {

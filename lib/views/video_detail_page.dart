@@ -20,11 +20,12 @@ import '../model/goods.dart';
 import '../components/tag_component.dart';
 import '../components/video_detail_item_component.dart';
 import 'package:video_player/video_player.dart';
-import '../video/chewie_list_item.dart';
-import '../views/cart/cart.dart';
+import 'sharePage.dart';
+import 'cart/cart.dart';
+import 'person/recharge.dart';
 import 'buygoods_page.dart';
 import 'addcartItem.dart';
-import '../video/tx_video_player.dart';
+import '../model/userinfo.dart';
 import '../video/player.dart';
 import 'player/full_player_page.dart';
 import 'player/player_tool.dart';
@@ -164,9 +165,7 @@ class _VideoDetailPageState extends State<VideoDetailPage> with AutomaticKeepAli
               }
             },
           );
-
 //          bottomNavigationBar:buildbottomsheet(context,_isloaddate)
-
   }
 
   bool _isload=false;
@@ -371,7 +370,6 @@ class _VideoDetailPageState extends State<VideoDetailPage> with AutomaticKeepAli
         });
   }
 
-
 }
 
 
@@ -485,28 +483,11 @@ class VideoDetailContent extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color:(videoinfo['vd_level']>0 && videoinfo['vd_level']<(index+1))? Colors.black26: Colors.black54)),
                   onTap:() async{
+
+                    print("---index${index}--");
+
                     if( videoinfo['vd_level']>0 && videoinfo['vd_level']<(index+1)){
-                      if (await DialogUtils().showMyDialog(context, '需要购买才能收听或观看，是否去购买?')) {
-                        Application().checklogin(context, () {
-                          Navigator.pop(context);
-                          GoodInfo _mgoodsinfo = GoodInfo.fromJson(video);
-                          BuyModel param = BuyModel(
-                              goodsinfo: _mgoodsinfo,
-                              goods_id: _mgoodsinfo.goodsId.toString(),
-                              goods_num: "1",
-                              imgurl: _mgoodsinfo.comPic,
-                              goods_price:
-                              double.tryParse(_mgoodsinfo.presentPrice));
-
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-//                            builder: (context) => BuyPage(param),
-                                builder: (context) => GoodsBuyPage(param),
-                              ));
-
-                        });
-                      }
+                     checkpay(context);
                     }
                     else{
                       if(videoinfo['videotype']=='web'){
@@ -525,8 +506,12 @@ class VideoDetailContent extends StatelessWidget {
                           PlayerTools.instance.setSong(Song(
                               id:item['video_id'],
                               vdlist:retvdlistinfo,
-                              url: item['video_url'], video: item, info: videoinfo,txtlist: txlist,preid: index>0 ? retvdlistinfo[index-1]['video_id']:0,nextid:index<retvdlistinfo.length? retvdlistinfo[index+1]['video_id']:0));
-
+                              url: item['video_url'],
+                              video: item,
+                              info: videoinfo,
+                              txtlist: txlist,
+                              preid: index>0 ? retvdlistinfo[index-1]['video_id']:0,
+                              nextid:index<(retvdlistinfo.length-1)? retvdlistinfo[index+1]['video_id']:retvdlistinfo[index]['video_id']));
                           Navigator.pushReplacement(context, PageRouteBuilder(
                               opaque: false,
                               pageBuilder: (BuildContext context, _, __) {
@@ -566,6 +551,112 @@ class VideoDetailContent extends StatelessWidget {
         );
 
   }
+
+
+  void checkpay(context){
+    Userinfo _userinfo = Userinfo.fromJson({});
+    final model = globleModel().of(context);
+    if (model.token != '') {
+      _userinfo = model.userinfo;
+    }
+//  "可用${_userinfo.point.toStringAsFixed(4)}BX,[抵扣${(_userinfo.point / _point_rate).toStringAsFixed(2)}元]",
+//      "余额${_userinfo.money.toStringAsFixed(2)}元",
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            child: Padding(
+              padding:
+              const EdgeInsets.all(8.0),
+              child: Column(
+                children: <Widget>[
+                  ListTile(
+                    title: Text("分享解锁"),
+                    subtitle: Text("分享好友注册即可获得解锁积分",style: TextStyle(fontSize: 10),),
+                    onTap: () {
+                      Application()
+                          .checklogin(
+                          context,
+                              () async {
+                            Navigator.of(
+                                context)
+                                .pushReplacement(PageRouteBuilder(
+                                pageBuilder:
+                                    (context,
+                                    animation,
+                                    secondaryAnimation) {
+                                  return sharePage();
+                                }));
+                          });
+                    },
+                  ),
+                  Divider(),
+                  ListTile(
+                    title: Text("充值解锁"),
+                    subtitle: Text("马上充值，随时解锁更多内容",style: TextStyle(fontSize: 10),),
+                    onTap: () {
+                      Application()
+                          .checklogin(
+                          context,
+                              () async {
+                            Navigator.of(
+                                context)
+                                .pushReplacement(PageRouteBuilder(
+                                pageBuilder:
+                                    (context,
+                                    animation,
+                                    secondaryAnimation) {
+                                  return reChargePage();
+                                }));
+                          });
+                    },
+                  ),
+              Divider(),
+              ListTile(
+                title: Text("马上解锁"),
+                subtitle: Text("立即支付或积分兑换，马上解锁",style: TextStyle(fontSize: 10),),
+                onTap: () {
+                  Application()
+                      .checklogin(
+                      context,
+                          () async {
+                            if (await DialogUtils().showMyDialog(context, '需要购买或换购才能收听或观看，是否去购买?')) {
+                                GoodInfo _mgoodsinfo = GoodInfo.fromJson(video);
+                                BuyModel param = BuyModel(
+                                    goodsinfo: _mgoodsinfo,
+                                    goods_id: _mgoodsinfo.goodsId.toString(),
+                                    goods_num: "1",
+                                    imgurl: _mgoodsinfo.comPic,
+                                    goods_price:
+                                    double.tryParse(_mgoodsinfo.presentPrice));
+
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+//                            builder: (context) => BuyPage(param),
+                                      builder: (context) => GoodsBuyPage(param),
+                                    ));
+                            }
+                      });
+                },
+              ),
+
+
+                  Divider(),
+                  ListTile(
+                    title: Text("取消"),
+                    onTap: () {
+                      Navigator.of(context)
+                          .pop();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
 }
 
 class HeroImageComponent extends StatelessWidget {

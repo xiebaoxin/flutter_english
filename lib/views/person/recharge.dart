@@ -138,7 +138,7 @@ class rechgPageState extends State<reChargePage> {
               withToken: true, context: context)
           .then((response) async {
         await DialogUtils.showToastDialog(context, response['msg'].toString());
-        if (response['status'].toString() == '1') {
+        if (response['status'] == 1) {
           wxsubmit(response['order_sn'].toString(), context);
         }
       });
@@ -154,10 +154,8 @@ class rechgPageState extends State<reChargePage> {
     await HttpUtils.dioappi('WxAppPay/getRechargeWxpay', params,
             withToken: true, context: context)
         .then((response) async {
-      print(response);
       if (response['status'] == 1) {
         var result = response['data'];
-
         /*
      * {"appid":"wx39e1569fa6461815","noncestr":"ZuWneIWJccaUT1Xsg7MzD5f9SYDNa9YA","package":"Sign=WXPay",
      * "partnerid":"1254837501","prepayid":"wx311745171449585cd648ac611956873300","timestamp":1564566317,"sign":"A0F7079F3A0726BA92A3C7B401AD00D2"},"config":*/

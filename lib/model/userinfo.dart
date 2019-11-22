@@ -70,7 +70,7 @@ class Userinfo {
             GlobalConfig.server +
                 '/public/images/icon_goods_thumb_empty_300.png',
         level: json['level'].toString() ?? '1',
-        money: num.tryParse(json['money']) ?? 0.0,
+        money: double.tryParse(json['money']) ?? 0.0,
         frozen: num.tryParse(json['frozen_money']) ?? 0.0,
         jiangli: num.tryParse(json['distribut_money']) ?? 0.0,
         point_locked: double.tryParse(json['points_locked']) ?? 0.0,
