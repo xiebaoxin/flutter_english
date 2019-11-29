@@ -63,6 +63,13 @@ class globleModel extends Model {
     _token = token;
     _userinfo = Userinfo.fromJson(userinfo);
     _loginStatus = true;
+    setToken(token);
+    notifyListeners();
+  }
+
+  Future getToken() async {
+    SharedPreferences prefs = await _prefs;
+    _token = await prefs.getString("token");
     notifyListeners();
   }
 
@@ -70,8 +77,6 @@ class globleModel extends Model {
     SharedPreferences prefs = await _prefs;
     await prefs.setString("token", token);
     print("===SharedPreferences getString :${prefs.getString("token")}---");
-    _token = token;
-    notifyListeners();
   }
 
   Future setuserinfo(Userinfo userinfo) async {

@@ -24,6 +24,7 @@ class SearchResultListState extends State<SearchResultListPage> {
 //            backgroundColor: KColorConstant.searchAppBarBgColor,
 //            leading: SearchTopBarLeadingWidget(),
             //  actions: <Widget>[SearchTopBarActionWidget()],
+          centerTitle: true,
             elevation: 0,
             titleSpacing: 0,
             title:widget.keyword!=''? SearchListTopBarTitleWidget(keyworld: widget.keyword):Text(widget.catname)),

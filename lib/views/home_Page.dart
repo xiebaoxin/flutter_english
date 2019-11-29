@@ -5,7 +5,7 @@ import 'package:marquee_flutter/marquee_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import '../utils/screen_util.dart';
-import '../utils/DialogUtils.dart';
+import '../components/fiexdAppbar.dart';
 import '../utils/comUtil.dart';
 import '../utils/HttpUtils.dart';
 import '../constants/index.dart';
@@ -67,78 +67,85 @@ class HomeIndexPageState extends State<HomeIndexPage>
        _islogin = model.loginStatus;
       return Scaffold(
           backgroundColor: Color(0xFFFFFFFF),
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(40),
-            child: AppBar(
-              flexibleSpace: SizedBox(
-                height: 1,
-              ),
-//              toolbarOpacity: 0.8,
-//              bottomOpacity: 0.7,
-              backgroundColor: Color(0xFFe7281d), //把appbar的背景色改成透明
-              elevation: 0.5,
-              brightness: Brightness.light, //黑底白字，light 白底黑字
-              leading:  Image.asset(
-                  "images/logo.png",
-                  height: 36,
-                  width: 36,
-                  fit: BoxFit.contain,
-                ),
+          appBar: FiexdAppbar(
+            contentHeight: 40.0,
+            contentChild:  Padding(
+              padding: EdgeInsets.only(left:15.0,right: 0,top:2.0),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                      flex: 9,
+                      child:  GestureDetector(
+                          onTap: () {
+                            Navigator.push(context,
+                                CupertinoPageRoute(builder: (BuildContext context) {
+                                  return SearchPage();
+                                }));
 
-              title: GestureDetector(
-                  onTap: () {
-                    Navigator.push(context,
-                        CupertinoPageRoute(builder: (BuildContext context) {
-                      return SearchPage();
-                    }));
-                  },
-                  child: Container(
-                    width: MediaQuery.of(context).size.width - 40,
-                    height: 28,
-                    padding: EdgeInsets.all(1.0),
-                    decoration: BoxDecoration(
-                        color: Color.fromRGBO(240, 240, 240, 0.5),
-                        borderRadius: BorderRadius.circular(14.0)),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(2.0),
-                          child: Row(
-                            children: <Widget>[
-                              Icon(
-                                Icons.search,
-                                color: Color(0xFF979797),
-                                size: 20,
-                              ),
-                              Text(
-                                "搜索",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Color(0xFF979797),
-                                  fontWeight: FontWeight.w500,
-                                  decoration: TextDecoration.none,
+//                      SearchTopBarActionWidget(
+//                        onActionTap: () => goSearchList(context,controller.text),
+//                      )
+                          },
+                          child:  Container(
+                            height: 34,
+
+                            padding: EdgeInsets.all(0),
+                            decoration: BoxDecoration(
+//                            color: Color.fromRGBO(240, 240, 240, 0.5),
+                              borderRadius: BorderRadius.circular(17.0),
+                              border: Border.all(
+                                  width: 0.5, color:Color(0xFFe7281d)),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(5,2.0,5,2),
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(
+                                        Icons.search,
+                                        color: Color(0xFF979797),
+                                        size: 22,
+                                      ),
+                                      Text(
+                                        "搜一搜",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xFF979797),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  )),
-              actions: <Widget>[
-                IconButton(
-                    icon: !_islogin ?Icon(Icons.perm_identity,):Icon(Icons.person,color: Colors.redAccent,),
-                    onPressed: !_islogin
-                        ? () {
-                            Application().checklogin(context, () {
-                              ;
-                            });
-                          }
-                        : null),
-              ],
+                                 /*   Container(
+                                height: 34,
+                                width: 60,
+//                padding: EdgeInsets.all(2.0),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                    color:Color(0xaFe7281d),
+                                    borderRadius: BorderRadius.circular(17.0)),
+                                child:Text("搜索",style: TextStyle(color: Color(0xFFFFFFFF)),))*/
+                              ],
+                            ),
+                          )))
+                 ,
+                  IconButton(
+                      icon: !_islogin ?Icon(Icons.perm_identity,color: Color(0xFFaaaaaa),):Icon(Icons.person,color: Colors.redAccent,),
+                      onPressed: !_islogin
+                          ? () {
+                        Application().checklogin(context, () {
+                          ;
+                        });
+                      }
+                          : null),
+                ],
+              ),
             ),
           ),
+
           body: _tabs.isEmpty
               ? getIndexCatList()
               : DefaultTabController(

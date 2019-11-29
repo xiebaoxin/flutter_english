@@ -59,6 +59,12 @@ class MyInfoPageState extends State<MyInfoPage> {
     EdgeInsets padding = MediaQuery.of(context).padding;
     double _top = math.max(padding.top, EdgeInsets.zero.top);
 
+    final rmodel = globleModel().of(context);
+    _userinfo = rmodel.userinfo;
+    _userAvatar = rmodel.userinfo.avtar;
+    _token = rmodel.token;
+    _sysconfig=rmodel.sysconfig;
+
     Widget mainscreen = Scaffold(
       key: _scaffoldKey,
 backgroundColor: Color(0xFFFFFFFF),

@@ -7,6 +7,7 @@ import '../utils/DialogUtils.dart';
 import '../views/video_detail_page.dart';
 import '../views/details/details_page.dart';
 import '../views/webView.dart';
+import '../model/globle_model.dart';
 
 class Application {
   static Router router;
@@ -39,7 +40,20 @@ class Application {
     }
   }
 
-  checklogin(BuildContext context, Function callBack) async {
+
+  Future checklogin(BuildContext context, Function callBack) async {
+    final model = globleModel().of(context);
+    if (model.loginStatus) {
+      callBack();
+    } else {
+      await Navigator.pushNamed(context, '/login').then((v){
+        if(v!=null && v==true && callBack!=null)
+          callBack();
+      });
+    }
+  }
+
+  checklogin_old(BuildContext context, Function callBack) async {
     var response = await HttpUtils.dioappi('User/checktoken', {},
         context: context, withToken: true);
     if (response["status"] == 1) {

@@ -154,6 +154,12 @@ class _AppState extends State<_AppContentPage>
         onWillPop: () {
           _doubleExit(context);
         }, //(){return Future.value(_onWillPop());},
+        child:
+        AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle.dark,
+            child:Material(
+            color: Color(0xFFFFFFFF),
+        borderOnForeground: false,
         child: Scaffold(
 //          backgroundColor: Color.fromRGBO(244, 245, 245, 1.0),
           body: new Stack(
@@ -162,7 +168,8 @@ class _AppState extends State<_AppContentPage>
             children: <Widget>[_initTabBarView(), _initMiniPlayer()],
           ),
           bottomNavigationBar: _initBottomNavigationBar(),
-        ));
+        ))
+    ));
   }
 
   ontap(int index) {
@@ -258,8 +265,8 @@ class _AppState extends State<_AppContentPage>
   }
 
   static Future<void> _exitApp(BuildContext context) async {
-    final model = globleModel().of(context);
-    await model.setlogout();
+//    final model = globleModel().of(context);
+//    await model.setlogout();
     await SystemChannels.platform.invokeMethod('SystemNavigator.pop');
   }
 /*

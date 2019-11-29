@@ -34,6 +34,13 @@ class sharePageState extends State<sharePage>
   int _regtype=1;
 
   Future<List<String>> _initPicList() async {
+
+    final rmodel = globleModel().of(context);
+    if(rmodel.userinfo.id!=null){
+      _userid = rmodel.userinfo.id;
+      _userName = rmodel.userinfo.name;
+    }
+
     if(int.tryParse(_userid)<1) _userid="1";
 
     await HttpUtils.dioappi('Pub/getWxShareImgs/user_id/${_userid}', {},context: context)
@@ -107,11 +114,13 @@ class sharePageState extends State<sharePage>
           _curindex = index;
           print("当前选中的是$_curindex");
         },
-        pagination: SwiperPagination(
-            alignment: Alignment.bottomCenter,
-            margin: const EdgeInsets.fromLTRB(0, 0, 10, 10),
-            builder: FractionPaginationBuilder(
-                color: Colors.black54, activeColor: Colors.white)),
+        pagination: DotSwiperPaginationBuilder(
+//              RectSwiperPaginationBuilder
+          color: Color(0xFF999999),
+          activeColor: Colors.white,
+//                size: Size(5.0, 2),
+//                activeSize: Size(5, 5)
+        ),
 //            onTap: (index) {},
       );
     }
@@ -132,6 +141,8 @@ class sharePageState extends State<sharePage>
     EdgeInsets padding = MediaQuery.of(context).padding;
     double top = math.max(padding.top, EdgeInsets.zero.top);
 
+
+
     return ScopedModelDescendant<globleModel>(
         rebuildOnChange: true,
         builder: (context, child, model)
@@ -147,8 +158,6 @@ class sharePageState extends State<sharePage>
             padding: const EdgeInsets.all(0),
             child: ConstrainedBox(
                 constraints: BoxConstraints.expand(),
-                child:
-                Center(
                     child: FutureBuilder(
                       future: _futureBuilderFuture,
                       builder: (BuildContext context,
@@ -176,7 +185,6 @@ class sharePageState extends State<sharePage>
 //                    return new Text('Result: ${snapshot.data}');
                         }
                       },
-                    )
 
                 )),
           ),

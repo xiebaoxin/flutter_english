@@ -63,17 +63,19 @@ class SplashState extends State<SplashPage> {
     }
 
     timer = Timer(const Duration(milliseconds: 1500), () async {
+
       final model = globleModel().of(context);
+      await model.getToken();
       await model.getsysconfig(context);
-      String token = model.token;
-        var response = await HttpUtils.dioappi(
-            'User/userInfo', {},
-            context: context,
-            withToken: true);
-        if (response["status"] == 1) {
-          await model.setlogin(token, response["userinfo"]);
-        } else
-          await model.setlogout();
+      var response = await HttpUtils.dioappi('User/userInfo', {},
+          context: context, withToken: true);
+      print(response);
+      if (response["status"] == 1) {
+        String token = model.token;
+        await model.setlogin(token, response["userinfo"]);
+      }
+      else
+        await model.setlogout();
 
         Application.run(context, "/home");
     });
