@@ -3,14 +3,16 @@
 A new Flutter english application.
 
 ## Getting Started
+本app主要演示的是关于音频播放和字幕同步的功能。
+    播放时自动同步字幕，
+    *点击字幕自动同步到指定音频位置，
+    *拖动音频位置自动定位到字幕位置，
+    播放音频时自动加入缓存，
+    其他涉及简单商品列表布局。
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+本源码实际可以正常运行，需要更多了解到请联系我。
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+![](https://github.com/flutter_english/images/IMG_1198.PNG)
+![](https://github.com/flutter_english/images/IMG_1199.PNG)
