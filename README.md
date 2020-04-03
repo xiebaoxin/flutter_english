@@ -12,7 +12,7 @@ A new Flutter english application.
 
 
 ![github](https://github.com/xiebaoxin/flutter_english/blob/master/images/IMG_1198.PNG "github")
-![github](https://github.com/xiebaoxin/flutter_english/blob/master/images/IMG_1198.PNG "github")
+![github](https://github.com/xiebaoxin/flutter_english/blob/master/images/IMG_1199.PNG "github")
 
 
 ## 本源码实际可以正常运行，需要更多了解到请联系我。
