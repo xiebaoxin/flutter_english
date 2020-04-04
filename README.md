@@ -3,12 +3,14 @@
 A new Flutter english application.
 
 ## Getting Started
-#### 本app主要演示的是关于音频播放和字幕同步的功能。
-#### 播放时自动同步字幕，
+### 本app主要演示的是关于音频播放和字幕同步的功能。
+### 基于商城首页布局，
+#### 播放时自动同步字幕，支持中英文字幕，
 #### *点击字幕自动同步到指定音频位置，
 #### *拖动音频位置自动定位到字幕位置，
 #### 播放音频时自动加入缓存，
 #### 退出音频时记住状态，可以随时重新进入播放页面。
+#### 支持微信分享、微信支付。
 #### 其他涉及简单商品列表布局。
 
 ![github](https://github.com/xiebaoxin/flutter_english/blob/master/images/1200.png "github")
