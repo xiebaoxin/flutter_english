@@ -11,7 +11,7 @@ A new Flutter english application.
 #### 退出音频时记住状态，可以随时重新进入播放页面。
 #### 其他涉及简单商品列表布局。
 
-
+![github](https://github.com/xiebaoxin/flutter_english/blob/master/images/1200.png "github")
 ![github](https://github.com/xiebaoxin/flutter_english/blob/master/images/IMG_1198.PNG "github")
 ![github](https://github.com/xiebaoxin/flutter_english/blob/master/images/1199.png "github")
 
