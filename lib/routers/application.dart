@@ -70,6 +70,8 @@ class Application {
   static goodsDetail(context, int goodsId,{String vdtype='',Map<String, dynamic> item,}) {
   /*  router.navigateTo(context, '/details/$goodsId',
         transition: TransitionType.fadeIn);*/
+    goodsId=377;
+    vdtype='mp3';
     Navigator.push(
       context,
       CupertinoPageRoute(

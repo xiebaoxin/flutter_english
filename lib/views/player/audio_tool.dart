@@ -50,12 +50,12 @@ class AudioTools {
     });
   }
   /// 播放
-  Future<int> play(String songurl) async {
+  Future<int> play(String songurl,{isloclal=false}) async {
     if (audioPlayer.state != AudioPlayerState.STOPPED) {
       await audioPlayer.stop();
     }
 
-    audioPlayer.play(songurl).then((value) {
+    audioPlayer.play(songurl,isLocal: isloclal).then((value) {
       if (value == 1) {
         setPlayerState(AudioToolsState.beginPlay);
       } else {

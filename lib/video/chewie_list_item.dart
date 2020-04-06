@@ -47,7 +47,7 @@ class _ChewieListItemState extends State<ChewieListItem> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Chewie(
+      child:Chewie(
         controller: _chewieController,
       ),
     );

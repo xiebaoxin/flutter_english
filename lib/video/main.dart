@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import 'package:chewie/chewie.dart';
+//import 'package:chewie/chewie.dart';
 import 'chewie_list_item.dart';
 import 'tx_video_player.dart';
 import '../views/webView.dart';
@@ -40,7 +40,8 @@ class videoAppState extends State<videoApp> {
     return MaterialApp(
       title: 'Video Demo',
       home: new Scaffold(
-          body: Center(
+          body:
+          /*Center(
               child: new Chewie(
         controller: ChewieController(
           videoPlayerController: _controller,
@@ -64,8 +65,8 @@ class videoAppState extends State<videoApp> {
             bufferedColor: Colors.lightGreen,
           ),
         ),
-      ))
-          /*    new Center(
+      ))*/
+              new Center(
           child: _controller.value.initialized
           // 加载成功
               ? new AspectRatio(
@@ -80,7 +81,7 @@ class videoAppState extends State<videoApp> {
           child: new Icon(
             _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
           ),
-        ),*/
+        ),
           ),
     );
   }

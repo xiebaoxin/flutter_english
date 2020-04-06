@@ -78,30 +78,30 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
         bottom: true,
         top: true,
         child:Scaffold(
-            backgroundColor: Color(0x3fCCCCCC), // Color.fromRGBO(0, 0, 0, 0),
-            body: _buildGesture()) ) ;
+        backgroundColor: Color(0x3fCCCCCC), // Color.fromRGBO(0, 0, 0, 0),
+        body: _buildGesture()) ) ;
   }
 
   Provide<PlayerProvide> _buildGesture() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide value) {
-          return new GestureDetector(
-            onVerticalDragUpdate: (offset) {
-              _provide.offsetY += offset.delta.dy;
-            },
-            onVerticalDragEnd: (offset) {
-              if (_provide.offsetY > MediaQuery.of(context).size.height * 0.4) {
-                animationToBottom();
-              } else {
-                this.animationToTop();
-              }
-            },
-            child: new Transform.translate(
-              offset: Offset(0, (_provide.offsetY >= 0.0 ? _provide.offsetY : 0.0)),
-              child: _buildView(),
-            ),
-          );
-        });
+      return new GestureDetector(
+        onVerticalDragUpdate: (offset) {
+          _provide.offsetY += offset.delta.dy;
+        },
+        onVerticalDragEnd: (offset) {
+          if (_provide.offsetY > MediaQuery.of(context).size.height * 0.4) {
+            animationToBottom();
+          } else {
+            this.animationToTop();
+          }
+        },
+        child: new Transform.translate(
+          offset: Offset(0, (_provide.offsetY >= 0.0 ? _provide.offsetY : 0.0)),
+          child: _buildView(),
+        ),
+      );
+    });
   }
 
   animationToTop() {
@@ -117,134 +117,134 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
 
   animationToBottom() {
     ges_animation =
-    Tween(begin: _provide.offsetY, end: MediaQuery.of(context).size.height)
-        .animate(ges_curve)
-      ..addListener(() {
-        _provide.offsetY = ges_animation.value;
-      })
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          Navigator.of(context).pop();
-        }
-      });
+        Tween(begin: _provide.offsetY, end: MediaQuery.of(context).size.height)
+            .animate(ges_curve)
+              ..addListener(() {
+                _provide.offsetY = ges_animation.value;
+              })
+              ..addStatusListener((status) {
+                if (status == AnimationStatus.completed) {
+                  Navigator.of(context).pop();
+                }
+              });
     ges_controller.forward(from: 0);
   }
 
   Provide<PlayerProvide> _buildView() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide value) {
-          return _provide.currentSong != null
-              ? _setupContent()
-              : Container(
-            color: this.backgrd,
-            child: new Stack(
-              fit: StackFit.expand,
-              children: <Widget>[
-                Image.asset('images/disc.png'),
+      return _provide.currentSong != null
+          ? _setupContent()
+          : Container(
+              color: this.backgrd,
+              child: new Stack(
+                fit: StackFit.expand,
+                children: <Widget>[
+                  Image.asset('images/disc.png'),
 //                _setupContent()
-              ],
-            ),
-          );
-        });
+                ],
+              ),
+            );
+    });
   }
 
   Provide<PlayerProvide> _setupContent() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-          _txtid = plyprvd.txtid;
-          _goToElement(gettxtpositon());
-          return Scaffold(
-              backgroundColor: Color(0x0a0000000),
-              body: SafeArea(
-                  bottom: true,
+      _txtid = plyprvd.txtid;
+      _goToElement(gettxtpositon());
+      return Scaffold(
+          backgroundColor: Color(0x0a0000000),
+          body: SafeArea(
+              bottom: true,
+              child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  alignment: Alignment.bottomCenter,
                   child: Container(
-                      height: MediaQuery.of(context).size.height,
-                      alignment: Alignment.bottomCenter,
-                      child: Container(
-                          height: 700.0,
-                          width: MediaQuery.of(context).size.width,
-                          decoration: new BoxDecoration(
-                            color: Color(0xffeeeeee),
-                            borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(20)),
-                            border: null,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(0),
-                            child: Stack(
-                              children: <Widget>[
-                                Container(
-                                  padding:
+                      height: 700.0,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: new BoxDecoration(
+                        color: Color(0xffeeeeee),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(20)),
+                        border: null,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(0),
+                        child: Stack(
+                          children: <Widget>[
+                            Container(
+                              padding:
                                   const EdgeInsets.only(top: 60.0, bottom: 125),
-                                  child: Center(
-                                    child: Container(
-                                      color: Color(0xafffffff),
-                                      width: MediaQuery.of(context).size.width,
-                                      child: plyprvd.currentSong.txtlist != null
-                                          ? buildTxt(plyprvd)
-                                          : Text("抱歉，没有对应字幕文件！"),
-                                    ),
-                                  ),
+                              child: Center(
+                                child: Container(
+                                  color: Color(0xafffffff),
+                                  width: MediaQuery.of(context).size.width,
+                                  child: plyprvd.currentSong.txtlist != null
+                                      ? buildTxt(plyprvd)
+                                      : Text("抱歉，没有对应字幕文件！"),
                                 ),
-                                Positioned(
-                                    top: 0,
-                                    left: 0,
-                                    right: 0,
-                                    child: Container(child: _setupTop())),
-                                Positioned(
-                                  bottom: 0,
-                                  left: 0,
-                                  right: 0,
-                                  child: Container(child: _setupBottom()),
-                                )
-                              ],
+                              ),
                             ),
-                          )))));
-        });
+                            Positioned(
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                child: Container(child: _setupTop())),
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: Container(child: _setupBottom()),
+                            )
+                          ],
+                        ),
+                      )))));
+    });
   }
 
   Provide<PlayerProvide> _setupTop() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide value) {
-          String titile =  "播放器";
-          if(_provide.currentSong.video!=null)
-            titile = _provide.currentSong.video['video_name'] ?? "播放器";
-          return Container(
-            child: new Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                new Container(
-                  width: 40,
-                  child: new OpacityTapWidget(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: new Icon(
-                        Icons.headset,
-                        color: this.fontcolor,
-                        size: 27,
-                      ),
-                    ),
+      String titile =  "播放器";
+      if(_provide.currentSong.video!=null)
+        titile = _provide.currentSong.video['video_name'] ?? "播放器";
+      return Container(
+        child: new Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            new Container(
+              width: 40,
+              child: new OpacityTapWidget(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: new Icon(
+                    Icons.headset,
+                    color: this.fontcolor,
+                    size: 27,
                   ),
                 ),
-//                  _provide.currentSong.title ?? ''
-                Expanded(
-                    child: Text(
-                      titile,
-                      softWrap: true, //是否自动换行 false文字不考虑容器大小  单行显示   超出；屏幕部分将默认截断处理
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          color: this.fontcolor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18),
-                      textAlign: TextAlign.center,
-                    )),
-              ],
+              ),
             ),
-          );
-        });
+//                  _provide.currentSong.title ?? ''
+            Expanded(
+                child: Text(
+              titile,
+              softWrap: true, //是否自动换行 false文字不考虑容器大小  单行显示   超出；屏幕部分将默认截断处理
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  color: this.fontcolor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18),
+              textAlign: TextAlign.center,
+            )),
+          ],
+        ),
+      );
+    });
   }
 
   int _jtindx = 0;
@@ -301,35 +301,35 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
                       children: <Widget>[
                         item['eng'].toString().length > 0
                             ? XbxText(item['eng'],
-                            style: _jtindx == i
-                                ? TextStyle(
-                                color: Colors.green, fontSize: 18)
-                                : TextStyle(
-                                color: (i >= (list.length - 2))
-                                    ? Color(0xFF8BBC9D)
-                                    : Colors.black45,
-                                fontSize: 18))
+                                style: _jtindx == i
+                                    ? TextStyle(
+                                        color: Colors.green, fontSize: 18)
+                                    : TextStyle(
+                                        color: (i >= (list.length - 2))
+                                            ? Color(0xFF8BBC9D)
+                                            : Colors.black45,
+                                        fontSize: 18))
                             : SizedBox(
-                          height: 0.1,
-                        ),
+                                height: 0.1,
+                              ),
                         plyprvd.currentSong.video['txt_type'] == 'txt'
                             ? item['cn'].toString().length > 0
-                            ? XbxCnText(item['cn'],
-                            style: _jtindx == i
-                                ? TextStyle(
-                                color: Color(0xFFFF9933),
-                                fontSize: 16)
-                                : TextStyle(
-                                color: (i >= (list.length - 2))
-                                    ? Color(0xFFFF6633)
-                                    : Colors.black45,
-                                fontSize: 16))
+                                ? XbxCnText(item['cn'],
+                                    style: _jtindx == i
+                                        ? TextStyle(
+                                            color: Color(0xFFFF9933),
+                                            fontSize: 16)
+                                        : TextStyle(
+                                            color: (i >= (list.length - 2))
+                                                ? Color(0xFFFF6633)
+                                                : Colors.black45,
+                                            fontSize: 16))
+                                : SizedBox(
+                                    height: 1,
+                                  )
                             : SizedBox(
-                          height: 1,
-                        )
-                            : SizedBox(
-                          height: 0.1,
-                        ),
+                                height: 0.1,
+                              ),
                       ],
                     ),
                   ));
@@ -358,78 +358,78 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
   Provide<PlayerProvide> _setupSlide() {
     return Provide<PlayerProvide>(
         builder: (BuildContext context, Widget child, PlayerProvide plyprvd) {
-          _dollars = _provide.sliderValue();
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              height: 30,
-              margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
-              child: Row(
-                children: <Widget>[
-                  new Text(
-                    ComFunUtil.dealDuration(_provide.songProgress.toString(),
-                        ismil: true),
-                    style: TextStyle(color: this.fontcolor, fontSize: 12),
-                  ),
-                  new Expanded(
-                      child: Slider(
-                        activeColor: this.fontcolor,
-                        inactiveColor: Colors.grey,
-                        value: _dollars,
-                        min: 0,
-                        max: 1,
-                        onChanged: (newValue) {
-                          print('onChanged:$newValue');
-                          if (PlayerTools.instance.currentState !=
-                              AudioToolsState.isEnd) {
-                            if (plyprvd.currentSong.txtlist.length > 0) {
-                              if (newValue == 1) {
-                                //结尾
-                                _txtid = plyprvd.currentSong.txtlist.length - 2;
-                              } else
-                                _txtid = (plyprvd.currentSong.txtlist.length * newValue)
-                                    .toInt();
+      _dollars = _provide.sliderValue();
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          height: 30,
+          margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+          child: Row(
+            children: <Widget>[
+              new Text(
+                ComFunUtil.dealDuration(_provide.songProgress.toString(),
+                    ismil: true),
+                style: TextStyle(color: this.fontcolor, fontSize: 12),
+              ),
+              new Expanded(
+                  child: Slider(
+                activeColor: this.fontcolor,
+                inactiveColor: Colors.grey,
+                value: _dollars,
+                min: 0,
+                max: 1,
+                onChanged: (newValue) {
+                  print('onChanged:$newValue');
+                  if (PlayerTools.instance.currentState !=
+                      AudioToolsState.isEnd) {
+                    if (plyprvd.currentSong.txtlist.length > 0) {
+                      if (newValue == 1) {
+                        //结尾
+                        _txtid = plyprvd.currentSong.txtlist.length - 2;
+                      } else
+                        _txtid = (plyprvd.currentSong.txtlist.length * newValue)
+                            .toInt();
 
-                              _goToElement(gettxtpositon());
-                              plyprvd.settxtid = _txtid;
-                            }
-                          }
-                        },
-                        onChangeStart: (startValue) {
-                          print('onChangeStart:$startValue');
-                        },
-                        onChangeEnd: (endValue) {
-                          print('onChangeEnd:$endValue');
-                          if (PlayerTools.instance.currentState !=
-                              AudioToolsState.isEnd) {
-                            if (plyprvd.currentSong.txtlist.length > 0) {
-                              if (endValue == 1) {
-                                //结尾
-                                _txtid = plyprvd.currentSong.txtlist.length - 2;
-                              } else
-                                _txtid = (plyprvd.currentSong.txtlist.length * endValue)
-                                    .toInt();
-                              _goToElement(gettxtpositon());
-                              plyprvd.settxtid = _txtid;
-                            }
-                          }
-                        },
-                        label: '$_dollars dollars',
-                        semanticFormatterCallback: (newValue) {
+                      _goToElement(gettxtpositon());
+                      plyprvd.settxtid = _txtid;
+                    }
+                  }
+                },
+                onChangeStart: (startValue) {
+                  print('onChangeStart:$startValue');
+                },
+                onChangeEnd: (endValue) {
+                  print('onChangeEnd:$endValue');
+                  if (PlayerTools.instance.currentState !=
+                      AudioToolsState.isEnd) {
+                    if (plyprvd.currentSong.txtlist.length > 0) {
+                      if (endValue == 1) {
+                        //结尾
+                        _txtid = plyprvd.currentSong.txtlist.length - 2;
+                      } else
+                        _txtid = (plyprvd.currentSong.txtlist.length * endValue)
+                            .toInt();
+                      _goToElement(gettxtpositon());
+                      plyprvd.settxtid = _txtid;
+                    }
+                  }
+                },
+                label: '$_dollars dollars',
+                semanticFormatterCallback: (newValue) {
 //                  print(
 //                      "-semanticFormatterCallback+=======--${newValue}- ${_txtid}");
-                          return '${newValue.round()} dollars';
-                        },
-                      )),
-                  new Text(
-                    plyprvd.songDuration(),
-                    style: TextStyle(color: this.fontcolor, fontSize: 12),
-                  ),
-                ],
+                  return '${newValue.round()} dollars';
+                },
+              )),
+              new Text(
+                plyprvd.songDuration(),
+                style: TextStyle(color: this.fontcolor, fontSize: 12),
               ),
-            ),
-          );
-        });
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   Widget _setupControl() {
@@ -530,7 +530,7 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     ges_controller = new AnimationController(
         duration: const Duration(milliseconds: 300), vsync: this);
     ges_curve =
-    new CurvedAnimation(parent: ges_controller, curve: Curves.linear);
+        new CurvedAnimation(parent: ges_controller, curve: Curves.linear);
 
     _scrollController = new ScrollController();
     _scrollController.addListener(() {
@@ -628,14 +628,14 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     List<String> liststr = Str2Item(text);
     return Column(
         children: liststr.map((String str) {
-          return Container(
-            height: _rowhight,
-            child: Text(
-              str,
-              style: style,
-            ),
-          );
-        }).toList());
+      return Container(
+        height: _rowhight,
+        child: Text(
+          str,
+          style: style,
+        ),
+      );
+    }).toList());
   }
 
   Widget XbxCnText(String text, {TextStyle style = null}) {
@@ -643,11 +643,11 @@ class _FullPlayerContentState extends State<_FullPlayerContentPage>
     List<String> liststr = StrCn2Item(text);
     return Column(
         children: liststr.map((String str) {
-          return Text(
-            str,
-            style: style,
-          );
-        }).toList());
+      return Text(
+        str,
+        style: style,
+      );
+    }).toList());
   }
 
   /**

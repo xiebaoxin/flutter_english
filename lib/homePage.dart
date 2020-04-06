@@ -15,6 +15,8 @@ import 'package:provide/provide.dart';
 import './data/base.dart';
 import 'main_provide.dart';
 
+import 'agor/pages/index.dart';
+
 class App extends PageProvideNode {
   App() {
     mProviders.provide(Provider<MainProvide>.value(MainProvide.instance));
@@ -63,7 +65,7 @@ class _AppState extends State<_AppContentPage>
   var _pages;
 
   // 菜单文案'商城',
-  var tabTitles = ['首页', '分享', '我的'];
+  var tabTitles = ['首页', /*'互动',*/'分享', '我的'];
 
   // 生成image组件
   Image getTabImage(path) {
@@ -81,7 +83,7 @@ class _AppState extends State<_AppContentPage>
           getTabImage('images/icon/icon_home_n.png'),
           getTabImage('images/icon/icon_home_s.png')
         ],
-        /* [
+       /* [
           getTabImage('images/icon/icon_card_n.png'),
           getTabImage('images/icon/icon_card_s.png')
         ],*/
@@ -101,6 +103,7 @@ class _AppState extends State<_AppContentPage>
       sharePage(
         ishome: true,
       ),
+//      AgoraIndexPage(),
 //       MyfaveratePage(),
 /*    Category(
        rightListViewHeight: ScreenUtil.screenHeight - extralHeight,

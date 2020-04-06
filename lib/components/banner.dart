@@ -144,7 +144,7 @@ class SwipperBanner extends StatelessWidget {
               width: width,
               child: Center(
                 child:    Image.asset(
-                  'images/logo-灰.png',),
+                  'images/logo_b.png',),
               ),
             ),
             placeholder: (context, url) =>  Loading(),

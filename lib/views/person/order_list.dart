@@ -27,7 +27,7 @@ class OrderListPageState extends State<OrderListPage>
     Tab(text: "全部"),
     Tab(text: "待付款"),
     Tab(text: "待发货"),
-    Tab(text: "待收获"),
+    Tab(text: "待收货"),
     Tab(text: "已完成"),
   ];
   var _types = ["", "WAITPAY", "WAITSEND", "WAITRECEIVE", "FINISH"];

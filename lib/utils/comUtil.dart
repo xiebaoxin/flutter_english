@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
+//import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
 import '../globleConfig.dart';
 import '../components/keyboard/keyboard_main.dart';
 
@@ -71,7 +71,7 @@ class ComFunUtil {
 
   static bool isChinaPhoneLegal(String str) {
     return new RegExp(
-            '^((13[0-9])|(15[^4])|(166)|(17[0-8])|(18[0-9])|(19[8-9])|(147,145))\\d{8}\$')
+        '^((13[0-9])|(15[^4])|(166)|(17[0-8])|(18[0-9])|(19[8-9])|(147)|(146)|(145))\\d{8}\$')
         .hasMatch(str);
   }
 
@@ -102,6 +102,7 @@ class ComFunUtil {
   static double setPercentage(percentage, context) {
     return MediaQuery.of(context).size.width * percentage;
   }
+/*
 
   /// Display date picker.
   static void showDatePicker(context, Function callback) {
@@ -127,10 +128,12 @@ class ComFunUtil {
       dateFormat: 'yyyy-mm-dd',
       onChanged: (year, month, date) {
 //        debugPrint('onChanged date: $year-$month-$date');
+*/
 /*        if (!showTitleActions) {
           callback(
               '$year-${month.toString().padLeft(2, '0')}-${date.toString().padLeft(2, '0')}');
-        }*/
+        }*//*
+
       },
       onConfirm: (year, month, date) {
         callback(
@@ -138,6 +141,7 @@ class ComFunUtil {
       },
     );
   }
+*/
 
   void showSnackDialog<T>({BuildContext context, Widget child}) {
     final GlobalKey<ScaffoldState> _scaffoldKey1 = GlobalKey<ScaffoldState>();

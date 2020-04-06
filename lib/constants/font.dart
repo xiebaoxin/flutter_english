@@ -15,7 +15,7 @@ class KfontConstant {
   );
 
   static TextStyle defaultSubStyle = TextStyle(
-    fontSize:10,
+    fontSize:12,
     color: Colors.black45,
     decoration: TextDecoration.none,
   );

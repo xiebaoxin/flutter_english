@@ -114,7 +114,7 @@ class ContactsDemoState extends State<DetailsPage> {
                                                   crossAxisAlignment: CrossAxisAlignment.center,
                                                   children: <Widget>[
                                                     Image.asset(
-                                                      'images/logo-灰.png',),
+                                                      'images/logo_b.png',),
                                                     Text("图片无法显示",style: KfontConstant.defaultSubStyle,)
                                                   ],
                                                 ),

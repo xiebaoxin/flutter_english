@@ -91,7 +91,7 @@ class sharePageState extends State<sharePage>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Image.asset(
-                      'images/logo-灰.png',),
+                      'images/logo_b.png',),
                     Text("图片无法显示")
                   ],
                 ),

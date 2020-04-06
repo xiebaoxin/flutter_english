@@ -363,7 +363,7 @@ class HomeIndexPageState extends State<HomeIndexPage>
                   );
                 },
               ),
-              FutureBuilder(
+             /* FutureBuilder(
                 future: _futureMessageBuilderFuture,
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   //snapshot就是_calculation在时间轴上执行过程的状态快照
@@ -415,7 +415,7 @@ class HomeIndexPageState extends State<HomeIndexPage>
 //                    return new Text('Result: ${snapshot.data}');
                   }
                 },
-              ),
+              ),*/
               InkWell(
                 child: Text(
                   "更多 ",
@@ -642,6 +642,6 @@ class HomeIndexPageState extends State<HomeIndexPage>
 
     super.initState();
     _futureBannerBuilderFuture = _getbannerdata();
-    _futureMessageBuilderFuture = _getNotice();
+//    _futureMessageBuilderFuture = _getNotice();
   }
 }

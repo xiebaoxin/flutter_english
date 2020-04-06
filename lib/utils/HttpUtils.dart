@@ -237,7 +237,7 @@ class HttpUtils {
       {String method = POST,
       BuildContext context,
       bool withToken = false}) async {
-    print("=-=-=-=-=-dioappi=-=-=-=-=--");
+    print("=-=-=-=-=-dioappi=$url-=-=-=-=--");
     if (params != null && params.isNotEmpty) {
       print("<net> params :" + params.toString());
     }
@@ -275,7 +275,8 @@ class HttpUtils {
         if(nrespon["config"]!=null)
           await modelw.setConfig(nrespon["config"]);
       }
-      print("==================dioapp--$url----end=================================");
+//      print("==================dioapp--$url----end=================================");
+//      print(nrespon);
       return nrespon;
 //      Entity entity = Entity.fromJson(map);
       return response.data;
@@ -287,6 +288,8 @@ class HttpUtils {
       } else {
         errorResponse = new Response(statusCode: 666);
       }
+
+      print(errorResponse);
       /*   // 超时
       if (error.type == DioErrorType.CONNECT_TIMEOUT) {
         errorResponse.statusCode = YYResultCode.NETWORK_TIMEOUT;      }

@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 import 'audio_tool.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import '../../main_provide.dart';
 import 'package:rxdart/rxdart.dart';
 import '../../model/song.dart';
@@ -83,11 +85,12 @@ class PlayerTools {
   }
 
   // 设置数据源
-  setSong(Song song) {
+  setSong(Song song) async{
     this.stop();
     this._currentState=AudioToolsState.isEnd;
     this._currentState=AudioToolsState.isStoped;
     this._currentSong = song;
+
 
     this.play(song);
     MainProvide.instance.showMini = true;
@@ -97,7 +100,14 @@ class PlayerTools {
   Future<int> play(Song song) async {
     this.currentSong = song;
     String songurl = song.url;
-    return audio.play(songurl);
+
+    File dd=await DefaultCacheManager().getSingleFile(songurl);
+    songurl=dd.path;
+ /*   print(songurl);
+    print("----------55555----------");
+*/
+
+    return audio.play(songurl,isloclal: true);
   }
 
   /// 暂停

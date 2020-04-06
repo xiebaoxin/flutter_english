@@ -17,7 +17,9 @@ import '../routers/application.dart';
 import '../model/globle_model.dart';
 import '../model/buy_model.dart';
 import '../model/goods.dart';
-import '../globleConfig.dart';
+import '../components/tag_component.dart';
+import '../components/video_detail_item_component.dart';
+import 'package:video_player/video_player.dart';
 import 'sharePage.dart';
 import 'cart/cart.dart';
 import 'person/recharge.dart';
@@ -51,26 +53,26 @@ class _VideoDetailPageState extends State<VideoDetailPage> with AutomaticKeepAli
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _futureBuilderFuture,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        //snapshot就是_calculation在时间轴上执行过程的状态快照
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-            return new Text(
-                'Press button to start'); //如果_calculation未执行则提示：请点击开始
-          case ConnectionState.waiting:
-            return Loading();
-          default: //如果_calculation执行完毕
-            if (snapshot.hasError) //若_calculation执行出现异常
-              return new Text('Error: ${snapshot.error}');
-            else {
-              if (snapshot.hasData) {
-                Map<String, dynamic> fdata=snapshot.data;
-                if(fdata['goods'] !=null) {
-                  _goodsinfo = fdata['goods'];
-                  return    Material(
-                      child:  Scaffold(
-                        body:NestedScrollView(
+            future: _futureBuilderFuture,
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              //snapshot就是_calculation在时间轴上执行过程的状态快照
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                  return new Text(
+                      'Press button to start'); //如果_calculation未执行则提示：请点击开始
+                case ConnectionState.waiting:
+                  return Loading();
+                default: //如果_calculation执行完毕
+                  if (snapshot.hasError) //若_calculation执行出现异常
+                    return new Text('Error: ${snapshot.error}');
+                  else {
+                    if (snapshot.hasData) {
+                      Map<String, dynamic> fdata=snapshot.data;
+                      if(fdata['goods'] !=null) {
+                        _goodsinfo = fdata['goods'];
+                        return    Material(
+                            child:  Scaffold(
+                            body:NestedScrollView(
                           headerSliverBuilder:
                               (BuildContext context, bool innerBoxIsScrolled) {
                             return <Widget>[
@@ -121,8 +123,8 @@ class _VideoDetailPageState extends State<VideoDetailPage> with AutomaticKeepAli
                             ];
                           },
                           body: VideoDetailContent(fdata, _isbuyed),
-                        ),
-                        /*  floatingActionButton: FloatingActionButton(
+                            ),
+                            /*  floatingActionButton: FloatingActionButton(
                                 backgroundColor:_isbuyed?Colors.green: Colors.deepOrange,
                                 child: Icon(_isbuyed ?Icons.lock_open:Icons.lock),
                                 onPressed: ()async{
@@ -150,19 +152,19 @@ class _VideoDetailPageState extends State<VideoDetailPage> with AutomaticKeepAli
 
                                 },
                               ),*/
-                      )
-                  );
-                }
-                else
-                  return Text('Error: ${fdata['msg']}');
-              } else {
-                return Center(child: Container(child: Loading()) //Text("加载中"),
-                );
+                            )
+                        );
+                      }
+                      else
+                        return Text('Error: ${fdata['msg']}');
+                    } else {
+                      return Center(child: Container(child: Loading()) //Text("加载中"),
+                      );
+                    }
+                  }
               }
-            }
-        }
-      },
-    );
+            },
+          );
 //          bottomNavigationBar:buildbottomsheet(context,_isloaddate)
   }
 
@@ -469,71 +471,70 @@ class VideoDetailContent extends StatelessWidget {
       videoinfo['vd_level']=0;
 
     return  ListView.builder(
-      itemCount: retvdlistinfo.length,
-      itemExtent: 38,
-      itemBuilder: (BuildContext context, int index) {
-        Map<String, dynamic> item = retvdlistinfo[index];
-        return Container(
-          margin: EdgeInsets.symmetric(horizontal: 8.0),
-          child: ListTile(
-              title: Text("${(index+1).toString()}:${item['video_name']??"集"}",
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color:(videoinfo['vd_level']>0 && videoinfo['vd_level']<(index+1))? Colors.black26: Colors.black54)),
-              onTap:() async{
+          itemCount: retvdlistinfo.length,
+          itemExtent: 38,
+          itemBuilder: (BuildContext context, int index) {
+            Map<String, dynamic> item = retvdlistinfo[index];
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 8.0),
+              child: ListTile(
+                  title: Text("${(index+1).toString()}:${item['video_name']??"集"}",
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color:(videoinfo['vd_level']>0 && videoinfo['vd_level']<(index+1))? Colors.black26: Colors.black54)),
+                  onTap:() async{
 
-//                print("---index${index}--");
-//                print(item);
+                    print("---index${index}--");
 
-                if( videoinfo['vd_level']>0 && videoinfo['vd_level']<(index+1)){
-                  checkpay(context);
-                }
-                else{
-                  if(videoinfo['videotype']=='web'){
-                    Application.run(context, "/web",url: item['video_url'],title: item['video_name'],withToken: false);
+                    if( videoinfo['vd_level']>0 && videoinfo['vd_level']<(index+1)){
+                     checkpay(context);
+                    }
+                    else{
+                      if(videoinfo['videotype']=='web'){
+                        Application.run(context, "/web",url: item['video_url'],title: item['video_name'],withToken: false);
 
-                  }else if(videoinfo['videotype']=='mp4'){
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => xiePlayer(url:item['video_url'],type: videoinfo['videotype'],video: item,)
-                      ),
-                    );
-                  }else{
-                    await DataUtils.getmp3txt(item['video_id'],context: context).then((txlist) {
+                      }else if(videoinfo['videotype']=='mp4'){
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => xiePlayer(url:item['video_url'],type: videoinfo['videotype'],video: item,)
+                          ),
+                        );
+                      }else{
+                        await DataUtils.getmp3txt(item['video_id'],context: context).then((txlist) {
 
-                      PlayerTools.instance.setSong(Song(
-                          id:item['video_id'],
-                          vdlist:retvdlistinfo,
-                          url: item['video_url'],
-                          video: item,
-                          info: videoinfo,
-                          txtlist: txlist,
-                          preid: index>0 ? retvdlistinfo[index-1]['video_id']:0,
-                          nextid:index<(retvdlistinfo.length-1)? retvdlistinfo[index+1]['video_id']:retvdlistinfo[index]['video_id']));
-                      Navigator.pushReplacement(context, PageRouteBuilder(
-                          opaque: false,
-                          pageBuilder: (BuildContext context, _, __) {
-                            return FullPlayerPage();
-                          },
-                          transitionsBuilder: (___, Animation<double> animation, ____, Widget child) {
-                            return SlideTransition(
-                              position: Tween<Offset>(
-                                  begin: Offset(0.0, 1.0),
-                                  end:Offset(0.0, 0.0)
-                              ).animate(CurvedAnimation(
-                                  parent: animation,
-                                  curve: Curves.fastOutSlowIn
-                              )),
-                              child: child,
-                            );
-                          }
-                      ));
-                    });
-                  }
+                          PlayerTools.instance.setSong(Song(
+                              id:item['video_id'],
+                              vdlist:retvdlistinfo,
+                              url: item['video_url'],
+                              video: item,
+                              info: videoinfo,
+                              txtlist: txlist,
+                              preid: index>0 ? retvdlistinfo[index-1]['video_id']:0,
+                              nextid:index<(retvdlistinfo.length-1)? retvdlistinfo[index+1]['video_id']:retvdlistinfo[index]['video_id']));
+                          Navigator.pushReplacement(context, PageRouteBuilder(
+                              opaque: false,
+                              pageBuilder: (BuildContext context, _, __) {
+                                return FullPlayerPage();
+                              },
+                              transitionsBuilder: (___, Animation<double> animation, ____, Widget child) {
+                                return SlideTransition(
+                                  position: Tween<Offset>(
+                                      begin: Offset(0.0, 1.0),
+                                      end:Offset(0.0, 0.0)
+                                  ).animate(CurvedAnimation(
+                                      parent: animation,
+                                      curve: Curves.fastOutSlowIn
+                                  )),
+                                  child: child,
+                                );
+                              }
+                          ));
+                        });
+                      }
 
 //                    await globleModel().setVideoModel(item['video_url'], item, videoinfo);
-                  /*    Navigator.push(
+                      /*    Navigator.push(
                      context,
                      MaterialPageRoute(
 //                      builder: (context) =>videoinfo['videotype']=='mp4'? xiePlayer(url:item['video_url'],type: videoinfo['videotype'],video: item,):AudioPlayerWuthTxt(url: item['video_url'],video: item,)//VideoDetailPage(videoinfo['goods_id'],vdurl:item['video_url'].toString(),type:videoinfo['videotype'] ,),
@@ -541,13 +542,13 @@ class VideoDetailContent extends StatelessWidget {
 
                      ),
                    );*/
-                }
+                    }
 
-              }
-          ),
+                  }
+              ),
+            );
+          },
         );
-      },
-    );
 
   }
 
@@ -590,9 +591,7 @@ class VideoDetailContent extends StatelessWidget {
                     },
                   ),
                   Divider(),
-            Visibility(
-              visible: GlobalConfig.ios_show,
-              child:ListTile(
+                  ListTile(
                     title: Text("充值解锁"),
                     subtitle: Text("马上充值，随时解锁更多内容",style: TextStyle(fontSize: 10),),
                     onTap: () {
@@ -611,38 +610,36 @@ class VideoDetailContent extends StatelessWidget {
                                 }));
                           });
                     },
-                  )),
-                  Divider(),
-            Visibility(
-              visible: GlobalConfig.ios_show,
-              child:ListTile(
-                    title: Text("马上解锁"),
-                    subtitle: Text("立即支付或积分兑换，马上解锁",style: TextStyle(fontSize: 10),),
-                    onTap: () {
-                      Application()
-                          .checklogin(
-                          context,
-                              () async {
+                  ),
+              Divider(),
+              ListTile(
+                title: Text("马上解锁"),
+                subtitle: Text("立即支付或积分兑换，马上解锁",style: TextStyle(fontSize: 10),),
+                onTap: () {
+                  Application()
+                      .checklogin(
+                      context,
+                          () async {
                             if (await DialogUtils().showMyDialog(context, '需要购买或换购才能收听或观看，是否去购买?')) {
-                              GoodInfo _mgoodsinfo = GoodInfo.fromJson(video);
-                              BuyModel param = BuyModel(
-                                  goodsinfo: _mgoodsinfo,
-                                  goods_id: _mgoodsinfo.goodsId.toString(),
-                                  goods_num: "1",
-                                  imgurl: _mgoodsinfo.comPic,
-                                  goods_price:
-                                  double.tryParse(_mgoodsinfo.presentPrice));
+                                GoodInfo _mgoodsinfo = GoodInfo.fromJson(video);
+                                BuyModel param = BuyModel(
+                                    goodsinfo: _mgoodsinfo,
+                                    goods_id: _mgoodsinfo.goodsId.toString(),
+                                    goods_num: "1",
+                                    imgurl: _mgoodsinfo.comPic,
+                                    goods_price:
+                                    double.tryParse(_mgoodsinfo.presentPrice));
 
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
 //                            builder: (context) => BuyPage(param),
-                                    builder: (context) => GoodsBuyPage(param),
-                                  ));
+                                      builder: (context) => GoodsBuyPage(param),
+                                    ));
                             }
-                          });
-                    },
-                  )),
+                      });
+                },
+              ),
 
 
                   Divider(),

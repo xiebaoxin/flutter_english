@@ -227,6 +227,7 @@ class LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
+          SizedBox(width: 50,),
           InkWell(
             onTap: () {
               Navigator.push(
@@ -251,15 +252,22 @@ class LoginPageState extends State<LoginPage> {
   Widget _buildWeinxinButtonField() {
     return Padding(
         padding: new EdgeInsets.all(10.0),
-        child: IconButton(
-          iconSize: 30,
-            icon: Image.asset(
-              "images/icon_wechat.png",
-              fit: BoxFit.fill,
-            ),
-            onPressed:_loading?null: () {
-              fluwx.sendAuth(scope: "snsapi_userinfo", state: "wechat_sdk_demo_test");
-            }));
+        child: Visibility(
+            visible: GlobalConfig.ios_show,
+            child: Column(
+          children: <Widget>[
+            IconButton(
+                iconSize: 30,
+                icon: Image.asset(
+                  "images/icon_wechat.png",
+                  fit: BoxFit.fill,
+                ),
+                onPressed:_loading?null: () {
+                  fluwx.sendAuth(scope: "snsapi_userinfo", state: "wechat_sdk_demo_test");
+                }),
+            Text("微信登录")
+          ],
+        )));
   }
 
   @override

@@ -55,7 +55,7 @@ class PlayerProvide extends BaseProvide {
   int _txtid = 0;
   int get songProgress => _songProgress;
   int get txtid {
-  if ((PlayerTools.instance.currentState == AudioToolsState.isPlaying ||
+  if (this.currentSong.video!=null && (PlayerTools.instance.currentState == AudioToolsState.isPlaying ||
         PlayerTools.instance.currentState == AudioToolsState.isPaued)) {
 
       int  value = Duration(milliseconds: _songProgress).inSeconds;

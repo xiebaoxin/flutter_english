@@ -1,26 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
-import 'package:marquee_flutter/marquee_flutter.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:qrcode_reader/qrcode_reader.dart';
-import 'package:flutter/services.dart';
-import '../components/SliveTabbarDelege.dart';
-import '../utils/screen_util.dart';
-import '../utils/DialogUtils.dart';
-import '../utils/HttpUtils.dart';
-import '../constants/index.dart';
-import '../model/globle_model.dart';
-import '../globleConfig.dart';
 import '../utils/dataUtils.dart';
-import '../routers/application.dart';
-import '../model/userinfo.dart';
-import '../components/banner.dart';
-import '../data/home.dart';
-import '../model/index_model.dart';
-import '../views/search/search.dart';
-import 'sharePage.dart';
-import 'message_page.dart';
 import 'goodsList.dart';
 
 class CategoryPage extends StatefulWidget {
